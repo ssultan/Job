@@ -171,6 +171,50 @@ class Utility: NSObject {
         return nil
     }
     
+    class func moveImageToNewDirectory(forSourceFolder srcFolder: String, withDestinationFolder destFolder:String) {
+        let docList = DBDocumentServices.getDocumentList(forInstanceId: srcFolder)
+        
+        for document in docList {
+            if let sourcePath = getPhotoParentDir(imgName: document.originalName!, folderName: srcFolder), let destinationPath = getInstanceFolder(folderName: destFolder) {
+                if secureCopyItem(at: sourcePath.appendingPathComponent(document.originalName!), to: destinationPath.appendingPathComponent(document.originalName!)) {
+                    self.createThumbnailFolder(forDirectory: destinationPath)
+                    
+                    let srcThumbFolder = sourcePath.appendingPathComponent(Constants.ThumbImagesFolder).appendingPathComponent(document.originalName!)
+                    let destThumbFolder = destinationPath.appendingPathComponent(Constants.ThumbImagesFolder).appendingPathComponent(document.originalName!)
+                    if !secureCopyItem(at: srcThumbFolder, to: destThumbFolder) {
+                        print("************* Failed to copy thumbnail photo.")
+                    }
+                }
+            }
+        }
+        deleteInstanceDirectory(instanceId: srcFolder)
+    }
+    
+    class func createThumbnailFolder(forDirectory directory: URL) {
+        // Create Thubmnail Directory if not exist.
+        if !FileManager.default.fileExists(atPath: directory.appendingPathComponent(Constants.ThumbImagesFolder).path) {
+            do {
+                try FileManager.default.createDirectory(at: directory.appendingPathComponent(Constants.ThumbImagesFolder), withIntermediateDirectories: false, attributes: nil)
+            } catch {
+                print("Failed to Create directory path")
+                return
+            }
+        }
+    }
+    
+    class func secureCopyItem(at srcURL: URL, to dstURL: URL) -> Bool {
+        do {
+            if FileManager.default.fileExists(atPath: dstURL.path) {
+                try FileManager.default.removeItem(at: dstURL)
+            }
+            try FileManager.default.moveItem(at: srcURL, to: dstURL)
+        } catch (let error) {
+            print("Cannot copy item at \n\(srcURL) to => => \n\(dstURL); \n\nERROR: \(error)")
+            return false
+        }
+        return true
+    }
+    
     
     // Save document in application document folder after converting them into JPEG format
     class func saveDocumentInDocumentDirectory(document: UIImage, docName: String, folderName:String, imgMetaDataDic: NSDictionary, lossyData:Bool) -> Data? {

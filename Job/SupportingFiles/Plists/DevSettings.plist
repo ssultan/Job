@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>HUB_NAME</key>
+	<string>JobNotificationsHub</string>
+	<key>CONNECTION_STRING</key>
+	<string>Endpoint=sb://clearthread-jobnotifications.servicebus.windows.net/;SharedAccessKeyName=DefaultListenSharedAccessSignature;SharedAccessKey=B3iItn/CK1j9rJjsKWIiS8nlMIvJiXvdyPTbzy1PJRc=</string>
+</dict>
+</plist>

@@ -447,6 +447,7 @@ class TaskViewController: RootViewController, TaskViewDelegate {
         //Appsee.addScreenAction(StringConstants.AppseeScreenAction.COMMENT_BTN_CLICKED)
         let commentView = self.storyboard!.instantiateViewController(withIdentifier: "CommentsVC") as! CommentsViewController
         commentView.answerModel = currentFB?.answer
+        commentView.taskDelegate = self.taskChildView as? TaskDetailsDelegate
         self.navigationController?.pushViewController(viewController: commentView, direction: NavPushDirection.Bottom)
     }
     

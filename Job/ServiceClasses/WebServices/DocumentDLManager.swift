@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import FirebaseAnalytics
 
 class DocumentDLManager: BaseService {
     
@@ -42,6 +43,28 @@ class DocumentDLManager: BaseService {
                         }
                     }
                 }
+            }
+        }
+    }
+    
+    // MARK: - Delete a document
+    // Request to delete specific photo document from server, since that photo user deleted from client side
+    class func deleteSignatureFromServer(documentId: String) {
+        
+        //DELETE http://api.staging.clearthread.com/api/MobileDocument/{client_GUID}
+        let docDeleteURL = AppInfo.sharedInstance.httpType + AppInfo.sharedInstance.baseURL + Constants.APIServices.DocumentDeleteUpdateAPI + documentId
+        print("Photo Delete URL: ", docDeleteURL)
+        
+        // For deleting a document we don't need to send the parameters
+        BaseService().fetchData(.delete, serviceURL: docDeleteURL, params: nil) { (jsonRes, statusCode, isSucceeded) in
+
+            if (statusCode == HttpRespStatusCodes.HTTP_200_OK.rawValue) {
+                print("Delete successfully")
+            }
+            else {
+                print("Failed to delete photo: ", statusCode)
+                Analytics.logEvent("\(StringConstants.AppseeEventMessages.Failed_To_Delete_Img_Device)\(AppInfo.sharedInstance.username ?? "")",
+                                   parameters: ["DocumentId": documentId])
             }
         }
     }

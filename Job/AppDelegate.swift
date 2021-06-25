@@ -20,15 +20,23 @@ import Alamofire
 import FirebaseCrashlytics
 import UserNotifications
 import SlideMenuControllerSwift
+import WindowsAzureMessaging
+import UserNotificationsUI
 
 var SessionTimeout = 60
 var SessionTimeoutWObio = 180
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate { //, AppseeDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, MSNotificationHubDelegate, UNUserNotificationCenterDelegate { //, AppseeDelegate {
     
     var window: UIWindow?   
     var slideMenuController: SlideMenuController!
+    
+    private var hubName: String?
+    private var connectionString: String?
+    private var notificationPresentationCompletionHandler: Any?
+    private var notificationResponseCompletionHandler: Any?
+    
     
     //MARK: - Application Life-cycle
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
@@ -148,30 +156,82 @@ class AppDelegate: UIResponder, UIApplicationDelegate { //, AppseeDelegate {
         }
     }
     
+    // MARK: - Azure Notification Hub
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        print("Device Token: ", deviceToken.hexString)
+        AppInfo.sharedInstance.apnsDeviceToken = deviceToken.hexString
+    }
+    
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        print("Failed to register: APNS token")
+    }
+    
+    func notificationHub(_ notificationHub: MSNotificationHub, didRequestAuthorization granted: Bool, error: Error?) {
+        
+        if granted {
+            print("Granted Azure Push Notification")
+        } else {
+            print("Error registering Azure Push Notification")
+        }
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        self.notificationResponseCompletionHandler = completionHandler;
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        self.notificationPresentationCompletionHandler = completionHandler;
+    }
+    
+    func notificationHub(_ notificationHub: MSNotificationHub, didReceivePushNotification message: MSNotificationHubMessage) {
+        let userInfo = ["message": message]
+        NotificationCenter.default.post(name: NSNotification.Name("MessageReceived"), object: nil, userInfo: userInfo)
+        
+        if (UIApplication.shared.applicationState == .background) {
+            NSLog("Notification received in the background")
+        }
+        
+        if (notificationResponseCompletionHandler != nil) {
+            NSLog("Tapped Notification")
+        } else {
+            NSLog("Notification received in the foreground")
+        }
+        
+        // Call notification completion handlers.
+        if (notificationResponseCompletionHandler != nil) {
+            (notificationResponseCompletionHandler as! () -> Void)()
+            notificationResponseCompletionHandler = nil
+        }
+        if (notificationPresentationCompletionHandler != nil) {
+            (notificationPresentationCompletionHandler as! (UNNotificationPresentationOptions) -> Void)([])
+            notificationPresentationCompletionHandler = nil
+        }
+    }
+    
     
     // MARK: -
     func add3rdParyApiKeys() {
-        setGlobalAppearence();
-        
+        setGlobalAppearence()
         FirebaseApp.configure()
+        Analytics.setAnalyticsCollectionEnabled(true)
+        
+        // Register Azure notification hub
+        if let path = Bundle.main.path(forResource: "DevSettings", ofType: "plist") {
+            if let configValues = NSDictionary(contentsOfFile: path) {
+                connectionString = configValues["CONNECTION_STRING"] as? String
+                hubName = configValues["HUB_NAME"] as? String
+                
+                if (!(connectionString ?? "").isEmpty && !(hubName ?? "").isEmpty)
+                {
+                    UNUserNotificationCenter.current().delegate = self;
+                    MSNotificationHub.setDelegate(self)
+                    MSNotificationHub.start(connectionString: connectionString!, hubName: hubName!)
+                }
+            }
+        }
         
         #if DEBUG || STAGE
-        //Appsee.start(Constants.Keys.AppSeeKey)
-        //Appsee.setDelegate(self)
-        
-//        Fabric.with([Crashlytics.self])
-//        Fabric.sharedSDK().debug = false
-        
-        ///bin/sh
-        //"${PODS_ROOT}/Fabric/run" b5f7b3415e6727fd78152e715f7a7e7f4d4a1020 3fc466a346661da83cd01f7f4c0df09220bfa2ab3cf0e8f54cbbdeb93c06b34a
-
         #else
-        //Appsee.start(Constants.Keys.AppSeeKey)
-        //Appsee.setDelegate(self)
-        
-        //FirebaseApp.configure()
-//        Fabric.with([Crashlytics.self])
-        
         #endif
     }
     

@@ -114,14 +114,6 @@ class PopupWTxbInputView: UIViewController, UITextFieldDelegate {
         isChecked = false
         checkBoxNoBC.setBackgroundImage(UIImage(named: "ChkBoxBlck"), for: .normal)
         
-        // if the barcode text we received from the parent class is 'No Code', that means we we selected the checkbox before. Initially it would be empty string. that way we know that the previous manually typed values
-        if txbStr == NO_CODE {
-            isChecked = true
-            checkBoxNoBC.setBackgroundImage(UIImage(named: "ChkBoxBlckSelected"), for: .normal)
-        } else if txbStr == "" {
-            userEntryBox.becomeFirstResponder()
-        }
-        
         if currentPopupType == PopupWithTxbType.DeleteIntance {
             checkBoxLabel.isHidden = true
             checkBoxLabel.text = ""
@@ -131,13 +123,8 @@ class PopupWTxbInputView: UIViewController, UITextFieldDelegate {
             acceptBt.setTitle(StringConstants.ButtonTitles.BTN_DELETE, for: .normal)
             userEntryBox.placeholder = StringConstants.ButtonTitles.BTN_DELETE
             userEntryBox.keyboardType = UIKeyboardType.alphabet
+            userEntryBox.autocorrectionType = .no
             titleImg.image = UIImage(named: WarningIcon)
-            
-            // if the barcode text we received from the parent class is 'No Code', that means we we selected the checkbox before. Initially it would be empty string. that way we know that the previous manually typed values
-            if txbStr == NO_CODE {
-                isChecked = true
-                checkBoxNoBC.setBackgroundImage(UIImage(named: "ChkBoxBlckSelected"), for: .normal)
-            }
         } else {
             userEntryBox.placeholder = Enter_Phone_Number
             checkBoxLabel.text = DoNot_ADD_PHONE
@@ -146,6 +133,14 @@ class PopupWTxbInputView: UIViewController, UITextFieldDelegate {
             acceptBt.setTitle(StringConstants.ButtonTitles.BTN_EMAIL, for: .normal)
             userEntryBox.keyboardType = UIKeyboardType.phonePad
             titleImg.image = UIImage(named: EmailIcon)
+        }
+        
+        // if the barcode text we received from the parent class is 'No Code', that means we we selected the checkbox before. Initially it would be empty string. that way we know that the previous manually typed values
+        if txbStr == NO_CODE {
+            isChecked = true
+            checkBoxNoBC.setBackgroundImage(UIImage(named: "ChkBoxBlckSelected"), for: .normal)
+        } else if txbStr == "" {
+            userEntryBox.becomeFirstResponder()
         }
         self.showAnimate()
     }

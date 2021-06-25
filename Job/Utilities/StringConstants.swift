@@ -84,6 +84,7 @@ struct StringConstants {
         static let INITIATING_SEND_PROCESS = "Initiating send process..."
         static let NO_TASK_MSG = "Please logout and log back in to see the jobs"
         static let JOB_COMPLETED = "This job has been completed for this location. Please contact your manager for more information"
+        static let JOB_STARTED_MSG = "This location has already been started by another user; would you like to continue with the Shared Job?"
         
         
         // Task Details page
@@ -192,7 +193,7 @@ struct StringConstants {
         static let UnknownError = "Unknown Error Received"
         static let Failed_Delete_Thumb_Img = "Failed To Delete Thumbnail Photo:"
         static let Template_Not_Assigned = "Template No Longer Assigned"
-        static let Failed_To_Get_InstanceId = "Failed to get instanceId for ClientId"
+        static let Failed_To_Get_InstanceId = "Failed_getting_instanceId_4_ClientId"
         static let Failed_To_Get_InstanceId_For_Status = "Failed to get instanceId Status"
         static let Token_Expired_BG_SendProcess = "Token Expired."
         static let BAD_REQUEST = "Error: Bad Request. Please try again."
@@ -201,7 +202,7 @@ struct StringConstants {
         static let Request_Timeout_BG_SendProcess_Instance = "Request timeout at the time of sending instance"
         static let Failed_To_Upload_Image = "Failed to Send Photo"
         static let Failed_To_Delete_Img = "Failed To Delete Photo: "
-        static let Failed_To_Delete_Img_Device = "Failed To Delete Photo from Device"
+        static let Failed_To_Delete_Img_Device = "Failed_To_Delete_Photo"
         static let Failed_To_Update_Instance = "Failed To Update Instance"
         static let Failed_To_Send_Instance = "Failed To Send Instance"
         static let BackSlash_Found_In_Doc = "Found Back-Slash in the JSON"

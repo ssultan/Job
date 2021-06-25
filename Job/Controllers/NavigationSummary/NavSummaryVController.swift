@@ -42,12 +42,10 @@ class NavigationHeaderTVCell: UITableViewCell {
 }
 
 class NavSummaryVController: RootViewController {
-
     @IBOutlet weak var summaryTB: UITableView!
     @IBOutlet weak var gotoTopBtn: UIButton!
     
-    
-    let summaryArray = [StringConstants.MenuTitles.UNANSWERED_ONLY, StringConstants.MenuTitles.JOB_VISIT_INFO, StringConstants.MenuTitles.REFRESH_JOB_INFO]
+    var summaryArray = [StringConstants.MenuTitles.UNANSWERED_ONLY, StringConstants.MenuTitles.JOB_VISIT_INFO]
     var jobVisits: NSMutableArray = AppInfo.sharedInstance.selJobInstance.jobVisits
     let localFVs = NSMutableArray()
     var currTaskIdx:Int = 0
@@ -61,6 +59,10 @@ class NavSummaryVController: RootViewController {
         
         self.summaryTB.estimatedRowHeight = 150.0; // for example. Set your average height
         self.summaryTB.rowHeight = UITableView.automaticDimension;
+        
+        if AppInfo.sharedInstance.selJobInstance.template.isShared {
+            summaryArray = [StringConstants.MenuTitles.UNANSWERED_ONLY, StringConstants.MenuTitles.JOB_VISIT_INFO, StringConstants.MenuTitles.REFRESH_JOB_INFO]
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -255,7 +257,7 @@ extension NavSummaryVController: UITableViewDelegate, UITableViewDataSource {
         self.loadingView.textLabel.text = StringConstants.StatusMessages.LOADING_JOB_DETAILS
         self.loadingView.show(in: self.view, animated: true)
         
-        JobServices().getJobInstance(forInstance: AppInfo.sharedInstance.selJobInstance) { (updatedInst) in
+        JobServices().getJobInstance(forInstance: AppInfo.sharedInstance.selJobInstance, isSummaryPage: true) { (updatedInst, instMapper, errorObj) in
             AppInfo.sharedInstance.selJobInstance = updatedInst
             self.jobVisits = updatedInst.jobVisits
             self.summaryTB.reloadData()

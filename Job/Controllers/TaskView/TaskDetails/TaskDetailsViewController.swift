@@ -12,6 +12,7 @@ import ActionSheetPicker_3_0
 
 @objc protocol TaskDetailsDelegate {
     func triggerCompletedDate()
+    func triggerAnsChangedByAddingPhotoOrComment()
 }
 var DATE_FORMAT = "MMMM dd, yyyy hh:mm a"
 var LOWEST_ACCURACY_ALLOWED = 20
@@ -73,7 +74,7 @@ class TaskDetailsViewController: ParentTaskView, TaskDetailsDelegate {
         
         if let task = jobVisit.task, let answer = jobVisit.answer {
             let origAnsChanged = answer.isAnsChanged
-            let origAnsVal = answer.value!
+            let origAnsVal = (answer.value == nil || answer.value == "") ? "0" : answer.value!
             let origAnsStDate = answer.startDate
             let origAnsEdDate = answer.endDate
             
@@ -101,7 +102,7 @@ class TaskDetailsViewController: ParentTaskView, TaskDetailsDelegate {
             }
             
             answer.isAnswerCompleted = NSNumber(value: taskCompleted)
-            answer.isAnsChanged = origAnsChanged ? true : self.checkIfAnswerChanged(updatedAns: answer, withVal: origAnsVal, withStartDate: origAnsStDate, withEndDate: origAnsEdDate) // if Already marked as changed, then no need to test it
+            answer.isAnsChanged = origAnsChanged ? true : self.checkIfAnswerChanged(updatedAns: answer, withVal: origAnsVal == "N/A" ? "na" : origAnsVal, withStartDate: origAnsStDate, withEndDate: origAnsEdDate) // if Already marked as changed, then no need to test it
             self.parentQDelegate.answerFromChild(answer: answer)
         }
         
@@ -109,7 +110,10 @@ class TaskDetailsViewController: ParentTaskView, TaskDetailsDelegate {
     }
     
     fileprivate func checkIfAnswerChanged(updatedAns: AnswerModel, withVal value: String, withStartDate stDate:NSDate?, withEndDate edDate:NSDate?) -> Bool {
-        if value != updatedAns.value {
+        if (value == "" && updatedAns.value == "0") && stDate == nil {
+            return false
+        }
+        else if value != updatedAns.value {
             print("old value: \(String(describing: value)) Vs New Answer: \(String(describing: updatedAns.value))")
             return true
         } else if stDate?.convertToString(format: Constants.SERVER_EXP_DATE_FORMATE) != updatedAns.startDate?.convertToString(format: Constants.SERVER_EXP_DATE_FORMATE) {
@@ -203,6 +207,9 @@ class TaskDetailsViewController: ParentTaskView, TaskDetailsDelegate {
     }
     
     @IBAction func sliderValueChanged(_ sender: StepSlider) {
+        if isNASelected && sender.index > 0 {
+            self.ckBoxNASelected(ckBoxNA)
+        }
         if isSliderLoadFirst { return }
         self.percentTxb.text = String(Int(sender.index) * accuracy) + "%"
         if !isStarted && sender.index > 0 { isStarted = true; updateJobStart() }
@@ -268,6 +275,11 @@ class TaskDetailsViewController: ParentTaskView, TaskDetailsDelegate {
         }
     }
     
+    func triggerAnsChangedByAddingPhotoOrComment() {
+        self.jobVisit.answer.isAnsChanged = true
+    }
+    
+    //MARK: -
     @IBAction func ckBoxNASelected(_ sender: UIButton) {
         isNASelected = !isNASelected
         ckBoxNA.setBackgroundImage(isNASelected ? UIImage(named: "CheckBoxSelected"):UIImage(named: "CheckBoxUnSelected"), for: .normal)

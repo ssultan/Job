@@ -43,6 +43,7 @@ extension JobInstance {
     @NSManaged public var manifest: Manifest?
     @NSManaged public var templateId: String?
     @NSManaged public var templateName: String? // When assignemed a template, if there is an incompleted instance; then this will help us to find ou the instance.
+    @NSManaged public var lastUpdatedBy: String?
 }
 
 // MARK: Generated accessors for answers

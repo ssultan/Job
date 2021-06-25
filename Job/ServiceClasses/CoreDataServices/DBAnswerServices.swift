@@ -17,10 +17,11 @@ import CoreData
 
 class DBAnswerServices: NSObject {
     
-    class func saveAnswerObject(_ answerModel: AnswerModel) -> Answer? {
+    class func saveAnswerObject(_ answerModel: AnswerModel, selInstanceObj:JobInstance?) -> Answer? {
         let managedObjContext = CoreDataManager.sharedInstance.managedObjectContext
         do {
-            if let ansArr = CoreDataBusiness.fetchData(managedObjContext, entityName:Constants.EntityNames.AnswerEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: NSPredicate(format: "(ansId = %@ OR ansId = %@) AND jobInstance.manifest.user.userName = %@", answerModel.ansId?.uppercased() ?? "0", answerModel.ansId?.lowercased() ?? "0", AppInfo.sharedInstance.username!)) as? [Answer]
+            //if let ansArr = CoreDataBusiness.fetchData(managedObjContext, entityName:Constants.EntityNames.AnswerEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: NSPredicate(format: "(ansId = %@ OR ansId = %@) AND jobInstance.manifest.user.userName = %@", answerModel.ansId?.uppercased() ?? "0", answerModel.ansId?.lowercased() ?? "0", AppInfo.sharedInstance.username!)) as? [Answer]
+            if let ansArr = CoreDataBusiness.fetchData(managedObjContext, entityName:Constants.EntityNames.AnswerEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: NSPredicate(format: "taskId = %@ AND (jobInstance.instId = %@ OR jobInstance.instId = %@) AND jobInstance.manifest.user.userName = %@", answerModel.taskId ?? "0", selInstanceObj?.instId!.lowercased() ?? "0", selInstanceObj?.instId!.uppercased() ?? "0", AppInfo.sharedInstance.username!)) as? [Answer]
             {
                 if let answer = ansArr.first {
                     answer.ansId = answerModel.ansId
@@ -37,26 +38,35 @@ class DBAnswerServices: NSObject {
                 }
             }
             
-            let answer = NSEntityDescription.insertNewObject(forEntityName: Constants.EntityNames.AnswerEntity, into: managedObjContext) as! Answer
-            answer.ansId = answerModel.ansId
-            answer.isCompleted = answerModel.isAnswerCompleted ?? NSNumber(value: false)
-            answer.taskType = answerModel.type
-            answer.value = answerModel.value ?? ""
-            answer.task = answerModel.task.dbRawInst as? Task
-            answer.taskId = answerModel.task.taskId
-            answer.startDate = answerModel.startDate
-            answer.endDate = answerModel.endDate
-            answer.docCountInServer = answerModel.docCountInServer
-            answer.jobInstance = AppInfo.sharedInstance.selJobInstance.dbRawInstanceObj as? JobInstance
-            answer.isAnsChanged = NSNumber(value: answerModel.isAnsChanged)
-            try managedObjContext.save()
-            return answer
+            
+            if let instanceOjb = selInstanceObj {
+                let answer = NSEntityDescription.insertNewObject(forEntityName: Constants.EntityNames.AnswerEntity, into: managedObjContext) as! Answer
+                answer.ansId = answerModel.ansId
+                if let serverId = answerModel.ansServerId {
+                    answer.ansServerId = serverId
+                }
+                answer.isCompleted = answerModel.isAnswerCompleted ?? NSNumber(value: false)
+                answer.taskType = answerModel.type
+                answer.value = answerModel.value ?? ""
+                answer.task = answerModel.task.dbRawInst as? Task
+                answer.taskId = answerModel.task.taskId
+                answer.startDate = answerModel.startDate
+                answer.endDate = answerModel.endDate
+                answer.docCountInServer = answerModel.docCountInServer
+                answer.jobInstance = instanceOjb
+                answer.isAnsChanged = NSNumber(value: answerModel.isAnsChanged)
+                try managedObjContext.save()
+                return answer
+            }
+            return nil
         }
         catch {
             print("Failed to save Answer: \(error)")
             return nil
         }
     }
+    
+    
     
     class func removeAnswerObject( answerId: String) -> Bool {
         let predicateNew = NSPredicate(format: "(ansId = %@ OR ansId = %@) AND jobInstance.manifest.user.userName = %@", answerId.uppercased(), answerId.lowercased(), AppInfo.sharedInstance.username!)
@@ -108,7 +118,9 @@ class DBAnswerServices: NSObject {
     
     class func updateAnswerModel(forAnsMapModel ansModel: AnswerMapper) {
         let managedObjContext = CoreDataManager.sharedInstance.managedObjectContext
-        let predicate = NSPredicate(format: "taskId = %d AND jobInstance.manifest.user.userName = %@", ansModel.questionID, AppInfo.sharedInstance.username!)
+        
+        //ERROR: update predicate by adding the instanceId, otherwise it will not work
+        let predicate = NSPredicate(format: "taskId = %d AND (jobInstance.instId = %@ OR jobInstance.instId = %@) AND jobInstance.manifest.user.userName = %@", ansModel.questionID, AppInfo.sharedInstance.username!)
         
         if let answer = CoreDataBusiness.fetchData(managedObjContext, entityName:Constants.EntityNames.AnswerEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: predicate).first as? Answer {
             

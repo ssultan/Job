@@ -75,12 +75,14 @@ class PhotoGalleryViewController: RootViewController {
             takePhtBtn.setTitle(StringConstants.ButtonTitles.BTN_CHOOSE_PHOTO, for: .normal)
         }
         
-        var menubtn:UIBarButtonItem? = nil
-        for item in self.navigationItem.rightBarButtonItems! {
-            menubtn = item
+        if AppInfo.sharedInstance.selJobInstance.template.isShared {
+            var menubtn:UIBarButtonItem? = nil
+            for item in self.navigationItem.rightBarButtonItems! {
+                menubtn = item
+            }
+            let downloadBtn = UIBarButtonItem(image: UIImage(named: "DownloadIcon"), style: .done, target: self, action: #selector(downloadImages))
+            self.navigationItem.rightBarButtonItems = [menubtn!, downloadBtn]
         }
-        let downloadBtn = UIBarButtonItem(image: UIImage(named: "DownloadIcon"), style: .done, target: self, action: #selector(downloadImages))
-        self.navigationItem.rightBarButtonItems = [menubtn!, downloadBtn]
         NotificationCenter.default.addObserver(self, selector:#selector(reloadGallery), name: NSNotification.Name(rawValue: Constants.NotificationsName.RELOAD_GALLERY_NOTIFY), object: nil)
     }
     
@@ -421,7 +423,12 @@ extension PhotoGalleryViewController: UIImagePickerControllerDelegate, UINavigat
         documentObj.exifDic = metadata
         documentObj.documentId = UUID().uuidString
 
+        
         if let _ = JobServices.saveImageNew(image: resizedImg, documentObj: documentObj) {
+            if taskDelegate != nil {
+                taskDelegate.triggerAnsChangedByAddingPhotoOrComment()
+            }
+            
             self.loadingView.textLabel.text = StringConstants.StatusMessages.LOADING
             self.loadingView.show(in: self.view, animated: true)
             DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(1)) {

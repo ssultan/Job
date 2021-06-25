@@ -19,37 +19,45 @@ class CommentModel: NSObject {
     dynamic var isFlag: Bool = false
     dynamic var answerComment: Answer?
     dynamic var instanceComment: JobInstance?
+    dynamic var lastUpdatedBy: String?
+    dynamic var lastUpdatedOn: Date?
     
     init(comment: Comment) {
         super.init()
         commentId = comment.commentId
-        commentServerId = comment.commentServerId
+        commentServerId = Int(comment.commentServerId)
         commentText = comment.commentText
         createdBy = comment.createdBy
-        createdDate = comment.createdDate
+        createdDate = comment.createdDate as NSDate?
         flagStatus = comment.flagStatus
         isComDeleted = comment.isComDeleted
         isFlag = comment.isFlag
         answerComment = comment.answerComment
         instanceComment = comment.instanceComment
+        lastUpdatedBy = comment.lastUpdatedBy
+        lastUpdatedOn = comment.lastUpdatedOn
     }
     
     init(comment: InstanceComment) {
         super.init()
-        commentId = comment.clientID.uppercased()
+        commentId = (comment.clientID ?? UUID().uuidString).uppercased()
         commentServerId = comment.id
         commentText = comment.text
         createdBy = comment.creator
         createdDate = comment.createdOn.dateFromGMTdateString(withTimeZone: "UTC") as NSDate?
+        lastUpdatedBy = comment.updator ?? comment.creator
+        lastUpdatedOn = (comment.lastUpdatedOn ?? comment.createdOn).dateFromGMTdateString(withTimeZone: "UTC")
     }
     
     init(comment: AnswerComment) {
         super.init()
-        commentId = comment.clientID.uppercased()
+        commentId = (comment.clientID ?? UUID().uuidString).uppercased()
         commentServerId = comment.id
         commentText = comment.text
         createdBy = comment.lastUpdatedByFullName
+        lastUpdatedBy = comment.lastUpdatedByFullName
         createdDate = comment.createdOn.dateFromGMTdateString(withTimeZone: "UTC") as NSDate?
+        lastUpdatedOn = (comment.lastUpdatedOn ?? comment.createdOn).dateFromGMTdateString(withTimeZone: "UTC")
     }
     
     override init() {

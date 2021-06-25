@@ -51,6 +51,7 @@ extension String {
         if let date = dateFormatter.date(from: self) {
             return date
         }
+        print("DEFAULT DATE")
         return Date()
     }
     

@@ -29,6 +29,9 @@ target 'Job' do
     pod 'GoogleMaps'
     pod 'GooglePlaces'
     pod 'GooglePlacePicker'
+    
+    # Azure Push Notification
+    pod 'AzureNotificationHubs-iOS'
 
     # After running 'Pod Update' query
     # Customize the Signature page. Remove the top navigation bar and add the buttons at the bottom of the page.

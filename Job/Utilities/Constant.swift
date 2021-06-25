@@ -38,12 +38,17 @@ struct Constants {
     static let keyTouchId:String = "JobTouchId"
     
     static let JobBgUpService = "UploadJobInstance"
+    static let Empty_Photo_No_Name = "Empty_Photo_No_Name"
     
     static let FTP_UserName = "atest"
     static let FTP_Password = "d@v@c013"
     static let Anonymous_User = "Anonymous"
     static let Anonymous_Initial = "ct-"
     static let Anonymous_Initial2 = "ct."
+    static let SERVER_EXP_DATE_FORMATE = "yyyy-MM-dd'T'HH:mm:ss"
+    static let SERVER_EXP_DATE_FORMATE_2nd = "yyyy-MM-dd'T'HH:mm:ss.SS"
+    static let SERVER_EXPECT_DATE_FORMAT_WITH_ZONE = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ"
+
     
     struct Environments {
         static let kStaging = "Staging"
@@ -51,6 +56,7 @@ struct Constants {
         static let kProdUAT = "UAT"
         static let kProduction = "Production"
         static let kRelease = "Release"
+        static let kApiTest = "APITEST"
     }
     static let kSelectedEnvironment = "SelectedEnvironment"
     static let kFV_REPORT = "Transmit Report"
@@ -109,7 +115,7 @@ struct Constants {
         static let TaskEntity           = "Task"
         static let AnswerEntity         = "Answer"
         static let JobInstanceEntity    = "JobInstance"
-        static let CommentEntity    = "Comment"
+        static let CommentEntity        = "Comment"
         static let DocumentEntity       = "Document"
         static let ErrorLogs            = "ErrorLogs"
         static let ApiMessageLog        = "ApiMessageLog"
@@ -122,11 +128,16 @@ struct Constants {
         static let templateServiceAPI    = "/api/template/"
         static let locationServiceAPI    = "/api/project/"
         static let sendInstanceServiceAPI = "/api/simpleinstance/"
+        static let sendJobInstanceQueueAPI = "/api/JobInstanceQueue/"
         static let GetAllInstanceDocumentsAPI = "/api/instance/"//{0}/documents
         static let GetAllInstanceDocumentsAPI2nd = "/api/document?instanceid="
         static let DocumentAPI     = "/api/Document/"
         static let DocumentDeleteUpdateAPI     = "/api/MobileDocument/"
         static let GetInstanceIdForClientId = "/api/Instance?clientid="
+        static let GET_InstanceStatusUpdate = "/api/instance/status/"
+        static let GET_SharedInstance = "/api/instance/SharedInstance/"
+        static let ApnsRegisterDevice = "/api/ExpenseRegistration/"
+
     }
     
     struct FileNames {
@@ -163,6 +174,7 @@ struct Constants {
         static let ReloadReportTableNotifier = "ReloadReportTableNotifier"
         static let SendEmailNotifier = "SendEmailNotifier"
         static let MENU_BTN_CLICKED_NOTIFY = "MENU_BTN_CLICKED_NOTIFY"
+        static let RELOAD_GALLERY_NOTIFY = "ReloadGalleryGrid"
     }
     
     static let DMD_LENS_SELECTOR_REUSABLE_ID = "LensSelector"
@@ -200,6 +212,11 @@ struct Constants {
         static let Key_AuthorizedUserName = "AuthorizedUserName"
         static let Key_ErrorCode       = "ErrorCode"
         static let Key_Message         = "Message"
+        
+        //Apns Register Device
+        static let Key_Platform = "Platform"
+        static let Key_PushNotificationId = "PushNotificationId"
+        static let Key_AppName = "AppName"
         
         //Comment
         static let Key_CommentTxt      = "Text"
@@ -248,6 +265,9 @@ struct Constants {
         static let KeyStatus     = "status"
         static let KeyInstanceSentTime = "instanceSuccSentTime"
         static let KeyInstServerId = "instanceServerId"
+        static let KeyInstTempId = "KeyInstTempId"
+        static let KeyInstProjId = "KeyInstProjId"
+        static let KeyInstLocId = "KeyInstLocId"
     }
 }
 
@@ -410,7 +430,22 @@ enum SendProcErrorCode: Int {
     case DuplicateItmAvailInServerDB = 11235600 //Already Exists
 }
 
+enum GetInstanceErrorCode: Int {
+    case MultipleSharedInst = 1123527
+}
+
 enum TaskType: String {
     case ParentTask = "0"
     case SubTask = "1"
+    
+    
+    func getTaskName() -> String {
+        switch self {
+        case .ParentTask :
+            return "MasterTask"
+        default:
+            return "SubTask"
+        }
+    }
+
 }

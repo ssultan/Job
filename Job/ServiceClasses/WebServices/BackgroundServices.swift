@@ -384,12 +384,12 @@ public let KeyInstServerId = "instanceServerId"
         self.fetchReponseInData(forRequestType: method, forServiceURL: sendInstanceURL, params: instanceParams) { (jsonRes, resData, statusCode, isSucceeded) in
 //        self.fetchData(method, serviceURL: sendInstanceURL, params: instanceParams) { (jsonRes, statusCode, isSucceeded) in
             resStatusCode = statusCode
-            
             if(isSucceeded) {
                 isSentSucceeded = true
                 if let jsonDic = jsonRes as? [String: AnyObject], let data = resData {
                     
                     do {
+                        //print("JSON Response: ", jsonDic)
                         let instMapper = try JSONDecoder().decode(JobInstanceMapping.self, from: data)
                         jobInstance.updateLocalInstance(forMInstance: instMapper, isSentInstance: true)
                     } catch {
@@ -435,6 +435,7 @@ public let KeyInstServerId = "instanceServerId"
             jobInstance.updateInstAfterPhotoUploadProcessCompleted(forNumOfFailed: failedToSend, andUpdating: isUpdating)
         }
         else {
+            print("+++++++++++++++++++++ FAILED TO SEND INSTANCE ++++++++++++++++++++++")
             isRecErrorAtTimeOfBGSending = true
             self.handleInstanceError(resStatusCode: resStatusCode, jobInstance: jobInstance, errorJSON: errorJSON, isUpdating: isUpdating)
         }
@@ -498,6 +499,7 @@ public let KeyInstServerId = "instanceServerId"
         var numberOfPhotosFailed:Int = 0
         
         for document in docList {
+            print("++++++++++ Sending photos: ", document.originalName!)
             let isSent = Bool(truncating: document.isSent ?? 0)
             let isNeedToSend = Bool(truncating: document.isNeedToSend ?? 0)
             
@@ -597,7 +599,10 @@ public let KeyInstServerId = "instanceServerId"
             NotificationCenter.default.post(name: NSNotification.Name(rawValue: Constants.NotificationsName.ReloadReportTableNotifier),
                                         object: nil, userInfo: [KeyInstanceId: clientId,
                                                                 KeyStatus : status,
-                                                                KeyInstServerId: instServerId])
+                                                                KeyInstServerId: instServerId,
+                                                                Constants.BgUIUpdateNotifierKeys.KeyInstProjId: jobInstance.project.projectId ?? "",
+                                                                Constants.BgUIUpdateNotifierKeys.KeyInstTempId: jobInstance.template.templateId ?? "",
+                                                                Constants.BgUIUpdateNotifierKeys.KeyInstLocId: jobInstance.location.locationId ?? ""])
         }
         
         var resStatusCode: Int = 0
@@ -641,6 +646,10 @@ public let KeyInstServerId = "instanceServerId"
             isRecErrorAtTimeOfBGSending = true
             handleDocumentErrors(resStatusCode, jobInstance, &isSentSuccessfully, document, ordinal, errorJSON)
         }
+        
+//        var printParam = docParams
+//        printParam[Constants.ApiRequestFields.Key_Data] = "" as AnyObject
+//        print("++++++ Document POST Json: ", printParam)
         return isSentSuccessfully
     }
     

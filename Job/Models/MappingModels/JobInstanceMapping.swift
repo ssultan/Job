@@ -25,7 +25,7 @@ struct JobInstanceMapping: Codable {
     let documentCount, userID: Int
     let userName: String
     let transactionID: Int
-    let deviceID: String
+    let deviceID: String?
     let discrepancyPercentage, discrepancyOccurranceCount, discrepancyDefinitionCount, severityID: String?
     let authorizedUserName, isApproved, originalTimeZone: String?
     let percentComplete: Int
@@ -34,6 +34,7 @@ struct JobInstanceMapping: Codable {
     let instanceComments: [InstanceComment]
     let lastUpdatedBy: String?
     let documentList:[DocumentObj]
+    let errorMsg: String? = nil
 
     enum CodingKeys: String, CodingKey {
         case instanceStatus = "InstanceStatus"
@@ -111,7 +112,7 @@ struct AnswerComment: Codable {
     let lastUpdatedOn: String?
     let lastUpdatedBy: Int
     let lastUpdatedByFullName: String?
-    let clientID: String
+    let clientID: String?
     let id: Int
     let name: String?
     let createdOn: String
@@ -136,12 +137,12 @@ struct InstanceComment: Codable {
     let creator: String?
     let lastUpdatedBy: Int = 0
     let updator: String?
-    let lastUpdatedOn: String
+    let lastUpdatedOn: String?
     let type, resourceID: Int
-    let parentID: String?
+    let parentID: Int64?
     let text: String
-    let replies: String?
-    let clientID: String
+    let replies: [InstanceComment]?
+    let clientID: String?
 
     enum CodingKeys: String, CodingKey {
         case id = "Id"
@@ -182,12 +183,22 @@ struct InstanceStatus: Codable {
 
 struct DocumentObj: Codable {
     let documentURL: String
-    let docServerId: Int = 0
+    let docServerId: Int64
     let docId: String?
 
     enum CodingKeys: String, CodingKey {
         case documentURL = "DocumentURL"
         case docServerId = "Id"
         case docId = "ClientId"
+    }
+}
+
+struct ErrorObject: Codable {
+    let errorCode: Int64
+    let message: String
+    
+    enum CodingKeys: String, CodingKey {
+        case errorCode = "ErrorCode"
+        case message = "Message"
     }
 }

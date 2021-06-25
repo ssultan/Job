@@ -294,8 +294,10 @@ extension CompIncompViewController: UITableViewDelegate, UITableViewDataSource {
         if recognizer.state == .began {
             self.popupView.showInView(parentView: self.view, withTxbString: "", popupType: PopupWithTxbType.DeleteIntance)
             { (deleteTxt, isChecked) in
+                print("Deleted Text: ", deleteTxt)
                 if (deleteTxt == StringConstants.ButtonTitles.BTN_DELETE){
                     let tapLocation = recognizer.location(in: self.instanceTBView)
+                    print("Print location Tap: ", tapLocation)
                     if let tapIndexPath = self.instanceTBView.indexPathForRow(at: tapLocation) {
                         if let tappedCell = self.instanceTBView.cellForRow(at: tapIndexPath) as? CompIncompTBViewCell {
                             print("Delete instruction Received: ", tappedCell)

@@ -13,7 +13,7 @@
 //
 
 import UIKit
-import FirebasePerformance
+//import FirebasePerformance
 import FirebaseAnalytics
 import FirebaseCrashlytics
 import Alamofire
@@ -100,7 +100,7 @@ class LoginService: BaseService {
                             if Bool(truncating: user.isAcceptedTnC ?? NSNumber(value: false)) == false {
                                 self.requestToAcceptTnC(user: user)
                             } else {
-                                self.sendPushTokenForCurrentUser()
+                                self.registerPushTokenForCurrentUser()
                                 self.downloadManifest(username)
                             }
                         } else {
@@ -126,9 +126,11 @@ class LoginService: BaseService {
         }
     }
     
+    
+    
     func requestToAcceptTnC(user:User)  {
         self.delegate.verifyEULAAcceptedForUser(user.userName!, continueBlock: {
-            self.sendPushTokenForCurrentUser()
+            self.registerPushTokenForCurrentUser()
             self.downloadManifest(user.userName!)
             user.isAcceptedTnC = NSNumber(value: true)
             if !(DBUserServices.updateUserDetails(forUserModel: user)) {
@@ -183,13 +185,27 @@ class LoginService: BaseService {
     }
     
     
-    func sendPushTokenForCurrentUser() {
-        // this funtion is for making call for registering device for push notification.
+    func registerPushTokenForCurrentUser() {
+        var params = [String: AnyObject]()
+        params[Constants.ApiRequestFields.Key_UserId] = self.appInfo.username as AnyObject
+        params[Constants.ApiRequestFields.Key_DeviceId] = self.appInfo.deviceId as AnyObject
+        params[Constants.ApiRequestFields.Key_PushNotificationId] = self.appInfo.apnsDeviceToken as AnyObject
+        params[Constants.ApiRequestFields.Key_Platform] = "apns" as AnyObject
+        params[Constants.ApiRequestFields.Key_AppName] = "Job" as AnyObject
+        let url = self.appInfo.httpType + self.appInfo.baseURL + Constants.APIServices.ApnsRegisterDevice
+        self.fetchReponseInData(forRequestType: HTTPMethod.post, forServiceURL: url, params: params) { (jsonRes, resData, statusCode, isSucceeded) in
+            if(isSucceeded) {
+                if let jsonDic = jsonRes as? [String: AnyObject] {
+                    print("Apns Dic: ", jsonDic)
+                }
+            }
+        }
     }
     
     
     func downloadManifest(_ userName: String) {
         let manifestURL = self.appInfo.httpType + self.appInfo.baseURL + Constants.APIServices.manifestServiceAPI + self.appInfo.username + JobTemplateQS
+        //print("Manifest URL: ", manifestURL)
         self.fetchData(.get, serviceURL: manifestURL, params: nil) { (jsonRes, statusCode, isSucceeded) in
             
             if(isSucceeded) {

@@ -17,9 +17,9 @@ import FirebaseCrashlytics
 import AudioToolbox
 import JGProgressHUD
 import Alamofire
-////import Appsee
+//import Appsee
 import Firebase
-import FirebasePerformance
+//import FirebasePerformance
 
 let stagingPassword = "Welcome1"
 let prodPassword = ""
@@ -353,6 +353,16 @@ class LoginViewController: RootViewController, UITextFieldDelegate, LoginOberver
             #if DEBUG || STAGE
                 self.passwordTxtFi.text = prodPassword
                 UserDefaults.standard.setValue(Constants.Environments.kRelease, forKey: Constants.kSelectedEnvironment)
+            #endif
+        }))
+        alert.addAction(UIAlertAction(title: Constants.Environments.kApiTest, style: .default, handler:  { (alertAction) in
+            self.appInfo.setupEnvironment(enviroment: Constants.Environments.kApiTest)
+            self.environmentlbl.text = Constants.Environments.kApiTest
+            self.envPickerBt.setTitle(self.appInfo.baseURL, for: UIControl.State())
+            
+            #if DEBUG || STAGE
+            self.passwordTxtFi.text = prodPassword
+            UserDefaults.standard.setValue(Constants.Environments.kApiTest, forKey: Constants.kSelectedEnvironment)
             #endif
         }))
         alert.addAction(UIAlertAction(title: StringConstants.ButtonTitles.BTN_Cancel, style: .destructive, handler: {(alertAction) in

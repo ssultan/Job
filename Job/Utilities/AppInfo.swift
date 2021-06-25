@@ -43,6 +43,8 @@ class AppInfo: NSObject {
     var curAppseeSessionId = ""
     var username:String!
     var password:String!
+    var apnsDeviceToken:String!
+    
 //    var manifest: ManifestMapping!
     var menus = [StringConstants.MenuTitles.HELP, StringConstants.MenuTitles.LOGOUT]
     @objc var selJobInstance : JobInstanceModel!
@@ -116,6 +118,10 @@ class AppInfo: NSObject {
                 else if enviroment == Constants.Environments.kProdUAT {
                     detailDic = envDic.object(forKey: UAT) as! NSDictionary
                     self.environment = Constants.Environments.kProdUAT
+                }
+                else if enviroment == Constants.Environments.kApiTest {
+                    detailDic = envDic.object(forKey: enviroment) as! NSDictionary
+                    self.environment = Constants.Environments.kApiTest
                 }
                 else {
                     detailDic = envDic.object(forKey: RELEASE) as! NSDictionary

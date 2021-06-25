@@ -35,6 +35,7 @@ class JobInstanceModel: NSObject {
     @objc dynamic var isDeletedInstance: NSNumber = NSNumber(value: false)
     @objc dynamic var projectNumber: String?
     @objc dynamic var status: String?
+    @objc dynamic var lastUpdatedBy: String?
     @objc dynamic var templateId: String?   // This is requried for sync the existing instance with the template
     @objc dynamic var templateName: String? // When assignemed a template, if there is an incompleted instance; then this will help us to find ou the instance.
     @objc dynamic var locationId: String?
@@ -81,6 +82,7 @@ class JobInstanceModel: NSObject {
         self.instanceSentTime = jobInstance.instanceSentTime
         self.isDeletedInstance = jobInstance.isDeletedInstance ?? NSNumber(value: false)
         self.percentCompleted = jobInstance.percentCompleted ?? NSNumber(value: 0)
+        self.lastUpdatedBy = jobInstance.lastUpdatedBy
         
         if self.instanceSentTime == nil && jobInstance.isSentOrUpdated != nil && Bool(truncating: jobInstance.isSentOrUpdated!) {
             if let compDate = self.completedDate {
@@ -269,7 +271,7 @@ class JobInstanceModel: NSObject {
         var totalPhotos = 0
         
         if let answer = jobVisit.answer {
-            totalPhotos += answer.ansDocuments.count > 0 ? answer.ansDocuments.filter({ $0.isSent == NSNumber(value: isSent)  }).count : 0
+            totalPhotos += answer.ansDocuments.count > 0 ? answer.ansDocuments.filter({ $0.isSent == NSNumber(value: isSent) && !$0.isAddedByOthers }).count : 0
             
             for subFVModel in jobVisit.subFVModels {
                 totalPhotos += countNoOfPhotosNeedToSend(subFVModel, isSent: isSent)
@@ -279,7 +281,7 @@ class JobInstanceModel: NSObject {
     }
     
     func getTotalPhotosOfTheInstances(isSent: Bool) -> Int {
-        var totalPhotos = self.documents.filter({ $0.isSent == NSNumber(value: isSent) }).count
+        var totalPhotos = self.documents.filter({ $0.isSent == NSNumber(value: isSent) && !$0.isAddedByOthers }).count
         
         for fvModel in self.jobVisits {
             if let jobVisit = fvModel as? JobVisitModel {
@@ -342,43 +344,48 @@ class JobInstanceModel: NSObject {
         for fvModel in self.jobVisits {
             if let jobVisit = fvModel as? JobVisitModel {
                 if let answer = jobVisit.answer, let task = jobVisit.task {
-                    if (task.isActive ?? 0).boolValue {//&& answer.isAnsChanged {
-                        if isUpdating && answer.ansDocuments.count == 0 && answer.value == "" {
-                            continue
+                    
+                    if (task.isActive ?? 0).boolValue {
+                        if (self.template.isShared && answer.isAnsChanged) || (!self.template.isShared) {
+                            if isUpdating && answer.ansDocuments.count == 0 && answer.value == "" {
+                                continue
+                            }
+                            answersArray.add(answer.makeJsonForAnswer())
                         }
-                        answersArray.add(answer.makeJsonForAnswer())
                     }
                     else {
-                        print ("Inactive Task ServerId: \(answer.ansServerId ?? ""), ClientId: \(answer.ansId ?? "")" )
+                        print ("Inactive / Answer NOT Changed Task ServerId: \(answer.ansServerId ?? ""), ClientId: \(answer.ansId ?? "")" )
                     }
                 }
                 
                 for subFVModel in jobVisit.subFVModels {
                     if let answer = subFVModel.answer, let task = jobVisit.task {
-                        if (task.isActive ?? 0).boolValue {//&& answer.isAnsChanged  {
-                            if isUpdating && answer.value == "" && answer.ansDocuments.count == 0 {
-                                continue
-                            }
-                            answersArray.add(answer.makeJsonForAnswer())
-                        } else {
-                            print ("Sub-Task Active?: \(task.isActive ?? 0), ClientId: \(answer.isAnsChanged )" )
-                        }
-                    }
-                    
-                    //IMPORTANT: For Job app, there are not 3rd level of sub-task
-                    // 3rd level. since we support up to 3rd level.
-                    for chilfOfSubFV in subFVModel.subFVModels {
-                        if let answer = chilfOfSubFV.answer, let task = jobVisit.task {
-                            if (task.isActive ?? 0).boolValue {//&& answer.isAnsChanged  {
+                        if (task.isActive ?? 0).boolValue {
+                            if (self.template.isShared && answer.isAnsChanged) || (!self.template.isShared) {
                                 if isUpdating && answer.value == "" && answer.ansDocuments.count == 0 {
                                     continue
                                 }
                                 answersArray.add(answer.makeJsonForAnswer())
-                            } else {
-                                print ("Inactive sub-sub-Task ServerId: \(answer.ansServerId ?? ""), ClientId: \(answer.ansId ?? "")" )
                             }
+                        } else {
+                            print ("Sub-Task Active or NOT CHANGED? : \(task.isActive ?? 0), ClientId: \(answer.isAnsChanged )" )
                         }
                     }
+                    
+//                    //IMPORTANT: For Job app, there are not 3rd level of sub-task
+//                    // 3rd level. since we support up to 3rd level.
+//                    for chilfOfSubFV in subFVModel.subFVModels {
+//                        if let answer = chilfOfSubFV.answer, let task = jobVisit.task {
+//                            if (task.isActive ?? 0).boolValue {//&& answer.isAnsChanged  {
+//                                if isUpdating && answer.value == "" && answer.ansDocuments.count == 0 {
+//                                    continue
+//                                }
+//                                answersArray.add(answer.makeJsonForAnswer())
+//                            } else {
+//                                print ("Inactive sub-sub-Task ServerId: \(answer.ansServerId ?? ""), ClientId: \(answer.ansId ?? "")" )
+//                            }
+//                        }
+//                    }
                 }
             }
         }
@@ -477,14 +484,21 @@ class JobInstanceModel: NSObject {
         }
         
         // **************** update instance *****************
-        DBJobInstanceServices.updateJobInstance(jobInstance: self)
+        DBJobInstanceServices.updateInstanceStatus(jobInstance: self)
+        // DBJobInstanceServices.updateJobInstance(jobInstance: self)
         
-        if let status = self.status, let clientId = self.instId, let instServerId = self.instServerId {
+        
+        if let status = self.status, let clientId = self.instId, let instServerId = self.instServerId,
+           let projectId = self.project.projectId, let tempId = self.template.templateId, let locationId = self.location.locationId
+        {
             NotificationCenter.default.post(name: NSNotification.Name(rawValue: Constants.NotificationsName.ReloadReportTableNotifier),
                                             object: nil, userInfo: [Constants.BgUIUpdateNotifierKeys.KeyInstanceId: clientId,
                                                                     Constants.BgUIUpdateNotifierKeys.KeyStatus : status,
                                                                     Constants.BgUIUpdateNotifierKeys.KeyInstanceSentTime : self.succPhotoUploadTime == nil ? NSDate() : self.succPhotoUploadTime!,
-                                                                    Constants.BgUIUpdateNotifierKeys.KeyInstServerId: instServerId])
+                                                                    Constants.BgUIUpdateNotifierKeys.KeyInstServerId: instServerId,
+                                                                    Constants.BgUIUpdateNotifierKeys.KeyInstProjId: projectId,
+                                                                    Constants.BgUIUpdateNotifierKeys.KeyInstTempId: tempId,
+                                                                    Constants.BgUIUpdateNotifierKeys.KeyInstLocId: locationId])
         }
     }
     
@@ -517,10 +531,15 @@ class JobInstanceModel: NSObject {
         self.startDate = Utility.dateFromGMTdateString(dateStr: rInstance.startedOn, withTimeZone: "UTC") as NSDate
         if let comDate = rInstance.completedOn {
             self.completedDate = Utility.dateFromGMTdateString(dateStr:comDate, withTimeZone: "UTC") as NSDate
-        } else if let _ = rInstance.completedOn {
+            self.instanceSentTime = Utility.dateFromGMTdateString(dateStr:comDate, withTimeZone: "UTC") as NSDate
+        } else if let _ = self.completedDate {
             if (rInstance.completedOn == nil) {
                 self.completedDate = nil
             }
+        }
+        
+        if let lastUpBy = rInstance.instanceStatus.lastUpdatedBy {
+            self.lastUpdatedBy = lastUpBy
         }
         
         if self.instId == nil {
@@ -529,14 +548,19 @@ class JobInstanceModel: NSObject {
             self.dbRawInstanceObj = instanceRawObj
             AppInfo.sharedInstance.selJobInstance = self
         } else {
-            self.instId = rInstance.clientID.uppercased()
+            // if istanceId is not same the as the one we have locally, then move all the images
+            if self.instId!.uppercased() != rInstance.clientID.uppercased() {
+                print("Old instance: \(self.instId!.uppercased()) <=> \(rInstance.clientID.uppercased())")
+                Utility.moveImageToNewDirectory(forSourceFolder: self.instId!.uppercased(), withDestinationFolder: rInstance.clientID.uppercased())
+                self.instId = rInstance.clientID.uppercased()
+            }
             DBJobInstanceServices.updateSharedJobInstance(jobInstance: self)
         }
         
         for answer in rInstance.answers {
             if let jvModels = jobVisits as? [JobVisitModel] {
                 if let fv = jvModels.filter({$0.answer != nil && $0.answer.taskId == String(answer.questionID)}).first {
-                    fv.answer.updateLocalAnswerObj(forAnsMapModel: answer, isSentInstance: isSentInstance)
+                    fv.answer.updateLocalAnswerObj(forAnsMapModel: answer, isSentInstance: isSentInstance, dbRawInstance: self.dbRawInstanceObj as! JobInstance)
                 }
             }
         }
@@ -548,17 +572,28 @@ class JobInstanceModel: NSObject {
     private func manageInstanceComments(instanceComments: [InstanceComment]) {
         // Store Comments if Not Available in local
         for comment in instanceComments {
-            if !self.comments.contains(where: {$0.commentId!.lowercased() == comment.clientID.lowercased()}) {
+            if (comment.clientID == nil && !self.comments.contains(where: {$0.commentServerId == comment.id})) ||
+                (comment.clientID != nil && !self.comments.contains(where: {$0.commentId!.lowercased() == (comment.clientID ?? "").lowercased()}))
+            {
                 let commentObj = CommentModel(comment: comment)
                 commentObj.instanceComment = self.dbRawInstanceObj as? JobInstance
-                if DBJobInstanceServices.saveComment(forCommentObj: commentObj) {
+                if DBDocumentServices.saveComment(forCommentObj: commentObj) {
                     self.comments.append(commentObj)
                 }
             }
-            else if let localComment = self.comments.filter({ $0.commentId!.lowercased() == comment.clientID.lowercased() }).first {
+            else if let localComment = self.comments.filter({ $0.commentId!.lowercased() == (comment.clientID ?? "").lowercased() }).first {
                 if localComment.commentServerId == 0 {
                     localComment.commentServerId = comment.id
                     DBJobInstanceServices.updateCommentId(commentId: localComment.commentId!, serverCommentId: comment.id)
+                }
+                else if let lastUpdOn = comment.lastUpdatedOn, let localLastUpdOn = localComment.lastUpdatedOn {
+                    if localLastUpdOn.compare(lastUpdOn.dateFromGMTdateString(withTimeZone: "UTC")) != .orderedSame {
+                        localComment.commentServerId = comment.id
+                        localComment.commentText = comment.text
+                        localComment.lastUpdatedOn = lastUpdOn.dateFromGMTdateString(withTimeZone: "UTC")
+                        localComment.lastUpdatedBy = comment.updator
+                        DBJobInstanceServices.updateCommentFromServer(commentModel: localComment)
+                    }
                 }
             }
         }
@@ -586,10 +621,42 @@ class JobInstanceModel: NSObject {
             }
             
             var isSaved = false
-            let document = DocumentModel(forInstance: self.dbRawInstanceObj as! JobInstance,withDocObject: documentObj, forDocName: photoName){ (success) in
+            let document = DocumentModel(forInstance: self.dbRawInstanceObj as! JobInstance, withDocObject: documentObj, forDocName: photoName){ (success) in
                 isSaved = success
             }
             if isSaved { self.documents.append(document) }
         }
+        
+        for document in self.documents.filter({ $0.photoServerURL != nil && $0.photoServerURL != ""}) {
+            if !documentList.contains(where: { String($0.documentURL) == document.photoServerURL }) {
+                if document.deleteDocument() {
+                    self.removeDocumentFromInst(documentId: document.documentId!)
+                }
+            }
+        }
+    }
+    
+    public func completeAndSendByOthers() -> Bool {
+        guard isInstanceExistLocally() else {
+            return false
+        }
+        
+        let instLocal = DBJobInstanceServices.getJobInstance(instanceId: self.instId!)!
+        if (!instLocal.isCompleted.boolValue && !instLocal.isSent.boolValue) {
+            self.isCompleted = NSNumber(value: true)
+            self.isSent = NSNumber(value: true)
+            self.isCompleteNSend = NSNumber(value: true)
+            self.isSentOrUpdated = NSNumber(value: true)
+            self.status = StringConstants.StatusMessages.SuccessfullySent + " by " + (self.lastUpdatedBy ?? "Anonymous User")
+            DBJobInstanceServices.updateJobInstance(jobInstance: self)
+        }
+        return true
+    }
+    
+    public func isInstanceExistLocally() -> Bool {
+        guard self.instId != nil && DBJobInstanceServices.getJobInstance(instanceId: self.instId!) != nil else {
+            return false
+        }
+        return true
     }
 }

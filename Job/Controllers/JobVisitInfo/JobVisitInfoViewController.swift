@@ -53,6 +53,7 @@ class JobVisitInfoViewController: RootViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = StringConstants.PageTitles.JOB_PAGE_TITLE
+        self.setNavRightBarItem()
         
         locManager.delegate = self
         if locManager.responds(to: #selector(CLLocationManager.requestWhenInUseAuthorization)) {
@@ -66,37 +67,23 @@ class JobVisitInfoViewController: RootViewController {
             }
         }
 
-        guard let instModel = self.instance else { return }
-        self.loadingView.indicatorView = JGProgressHUDIndeterminateIndicatorView()
-        self.loadingView.textLabel.text = StringConstants.StatusMessages.LOADING_JOB_DETAILS
-        self.loadingView.show(in: self.view, animated: true)
-        
         if self.instance.template.isShared {
-            JobServices().getJobInstance(forInstance: instModel) { (updatedInst) in
-                guard updatedInst.completedDate == nil else {
-                    self.popViewController.showInView(self.view, withTitle: StringConstants.ButtonTitles.TLT_Warning, withMessage: StringConstants.StatusMessages.JOB_COMPLETED, withCloseBtTxt: StringConstants.ButtonTitles.BTN_GO_BACK, withAcceptBt: nil, animated: true, isMessage: false, continueBlock: {
-                    }) { _ = self.navigationController?.popViewController(animated: true) }
-                    return
-                }
-                self.instance = updatedInst
-                AppInfo.sharedInstance.selJobInstance = self.instance
-                self.loadJbInfoData()
+            getJobInstanceFromServer()
+            var menubtn:UIBarButtonItem? = nil
+            for item in self.navigationItem.rightBarButtonItems! {
+                menubtn = item
             }
+            let downloadBtn = UIBarButtonItem(image: UIImage(named: "RefreshIcon_sm"), style: .done, target: self, action: #selector(getJobInstanceFromServer))
+            self.navigationItem.rightBarButtonItems = [menubtn!, downloadBtn]
+            
         } else {
-            DispatchQueue.global().async {
-                self.instance = DBJobInstanceServices.loadJobInstIfExist(instModel: instModel)
-                AppInfo.sharedInstance.selJobInstance = self.instance
-                DispatchQueue.main.async {
-                    self.loadJbInfoData()
-                }
-            }
+            loadInstanceFromLocal()
         }
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.slideMenuController()?.closeRight()
-        self.setNavRightBarItem()
         self.loadJbInfoData()
         if UIDevice.current.userInterfaceIdiom == .phone {
             if let appDelegate = UIApplication.shared.delegate as? AppDelegate {
@@ -153,6 +140,77 @@ class JobVisitInfoViewController: RootViewController {
         super.viewDidLayoutSubviews()
     }
     
+    fileprivate func multipleInstanceFoundError(_ error: ErrorObject) {
+        let msg = error.message + "\nPlease contact your manager or Davaco support."
+        self.popViewController.showInView(self.view, withTitle: StringConstants.ButtonTitles.TLT_Caution, withMessage: msg, withCloseBtTxt: StringConstants.ButtonTitles.BTN_Close, withAcceptBt: nil, animated: true, isMessage: false, continueBlock: {
+        }) {
+            _ = self.navigationController?.popViewController(animated: true)
+        }
+    }
+    
+    @objc func getJobInstanceFromServer() {
+        guard let instModel = self.instance else { return }
+        self.loadingView.indicatorView = JGProgressHUDIndeterminateIndicatorView()
+        self.loadingView.textLabel.text = StringConstants.StatusMessages.LOADING_JOB_DETAILS
+        self.loadingView.show(in: self.view, animated: true)
+        
+        JobServices().getJobInstance(forInstance: instModel, isSummaryPage: false) { (updatedInst, instMapper, errorObject) in
+            if let error = errorObject {
+                self.multipleInstanceFoundError(error)
+                return
+            }
+            guard let instMapperModel = instMapper else {
+                self.loadingView.dismiss(animated: true)
+                return
+            }
+            guard updatedInst.completedDate == nil else {
+                let isInstanceExistInLocal = updatedInst.completeAndSendByOthers()
+                self.popViewController.showInView(self.view, withTitle: StringConstants.ButtonTitles.TLT_Warning, withMessage: StringConstants.StatusMessages.JOB_COMPLETED, withCloseBtTxt: StringConstants.ButtonTitles.BTN_GO_BACK, withAcceptBt: nil, animated: true, isMessage: false, continueBlock: {
+                }) {
+                    if isInstanceExistInLocal {
+                        self.gotoTransmitRepoNoSendReq()
+                    } else {
+                        _ = self.navigationController?.popViewController(animated: true)
+                    }
+                }
+                return
+            }
+            
+            // Warning message to confirm that user wants to continue this Job
+            if !updatedInst.isInstanceExistLocally() {
+                self.popViewController.showInView(self.view, withTitle: StringConstants.ButtonTitles.TLT_Message, withMessage: StringConstants.StatusMessages.JOB_STARTED_MSG, withCloseBtTxt: StringConstants.ButtonTitles.BTN_Cancel, withAcceptBt: StringConstants.ButtonTitles.BTN_CONTINUE, animated: true, isMessage: false, removeAnimation: false, btnDispTypeParallel: true)
+                {
+                    updatedInst.updateLocalInstance(forMInstance: instMapperModel)
+                    self.instance = updatedInst
+                    AppInfo.sharedInstance.selJobInstance = self.instance
+                    self.loadJbInfoData(isLoadingFinished: true)
+                } cancelBlock: {
+                    _ = self.navigationController?.popViewController(animated: true)
+                }
+            }
+            else {
+                updatedInst.updateLocalInstance(forMInstance: instMapperModel)
+                self.instance = updatedInst
+                AppInfo.sharedInstance.selJobInstance = self.instance
+                self.loadJbInfoData(isLoadingFinished: true)
+            }
+        }
+    }
+    
+    func loadInstanceFromLocal() {
+        guard let instModel = self.instance else { return }
+        self.loadingView.indicatorView = JGProgressHUDIndeterminateIndicatorView()
+        self.loadingView.textLabel.text = StringConstants.StatusMessages.LOADING_JOB_DETAILS
+        self.loadingView.show(in: self.view, animated: true)
+        
+        DispatchQueue.global().async {
+            self.instance = DBJobInstanceServices.loadJobInstIfExist(instModel: instModel)
+            AppInfo.sharedInstance.selJobInstance = self.instance
+            DispatchQueue.main.async {
+                self.loadJbInfoData(isLoadingFinished: true)
+            }
+        }
+    }
     
     fileprivate func checkJobLocationFirstThenTakeDecision() {
         self.instance.user.isUserNear(storeLocation: self.instance.location) { (isNearStore, distanceAllowed) in
@@ -174,7 +232,7 @@ class JobVisitInfoViewController: RootViewController {
         self.navigationController?.pushViewController(taskView, animated: true)
     }
     
-    fileprivate func loadJbInfoData(){
+    fileprivate func loadJbInfoData(isLoadingFinished: Bool = false){
         
         if self.instance.instId == nil {
             self.showBottomBtn(showVbtn: true, showHorBtn: true)
@@ -200,7 +258,9 @@ class JobVisitInfoViewController: RootViewController {
                 _ = self.navigationController?.popToRootViewController(animated: true)
             }) { _ = self.navigationController?.popViewController(animated: true) }
         }
-        self.loadingView.dismiss(animated: true)
+        if isLoadingFinished {
+            self.loadingView.dismiss(animated: true)
+        }
     }
     
     override func shouldAutomaticallyForwardRotationMethods() -> Bool {
@@ -302,14 +362,7 @@ class JobVisitInfoViewController: RootViewController {
                                      title: StringConstants.StatusMessages.DATA_TRANS_WARNING_HEADER,
                                      isMessage: true,
                                      btnDispTypeParallel: true) {
-                if let viewControllers = self.navigationController?.viewControllers {
-                    for viewControl in viewControllers {
-                        if viewControl is MainMenuViewController {
-                            self.navigationController?.popToViewController(viewControl, animated: false)
-                            break
-                        }
-                    }
-                }
+                self.navigateToRoot()
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: Constants.NotificationsName.OPEN_TRANS_REPO_NOACTION),
                                                 object: nil, userInfo: nil)
             }
@@ -383,7 +436,20 @@ class JobVisitInfoViewController: RootViewController {
     
     func gotoTransmitReport(isCompleteJob:Bool = true) {
         self.loadingView.dismiss(animated: true)
+        self.navigateToRoot()
         
+        // Send the flag so that the system can start the send process.
+        let objInfo:[String: Bool] = ["isCompleteNSend": isCompleteJob]
+        NotificationCenter.default.post(name: NSNotification.Name(rawValue: Constants.NotificationsName.OPEN_SENT_REPORTS), object: nil, userInfo: objInfo)
+    }
+    
+    func gotoTransmitRepoNoSendReq() {
+        self.loadingView.dismiss(animated: true)
+        self.navigateToRoot()
+        NotificationCenter.default.post(name: NSNotification.Name(rawValue: Constants.NotificationsName.OPEN_TRANS_REPO_NOACTION), object: nil)
+    }
+    
+    private func navigateToRoot() {
         if let viewControllers = self.navigationController?.viewControllers {
             for viewControl in viewControllers {
                 if viewControl is MainMenuViewController {
@@ -392,10 +458,6 @@ class JobVisitInfoViewController: RootViewController {
                 }
             }
         }
-        
-        // Send the flag so that the system can start the send process.
-        let objInfo:[String: Bool] = ["isCompleteNSend": isCompleteJob]
-        NotificationCenter.default.post(name: NSNotification.Name(rawValue: Constants.NotificationsName.OPEN_SENT_REPORTS), object: nil, userInfo: objInfo)
     }
 }
 

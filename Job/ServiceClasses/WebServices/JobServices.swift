@@ -39,9 +39,10 @@ class JobServices: BaseService {
             }
             else if let answer = JobVisitModel.sharedInstance.answer.dbRawAnsObj as? Answer {
                 documentObj.documentAnswer = answer
+                DBAnswerServices.answerUpdated(answerId: answer.ansId!, isUpdated: true)
             }
             
-            DBDocumentServices.insertNewPhoto(documentModel: documentObj)
+            _ = DBDocumentServices.insertNewPhoto(documentModel: documentObj)
         } else {
             return nil
         }
@@ -75,7 +76,12 @@ class JobServices: BaseService {
                     if (DBJobInstanceServices.removeDocument(documentId: document.documentId!)) {
                         if (Utility.deleteImageFromDocumentDirectory(docName: document.name!, folderName: document.instanceId ?? "")) {
                             instance.documents.remove(at: docIndex)
+                            
+                            if document.type == Constants.DocSignatureType && (document.isSent ?? 0).boolValue {
+                                DocumentDLManager.deleteSignatureFromServer(documentId: document.documentId!)
+                            }
                         }
+                        documentObj.isSent = NSNumber(value: false)
                     }
                 } else {
                     documentObj.documentId = document.documentId
@@ -158,8 +164,8 @@ class JobServices: BaseService {
         return DBJobInstanceServices.getTransmitReportCounter()
     }
     
-    class func saveAnswer(ansModel: AnswerModel) {
-        ansModel.dbRawAnsObj = DBAnswerServices.saveAnswerObject(ansModel)
+    class func saveAnswer(ansModel: AnswerModel, selInstanceObj: JobInstance) {
+        ansModel.dbRawAnsObj = DBAnswerServices.saveAnswerObject(ansModel, selInstanceObj: selInstanceObj)
     }
     
     class func saveComment(commentObj: CommentModel, ansModel:AnswerModel?) -> CommentModel? {
@@ -169,7 +175,7 @@ class JobServices: BaseService {
             commentObj.answerComment = ansModel?.dbRawAnsObj as? Answer
             DBAnswerServices.answerUpdated(answerId: commentObj.answerComment!.ansId!)
         }
-        if DBJobInstanceServices.saveComment(forCommentObj: commentObj) {
+        if DBDocumentServices.saveComment(forCommentObj: commentObj) {
             return commentObj
         }
         return nil
@@ -328,8 +334,7 @@ class JobServices: BaseService {
         }
     }
     
-    
-    func getJobInstance(forInstance instance: JobInstanceModel, completionHandler:@escaping (_ jobInstance: JobInstanceModel)->()){
+    func getJobInstance(forInstance instance: JobInstanceModel, isSummaryPage:Bool = false, completionHandler:@escaping (_ jobInstance: JobInstanceModel, _ mapperModel: JobInstanceMapping?, _ errorObj: ErrorObject?)->()){
         
         if let projectId = instance.project?.projectId, let templateId = instance.templateId, let locationId = instance.locationId {
             var url = AppInfo.sharedInstance.httpType + AppInfo.sharedInstance.baseURL + Constants.APIServices.GET_SharedInstance  + "0" + "?projectid=\(projectId)&templateid=\(templateId)&locationid=\(locationId)"
@@ -342,26 +347,62 @@ class JobServices: BaseService {
                 if(isSucceeded) {
                     if let data = resData {
                         do {
-                            let jsonStr = String(data: try! JSONSerialization.data(withJSONObject: resJson as Any, options: []), encoding: .ascii)
-                            print("Shared JSON Output: \(String(describing: jsonStr ?? ""))");
-                            
                             let instMapper = try JSONDecoder().decode(JobInstanceMapping.self, from: data)
-                            instance.updateLocalInstance(forMInstance: instMapper)
+                            //let jsonStr = String(data: try! JSONSerialization.data(withJSONObject: resJson as Any, options: []), encoding: .ascii)
+                            print("Shared JSON Output: \(String(describing: resJson))");
+                            
+                            if !isSummaryPage {
+                                if let comDate = instMapper.completedOn {
+                                    
+                                    // if istanceId is not same the as the one we have locally, then move all the images
+                                    if instance.instId != nil && instance.instId!.uppercased() != instMapper.clientID.uppercased() {
+                                        Utility.moveImageToNewDirectory(forSourceFolder: instance.instId!.uppercased(), withDestinationFolder: instMapper.clientID.uppercased())
+                                    }
+                                    instance.instId = instMapper.clientID.uppercased()
+                                    instance.completedDate = Utility.dateFromGMTdateString(dateStr:comDate, withTimeZone: "UTC") as NSDate
+                                }
+                                completionHandler(instance, instMapper, nil)
+                                return
+                            }
+                            else {
+                                instance.updateLocalInstance(forMInstance: instMapper)
+                            }
                         }catch {
                             print("Error: \(error)\n\n Output: \(String(describing: resJson))")
-//                            Appsee.addEvent(StringConstants.AppseeEventMessages.Failed_To_Get_InstanceId_For_Status, withProperties: resJson as? [String: AnyObject])
                         }
                     }
                 }
                 else {
-                    print("------------------------Instance NOT exist-------------------------")
-//                    Appsee.addEvent(StringConstants.AppseeEventMessages.Failed_To_Get_InstanceId_For_Status, withProperties: ["Response": resJson!, "ErrorCode": statusCode])
+                    print("------------------------Instance NOT exist-------------------------: ", resJson ?? "(Undefined")
+                    print("StatusCode: ", statusCode)
+                    if let data = resData, self.handleSharedGetError(jsonRes: resJson) {
+                        do {
+                            let errorObj = try JSONDecoder().decode(ErrorObject.self, from: data)
+                            completionHandler(instance, nil, errorObj)
+                            return
+                        } catch {
+                            print("Error Parsing the Error Object: ", statusCode)
+                        }
+                    }
                 }
-                completionHandler(instance)
+                completionHandler(instance, nil, nil)
             }
         }
         else {
-            completionHandler(instance)
+            completionHandler(instance, nil, nil)
         }
+    }
+    
+    func handleSharedGetError(jsonRes: AnyObject?) -> Bool {
+        if jsonRes != nil, let errorDic = jsonRes as? [String: AnyObject] {
+            if let eCode = errorDic[Constants.ApiRequestFields.Key_ErrorCode], let _ = errorDic[Constants.ApiRequestFields.Key_Message] {
+                if let errorCode = eCode as? NSInteger {
+                    if errorCode == GetInstanceErrorCode.MultipleSharedInst.rawValue {
+                        return true
+                    }
+                }
+            }
+        }
+        return false;
     }
 }

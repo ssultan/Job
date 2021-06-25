@@ -73,7 +73,6 @@ class AnswerModel: NSObject {
         }
         
         if let comments = answer.comments {
-            print("Total Comments: \(comments.count)")
             for commentObj in comments {
                 if let comment = commentObj as? Comment {
                     self.comments.append(CommentModel(comment: comment))
@@ -139,7 +138,7 @@ class AnswerModel: NSObject {
             }
             
             //Save instance answer to answer object
-            JobServices.saveAnswer(ansModel: self)
+            JobServices.saveAnswer(ansModel: self, selInstanceObj: instance.dbRawInstanceObj as! JobInstance)
         }
     }
     
@@ -208,7 +207,7 @@ class AnswerModel: NSObject {
         return self.task.getDocumentResolution();
     }
     
-    func updateLocalAnswerObj(forAnsMapModel ansMapObj: AnswerMapper, isSentInstance:Bool) {
+    func updateLocalAnswerObj(forAnsMapModel ansMapObj: AnswerMapper, isSentInstance:Bool, dbRawInstance: JobInstance) {
          
         if isSentInstance {  // not sure why codition was before { self.ansServerId == nil || }
             self.isAnsChanged = false
@@ -223,18 +222,24 @@ class AnswerModel: NSObject {
         // Only update answer value, if the answer hasn't been changed.
         if !self.isAnsChanged, let taskType = self.task.taskType {
             self.value = ansMapObj.value
+            
+            let val = (self.value == "." || self.value == "N/A" || self.value == nil) ? "0" : self.value!
             self.isAnswerCompleted = NSNumber(value:   ansMapObj.value == "100"
                                                     || ansMapObj.value == "N/A"
-                                                    || (taskType == .ParentTask && Int(self.value ?? "0")! > 0) ? true : false)
+                                                || (taskType == .ParentTask && (Int(val) ?? 0) > 0) ? true : false)
             if let start = ansMapObj.start {
                 self.startDate = Utility.dateFromGMTdateString(dateStr: start, withTimeZone: "UTC") as NSDate
+            } else if let _ = self.startDate {
+                self.startDate = nil
             }
             if let end = ansMapObj.end {
                 self.endDate = Utility.dateFromGMTdateString(dateStr: end, withTimeZone: "UTC") as NSDate
+            } else if let _ = self.endDate {
+                self.endDate = nil
             }
         }
         
-        if let answerObj = DBAnswerServices.saveAnswerObject(self) { //.updateAnswerModel(forAnsMapModel: ansMapObj)
+        if let answerObj = DBAnswerServices.saveAnswerObject(self, selInstanceObj: dbRawInstance) { //.updateAnswerModel(forAnsMapModel: ansMapObj)
             self.manageAnswerComments(forAnsComments: ansMapObj.commentList, withAnsObj: answerObj)
             self.managePhotos(forAnswer: answerObj, withAnsMapper: ansMapObj)
         }
@@ -242,18 +247,31 @@ class AnswerModel: NSObject {
     
     private func manageAnswerComments(forAnsComments ansComments: [AnswerComment], withAnsObj answerObj: Answer) {
         for comment in  ansComments {
-            if !self.comments.contains(where: {$0.commentId!.lowercased() == comment.clientID.lowercased()}) {
+            if (comment.clientID == nil && !self.comments.contains(where: {$0.commentServerId == comment.id})) ||
+                (comment.clientID != nil && !self.comments.contains(where: {$0.commentId!.lowercased() == (comment.clientID ?? "").lowercased()}))
+            {
                 let commentObj = CommentModel(comment: comment)
                 commentObj.answerComment = answerObj
                 commentObj.instanceComment = answerObj.jobInstance
-                if DBJobInstanceServices.saveComment(forCommentObj: commentObj) {
+                if DBDocumentServices.saveComment(forCommentObj: commentObj) {
                     self.comments.append(commentObj)
                 }
             }
-            else if let localComment = self.comments.filter({ $0.commentId!.lowercased() == comment.clientID.lowercased() }).first {
+            else if let localComment = self.comments.filter({ $0.commentId!.lowercased() == (comment.clientID ?? "").lowercased() }).first {
                 if localComment.commentServerId == 0 {
                     localComment.commentServerId = comment.id
                     DBJobInstanceServices.updateCommentId(commentId: localComment.commentId!, serverCommentId: comment.id)
+                }
+                else if let lastUpdOn = comment.lastUpdatedOn, let localLastUpdOn = localComment.lastUpdatedOn {
+                    let lastUpdOnServerDate = lastUpdOn.dateFromGMTdateString(withTimeZone: "UTC")
+                    print("Compare DATE: \(localLastUpdOn), and Server Date: \(lastUpdOnServerDate); Result: \(localLastUpdOn.compare(lastUpdOnServerDate).rawValue)")
+                    if localLastUpdOn.compare(lastUpdOnServerDate) != .orderedSame {
+                        localComment.commentServerId = comment.id
+                        localComment.commentText = comment.text
+                        localComment.lastUpdatedOn = lastUpdOn.dateFromGMTdateString(withTimeZone: "UTC")
+                        localComment.lastUpdatedBy = comment.lastUpdatedByFullName
+                        DBJobInstanceServices.updateCommentFromServer(commentModel: localComment)
+                    }
                 }
             }
         }
@@ -274,7 +292,7 @@ class AnswerModel: NSObject {
         // add empty photo, as the task has been completed or NOT completed.
         if let task = answerObj.task, let value = answerObj.value, let docs = answerObj.documents {
             print("count: \(docs.count), ServerDocCount:\(ansMapObj.documentCount), task: \(task.taskType ?? ""), Value: \(value)")
-            if answerObj.task?.taskType! != TaskType.ParentTask.getTaskName() {
+            if task.taskType! != TaskType.ParentTask.getTaskName() {
                 
                 for documentObj in ansMapObj.documentList {
                     var photoName = Utility.generateDcoumentNameFor(projectNumber: answerObj.jobInstance!.jobTemplate!.tempProject!.projectNumber, storeNumber: answerObj.jobInstance!.jobLocation!.storeNumber, taskNumber: self.taskNo ?? "0", attribute: PhotoAttributesTypes.General, documentType: Constants.JPEG_DOC_TYPE)
@@ -291,7 +309,27 @@ class AnswerModel: NSObject {
                     }
                     if isSavedDoc { self.ansDocuments.append(document) }
                 }
+                
+                for document in self.ansDocuments.filter({ $0.photoServerURL != nil && $0.photoServerURL != "" }) {
+                    if !ansMapObj.documentList.contains(where: { String($0.documentURL) == document.photoServerURL }) {
+                        if document.deleteDocument() {
+                            self.removeDocumentCache(documentId: document.documentId!)
+                        }
+                    }
+                }
             }
+        }
+    }
+    
+    // Remove a document from Answer Array
+    public func removeDocumentCache(documentId: String) {
+        var idx = 0
+        for document in self.ansDocuments {
+            if document.documentId == documentId {
+                self.ansDocuments.remove(at: idx)
+                break
+            }
+            idx += 1
         }
     }
 }
