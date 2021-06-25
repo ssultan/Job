@@ -189,7 +189,7 @@ extension CommentsViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "CommentCardCell", for: indexPath) as! CommentCardCell
-        cell.commentTitle.text = "\(commentsList[indexPath.row].createdBy!) - \(commentsList[indexPath.row].createdDate!.convertToString(format: "MM/dd/yyyy hh:mm a"))"
+        cell.commentTitle.text = "\(commentsList[indexPath.row].createdBy ?? "Anonymous User") - \(commentsList[indexPath.row].createdDate!.convertToString(format: "MM/dd/yyyy hh:mm a"))"
         cell.comment.text = commentsList[indexPath.row].commentText ?? ""
         return cell
     }

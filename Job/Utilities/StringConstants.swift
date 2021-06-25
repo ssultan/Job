@@ -83,6 +83,7 @@ struct StringConstants {
         static let LOADING_JOB_DETAILS = "Loading job details..."
         static let INITIATING_SEND_PROCESS = "Initiating send process..."
         static let NO_TASK_MSG = "Please logout and log back in to see the jobs"
+        static let JOB_COMPLETED = "This job has been completed for this location. Please contact your manager for more information"
         
         
         // Task Details page
@@ -131,6 +132,10 @@ struct StringConstants {
         // Signature page
         static let Signature_Is_Required_Msg = "Signature is required"
         static let Signature_Name_Required_Msg = "Please enter your name"
+        
+        
+        // Photo Gallery page
+        static let Download_photo_Message = "You have some shared photos, that are not downloaded. Would you like to download and view them?"
         
         // Help Page
         static let CallHelpDesk = "Call Mobile Support?"
@@ -188,6 +193,7 @@ struct StringConstants {
         static let Failed_Delete_Thumb_Img = "Failed To Delete Thumbnail Photo:"
         static let Template_Not_Assigned = "Template No Longer Assigned"
         static let Failed_To_Get_InstanceId = "Failed to get instanceId for ClientId"
+        static let Failed_To_Get_InstanceId_For_Status = "Failed to get instanceId Status"
         static let Token_Expired_BG_SendProcess = "Token Expired."
         static let BAD_REQUEST = "Error: Bad Request. Please try again."
         static let NOT_FOUND_ERROR = "Error: Not Found. Please contact Mobile Support."
@@ -322,6 +328,7 @@ struct StringConstants {
         static let BTN_Rotator = "ROTATOR"
         static let BTN_Handheld = "HANDHELD"
         static let BTN_Cancel = "CANCEL"
+        static let BTN_GO_BACK = "GO BACK"
         static let BTN_Close = "CLOSE"
         static let BTN_Understood = "UNDERSTOOD!"
         static let BTN_TRY_AGAIN = "TRY AGAIN"
@@ -331,6 +338,9 @@ struct StringConstants {
         static let BTN_SEND_ALL = "SEND ALL"
         static let BTN_GO = "GO"
         static let BTN_OK = "OK"
+        static let BTN_W_OK = "OK!"
+        static let BTN_PROCEED = "PROCEED"
+        static let BTN_DOWNLOAD = "DOWNLOAD"
         static let BTN_TAKE_PHOTO = "TAKE PHOTO"
         static let BTN_OPN_TUTORIAL = "OPEN TUTORIAL"
         static let BTN_SETTINGS = "SETTINGS"
@@ -383,6 +393,7 @@ struct StringConstants {
         static let OUT_OF_SCOPE       =  "OUT OF SCOPE"
         static let SIGNATURE = "SIGNATURE"
         static let JOB_VISIT_INFO = "JOB INFO"
+        static let REFRESH_JOB_INFO = "REFRESH JOB"
         static let UNANSWERED_ONLY = "SHOW UNANSWERED TASKS"
         static let SHOW_ALL_QUES = "SHOW ALL TASKS"
         static let CALL_HELP_DESK = "CALL MOBILE SUPPORT"

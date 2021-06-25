@@ -20,14 +20,18 @@ class DBAnswerServices: NSObject {
     class func saveAnswerObject(_ answerModel: AnswerModel) -> Answer? {
         let managedObjContext = CoreDataManager.sharedInstance.managedObjectContext
         do {
-            if let ansArr = CoreDataBusiness.fetchData(managedObjContext, entityName:Constants.EntityNames.AnswerEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: NSPredicate(format: "ansId = %@", answerModel.ansId?.uppercased() ?? "0")) as? [Answer]
+            if let ansArr = CoreDataBusiness.fetchData(managedObjContext, entityName:Constants.EntityNames.AnswerEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: NSPredicate(format: "(ansId = %@ OR ansId = %@) AND jobInstance.manifest.user.userName = %@", answerModel.ansId?.uppercased() ?? "0", answerModel.ansId?.lowercased() ?? "0", AppInfo.sharedInstance.username!)) as? [Answer]
             {
                 if let answer = ansArr.first {
+                    answer.ansId = answerModel.ansId
                     answer.task = answerModel.task.dbRawInst as? Task
+                    answer.ansServerId = answerModel.ansServerId
                     answer.isCompleted = answerModel.isAnswerCompleted ?? NSNumber(value: false)
                     answer.value = answerModel.value ?? ""
                     answer.startDate = answerModel.startDate
                     answer.endDate = answerModel.endDate
+                    answer.docCountInServer = answerModel.docCountInServer
+                    answer.isAnsChanged = NSNumber(value: answerModel.isAnsChanged)
                     try managedObjContext.save()
                     return answer
                 }
@@ -42,7 +46,9 @@ class DBAnswerServices: NSObject {
             answer.taskId = answerModel.task.taskId
             answer.startDate = answerModel.startDate
             answer.endDate = answerModel.endDate
+            answer.docCountInServer = answerModel.docCountInServer
             answer.jobInstance = AppInfo.sharedInstance.selJobInstance.dbRawInstanceObj as? JobInstance
+            answer.isAnsChanged = NSNumber(value: answerModel.isAnsChanged)
             try managedObjContext.save()
             return answer
         }
@@ -53,7 +59,7 @@ class DBAnswerServices: NSObject {
     }
     
     class func removeAnswerObject( answerId: String) -> Bool {
-        let predicateNew = NSPredicate(format: "ansId = %@", answerId.uppercased())
+        let predicateNew = NSPredicate(format: "(ansId = %@ OR ansId = %@) AND jobInstance.manifest.user.userName = %@", answerId.uppercased(), answerId.lowercased(), AppInfo.sharedInstance.username!)
         let managedObjContext = CoreDataManager.sharedInstance.managedObjectContext
         let isDeleted = CoreDataBusiness.deleteData(managedObjContext, entityName: Constants.EntityNames.AnswerEntity, fetchByPredicate: predicateNew)
         
@@ -72,11 +78,59 @@ class DBAnswerServices: NSObject {
         return isDeleted
     }
     
-    class func updateAnswerObject(answerId: String, ansServerId: String) {
+    class func updateAnswerId(answerId: String, ansServerId: String) {
         let managedObjContext = CoreDataManager.sharedInstance.managedObjectContext
-        if let answer = CoreDataBusiness.fetchData(managedObjContext, entityName:Constants.EntityNames.AnswerEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: NSPredicate(format: "ansId = %@", answerId.uppercased())).first as? Answer {
+        let predicateNew = NSPredicate(format: "(ansId = %@ OR ansId = %@) AND jobInstance.manifest.user.userName = %@", answerId.uppercased(), answerId.lowercased(), AppInfo.sharedInstance.username!)
+        if let answer = CoreDataBusiness.fetchData(managedObjContext, entityName:Constants.EntityNames.AnswerEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: predicateNew).first as? Answer {
             
             answer.ansServerId = ansServerId
+            do {
+                try managedObjContext.save()
+            } catch {
+                print("Failed to update answer object")
+            }
+        }
+    }
+    
+    class func answerUpdated(answerId: String, isUpdated: Bool = true) {
+        let managedObjContext = CoreDataManager.sharedInstance.managedObjectContext
+        let predicateNew = NSPredicate(format: "(ansId = %@ OR ansId = %@) AND jobInstance.manifest.user.userName = %@", answerId.uppercased(), answerId.lowercased(), AppInfo.sharedInstance.username!)
+        if let answer = CoreDataBusiness.fetchData(managedObjContext, entityName:Constants.EntityNames.AnswerEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: predicateNew).first as? Answer {
+            
+            answer.isAnsChanged = NSNumber(value: isUpdated)
+            do {
+                try managedObjContext.save()
+            } catch {
+                print("Failed to update answer object")
+            }
+        }
+    }
+    
+    class func updateAnswerModel(forAnsMapModel ansModel: AnswerMapper) {
+        let managedObjContext = CoreDataManager.sharedInstance.managedObjectContext
+        let predicate = NSPredicate(format: "taskId = %d AND jobInstance.manifest.user.userName = %@", ansModel.questionID, AppInfo.sharedInstance.username!)
+        
+        if let answer = CoreDataBusiness.fetchData(managedObjContext, entityName:Constants.EntityNames.AnswerEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: predicate).first as? Answer {
+            
+            if Int(answer.ansServerId ?? "0") != ansModel.id {
+                answer.ansServerId = String(ansModel.id)
+            }
+            if answer.ansId != ansModel.clientID {
+                answer.ansId = ansModel.clientID
+            }
+            if let endDate = answer.endDate, let remoteEndD = ansModel.end {
+                if remoteEndD != "" && !endDate.isEqual(to: remoteEndD.dateFromString()!) {
+                    answer.endDate = remoteEndD.dateFromGMTdateString(withTimeZone: "UTC") as NSDate
+                }
+            }
+            if let startDate = answer.startDate, let remoteStD = ansModel.start {
+                if remoteStD != "" && !startDate.isEqual(to: remoteStD.dateFromString()!) {
+                    answer.startDate = remoteStD.dateFromGMTdateString(withTimeZone: "UTC") as NSDate
+                }
+            }
+            if (answer.value ?? "") != ansModel.value {
+                answer.value = ansModel.value
+            }
             
             do {
                 try managedObjContext.save()

@@ -135,6 +135,7 @@ class TaskViewController: RootViewController, TaskViewDelegate {
             if fvInfo.task != nil, let taskType = fvInfo.task.taskType {
                 if taskType == .ParentTask, let answer = fvInfo.answer {
                     answer.isAnswerCompleted = NSNumber(value: true)
+                    answer.value = "."
                     answer.syncAnswerToDB()
                 }
             }

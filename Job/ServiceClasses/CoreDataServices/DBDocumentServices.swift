@@ -11,9 +11,13 @@ import CoreData
 
 class DBDocumentServices: CoreDataBusiness {
     
-    
-    class func insertNewPhoto(documentModel: DocumentModel) {
+    class func insertNewPhoto(documentModel: DocumentModel) -> Bool{
         let managedObjectContext = CoreDataManager.sharedInstance.managedObjectContext
+        
+        if let _ = self.fetchData(managedObjectContext, entityName:Constants.EntityNames.DocumentEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: NSPredicate(format: "documentId = %@ AND (jobInstance.manifest.user.userName = %@ OR answer.jobInstance.manifest.user.userName = %@)", documentModel.documentId ?? "", AppInfo.sharedInstance.username!, AppInfo.sharedInstance.username!)).first as? Document
+        {
+            return false
+        }
         
         let document = NSEntityDescription.insertNewObject(forEntityName: Constants.EntityNames.DocumentEntity, into: managedObjectContext) as! Document
         document.name = documentModel.name
@@ -30,12 +34,14 @@ class DBDocumentServices: CoreDataBusiness {
         document.isNeedToSend = documentModel.isNeedToSend
         document.isPhotoDeleted = documentModel.isPhotoDeleted
         document.isDataNull = documentModel.isDataNull ?? NSNumber(value: false)
+        document.answer = documentModel.documentAnswer
+        document.jobInstance = documentModel.documentInstance
+        document.photoServerURL = documentModel.photoServerURL
+        //if let instane = documentModel.documentInstance {} else {}
         
         if let dic = documentModel.exifDic {
             do {
                 let jsonData = try JSONSerialization.data(withJSONObject: dic, options: .prettyPrinted)
-                // here "jsonData" is the dictionary encoded in JSON data
-                
                 if let dicStr = NSString(data: jsonData, encoding: String.Encoding.utf8.rawValue) as String? {
                     document.exifDic = dicStr
                 }
@@ -44,20 +50,12 @@ class DBDocumentServices: CoreDataBusiness {
             }
         }
         
-        // From next version we will use 'photoAttrType'
-        if documentModel.attribute! == PhotoAttributesTypes.FieldVisit.rawValue {
-            if let surveyIns = AppInfo.sharedInstance.selJobInstance.dbRawInstanceObj as? JobInstance {
-                document.jobInstance = surveyIns
-            }
-        }
-        else if let answer = JobVisitModel.sharedInstance.answer.dbRawAnsObj as? Answer {
-            document.answer = answer
-        }
-        
         do {
             try managedObjectContext.save()
+            return true
         } catch {
             print("Failed to save the document : \(error)")
+            return false
         }
     }
     
@@ -112,7 +110,7 @@ class DBDocumentServices: CoreDataBusiness {
     class func markAllDocumentsAsNotSent(forInstance instanceId: String) {
         let managedObjectContext = CoreDataManager.sharedInstance.managedObjectContext
         
-        if let documents = self.fetchData(managedObjectContext, entityName:Constants.EntityNames.DocumentEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: NSPredicate(format: "jobInstance.instId = %@", instanceId)) as? [Document]
+        if let documents = self.fetchData(managedObjectContext, entityName:Constants.EntityNames.DocumentEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: NSPredicate(format: "jobInstance.instId = %@ AND jobInstance.manifest.user.userName = %@", instanceId, AppInfo.sharedInstance.username!)) as? [Document]
         {
             for document in documents {
                 document.isSent = NSNumber(value: false)
@@ -128,7 +126,7 @@ class DBDocumentServices: CoreDataBusiness {
     // Mainly instance update request, if there is any documents left to sent to server
     class func getAllDocumentsThatNeedsToSend() -> [DocumentModel] {
         let managedObjectContext = CoreDataManager.sharedInstance.managedObjectContext
-        let predicate = NSPredicate(format: "isNeedToSend = %@ AND isSent = %@  AND isPhotoDeleted = %@ AND (jobInstance.manifest.user.userName = %@ OR jobAnswer.jobInstance.instManifest.userName = %@)", NSNumber(value: true), NSNumber(value: false), NSNumber(value: false), AppInfo.sharedInstance.username, AppInfo.sharedInstance.username)
+        let predicate = NSPredicate(format: "isNeedToSend = %@ AND isSent = %@  AND isPhotoDeleted = %@ AND (jobInstance.manifest.user.userName = %@ OR answer.jobInstance.manifest.user.userName = %@)", NSNumber(value: true), NSNumber(value: false), NSNumber(value: false), AppInfo.sharedInstance.username, AppInfo.sharedInstance.username)
         
         var docList = [DocumentModel]()
         if let documentList = self.fetchData(managedObjectContext, entityName: Constants.EntityNames.DocumentEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: predicate) as? [Document] {
@@ -181,7 +179,7 @@ class DBDocumentServices: CoreDataBusiness {
         let managedObjectContext = CoreDataManager.sharedInstance.managedObjectContext
         
         managedObjectContext.perform {
-            if let document = self.fetchData(managedObjectContext, entityName:Constants.EntityNames.DocumentEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: NSPredicate(format: "documentId = %@", documentModel.documentId ?? "")).first as? Document
+            if let document = self.fetchData(managedObjectContext, entityName:Constants.EntityNames.DocumentEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: NSPredicate(format: "documentId = %@ AND (jobInstance.manifest.user.userName = %@ OR answer.jobInstance.manifest.user.userName = %@)", documentModel.documentId ?? "", AppInfo.sharedInstance.username!, AppInfo.sharedInstance.username!)).first as? Document
             {
                 if let docServerId = documentModel.docServerId {
                     document.docServerId = docServerId
@@ -236,7 +234,7 @@ class DBDocumentServices: CoreDataBusiness {
     class func getDocument(ForDocModel docModel:DocumentModel) -> Document? {
         let managedObjContext = CoreDataManager.sharedInstance.managedObjectContext
         
-        if let document = self.fetchData(managedObjContext, entityName:Constants.EntityNames.DocumentEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: NSPredicate(format: "documentId = %@", docModel.documentId!)).first as? Document {
+        if let document = self.fetchData(managedObjContext, entityName:Constants.EntityNames.DocumentEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: NSPredicate(format: "documentId = %@ AND (jobInstance.manifest.user.userName = %@ OR answer.jobInstance.manifest.user.userName = %@)", docModel.documentId!, AppInfo.sharedInstance.username!, AppInfo.sharedInstance.username!)).first as? Document {
             
             return document
         }
@@ -248,7 +246,7 @@ class DBDocumentServices: CoreDataBusiness {
         
         var doclist = [DocumentModel]()
         if let instId = instance.instId {
-            let predicate = NSPredicate(format: "(jobInstance.instId = %@ OR answer.jobInstance.instId = %@) AND isSent = %@ AND isPhotoDeleted = %@", instId, instId, NSNumber(value: true), NSNumber(value: false))
+            let predicate = NSPredicate(format: "(jobInstance.instId = %@ OR answer.jobInstance.instId = %@) AND isSent = %@ AND isPhotoDeleted = %@ AND (jobInstance.manifest.user.userName = %@ OR answer.jobInstance.manifest.user.userName = %@)", instId, instId, NSNumber(value: true), NSNumber(value: false), AppInfo.sharedInstance.username!, AppInfo.sharedInstance.username!)
             
             if let documents = self.fetchData(managedObjectContext, entityName: Constants.EntityNames.DocumentEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: predicate) as? [Document] {
                 
@@ -265,7 +263,7 @@ class DBDocumentServices: CoreDataBusiness {
         
         var doclist = [DocumentModel]()
         if let ansId = answer.ansId {
-            let predicate = NSPredicate(format: "answer.ansId = %@", ansId)
+            let predicate = NSPredicate(format: "answer.ansId = %@ AND answer.jobInstance.manifest.user.userName = %@", ansId, AppInfo.sharedInstance.username!)
             
             if let documents = self.fetchData(managedObjectContext, entityName: Constants.EntityNames.DocumentEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: predicate) as? [Document] {
                 
@@ -280,7 +278,7 @@ class DBDocumentServices: CoreDataBusiness {
     class func isDocumentAvailInDb(documentName:String)->Bool {
         let managedObjectContext = CoreDataManager.sharedInstance.managedObjectContext
         
-        let predicate = NSPredicate(format: "originalName = %@", documentName)
+        let predicate = NSPredicate(format: "originalName = %@ AND (jobInstance.manifest.user.userName = %@ OR answer.jobInstance.manifest.user.userName = %@)", documentName, AppInfo.sharedInstance.username!, AppInfo.sharedInstance.username!)
         
         if let _ = self.fetchData(managedObjectContext, entityName: Constants.EntityNames.DocumentEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: predicate).first {
             return true

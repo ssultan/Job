@@ -32,6 +32,7 @@ class JobInstanceModel: NSObject {
     // This time object is responsible to track the instance start sending time for transmit report page.
     @objc dynamic var instanceSentTime: NSDate?
     
+    @objc dynamic var isDeletedInstance: NSNumber = NSNumber(value: false)
     @objc dynamic var projectNumber: String?
     @objc dynamic var status: String?
     @objc dynamic var templateId: String?   // This is requried for sync the existing instance with the template
@@ -46,7 +47,7 @@ class JobInstanceModel: NSObject {
     dynamic var orphaneAnsModels = [AnswerModel]()
     @objc dynamic var jobVisits = NSMutableArray()
     @objc dynamic var dbRawInstanceObj: AnyObject?
-    
+    @objc dynamic var percentCompleted:NSNumber = NSNumber(value: 0)
     
     // This 'Flagged' and 'Comments' veriables always contain null. This is something we thought to implement in Survey V2, but never implemented. If user want to put specical comment for the survey instance, then he can put this flagged verialbe to 'True' to let the admin know that there is something special in this survey. And amdin need to check the associated commetns for this surve.
     @objc dynamic var flagged:NSNumber?
@@ -78,6 +79,8 @@ class JobInstanceModel: NSObject {
         self.completedDate = jobInstance.completedDate
         self.succPhotoUploadTime = jobInstance.succPhotoUploadTime
         self.instanceSentTime = jobInstance.instanceSentTime
+        self.isDeletedInstance = jobInstance.isDeletedInstance ?? NSNumber(value: false)
+        self.percentCompleted = jobInstance.percentCompleted ?? NSNumber(value: 0)
         
         if self.instanceSentTime == nil && jobInstance.isSentOrUpdated != nil && Bool(truncating: jobInstance.isSentOrUpdated!) {
             if let compDate = self.completedDate {
@@ -310,10 +313,10 @@ class JobInstanceModel: NSObject {
             params[Constants.ApiRequestFields.Key_LocationId] = locId as AnyObject
         }
         if let startDate = self.startDate {
-            params[Constants.ApiRequestFields.Key_StartedOn] = Utility.stringFromDate(date: startDate as Date, format: Constants.SERVER_EXPECT_DATE_FORMAT) as AnyObject
+            params[Constants.ApiRequestFields.Key_StartedOn] = Utility.stringFromDate(date: startDate as Date, format: Constants.SERVER_EXPECT_DATE_FORMAT_WITH_ZONE) as AnyObject
         }
         if let completedDate = self.completedDate {
-            params[Constants.ApiRequestFields.Key_CompletedOn] = Utility.stringFromDate(date: completedDate as Date, format: Constants.SERVER_EXPECT_DATE_FORMAT) as AnyObject
+            params[Constants.ApiRequestFields.Key_CompletedOn] = Utility.stringFromDate(date: completedDate as Date, format: Constants.SERVER_EXPECT_DATE_FORMAT_WITH_ZONE) as AnyObject
         }
         params[Constants.ApiRequestFields.Key_DocumentCount] = "\(self.documents.count)" as AnyObject
         if let userName = self.user.userName {
@@ -339,8 +342,8 @@ class JobInstanceModel: NSObject {
         for fvModel in self.jobVisits {
             if let jobVisit = fvModel as? JobVisitModel {
                 if let answer = jobVisit.answer, let task = jobVisit.task {
-                    if (task.isActive ?? 0).boolValue {
-                        if isUpdating && answer.value == "" && answer.ansDocuments.count == 0 {
+                    if (task.isActive ?? 0).boolValue {//&& answer.isAnsChanged {
+                        if isUpdating && answer.ansDocuments.count == 0 && answer.value == "" {
                             continue
                         }
                         answersArray.add(answer.makeJsonForAnswer())
@@ -352,13 +355,13 @@ class JobInstanceModel: NSObject {
                 
                 for subFVModel in jobVisit.subFVModels {
                     if let answer = subFVModel.answer, let task = jobVisit.task {
-                        if (task.isActive ?? 0).boolValue  {
+                        if (task.isActive ?? 0).boolValue {//&& answer.isAnsChanged  {
                             if isUpdating && answer.value == "" && answer.ansDocuments.count == 0 {
                                 continue
                             }
                             answersArray.add(answer.makeJsonForAnswer())
                         } else {
-                            print ("Inactive Sub-Task ServerId: \(answer.ansServerId ?? ""), ClientId: \(answer.ansId ?? "")" )
+                            print ("Sub-Task Active?: \(task.isActive ?? 0), ClientId: \(answer.isAnsChanged )" )
                         }
                     }
                     
@@ -366,7 +369,7 @@ class JobInstanceModel: NSObject {
                     // 3rd level. since we support up to 3rd level.
                     for chilfOfSubFV in subFVModel.subFVModels {
                         if let answer = chilfOfSubFV.answer, let task = jobVisit.task {
-                            if (task.isActive ?? 0).boolValue  {
+                            if (task.isActive ?? 0).boolValue {//&& answer.isAnsChanged  {
                                 if isUpdating && answer.value == "" && answer.ansDocuments.count == 0 {
                                     continue
                                 }
@@ -482,6 +485,111 @@ class JobInstanceModel: NSObject {
                                                                     Constants.BgUIUpdateNotifierKeys.KeyStatus : status,
                                                                     Constants.BgUIUpdateNotifierKeys.KeyInstanceSentTime : self.succPhotoUploadTime == nil ? NSDate() : self.succPhotoUploadTime!,
                                                                     Constants.BgUIUpdateNotifierKeys.KeyInstServerId: instServerId])
+        }
+    }
+    
+    func completeNSendInstUpdate() {
+        // Remove all the orphane answers when user mark it as completed.
+        // For configurable task, we keep all the answers until user mark the survey as completed and send.
+        for ansModel in self.orphaneAnsModels {
+            ansModel.removeAnswer()
+        }
+        
+        self.completedDate = NSDate()
+        self.instanceSentTime = NSDate()
+        self.isCompleted = NSNumber(value: true)
+        self.isSentForProcessing = NSNumber(value: true)
+        self.isCompleteNSend = NSNumber(value: true)
+        self.isSentOrUpdated = NSNumber(value: true)
+        self.status = StringConstants.StatusMessages.SendingJob
+        DBJobInstanceServices.updateJobInstance(jobInstance: self)
+    }
+    
+    func completeJobInstance() {
+        self.isCompleted = NSNumber(value: true)
+        DBJobInstanceServices.updateJobInstance(jobInstance: self)
+    }
+    
+    func updateLocalInstance(forMInstance rInstance: JobInstanceMapping, isSentInstance: Bool = false) {
+        self.instServerId = String(describing: rInstance.id)
+        self.user.userId = String(describing: rInstance.userID)
+        self.isCompleted = NSNumber(value: rInstance.instanceStatus.isAlreadyCompleted)
+        self.startDate = Utility.dateFromGMTdateString(dateStr: rInstance.startedOn, withTimeZone: "UTC") as NSDate
+        if let comDate = rInstance.completedOn {
+            self.completedDate = Utility.dateFromGMTdateString(dateStr:comDate, withTimeZone: "UTC") as NSDate
+        } else if let _ = rInstance.completedOn {
+            if (rInstance.completedOn == nil) {
+                self.completedDate = nil
+            }
+        }
+        
+        if self.instId == nil {
+            self.instId = rInstance.clientID.uppercased()
+            let instanceRawObj = DBJobInstanceServices.insertNewJobInstance(jobInstance: self)
+            self.dbRawInstanceObj = instanceRawObj
+            AppInfo.sharedInstance.selJobInstance = self
+        } else {
+            self.instId = rInstance.clientID.uppercased()
+            DBJobInstanceServices.updateSharedJobInstance(jobInstance: self)
+        }
+        
+        for answer in rInstance.answers {
+            if let jvModels = jobVisits as? [JobVisitModel] {
+                if let fv = jvModels.filter({$0.answer != nil && $0.answer.taskId == String(answer.questionID)}).first {
+                    fv.answer.updateLocalAnswerObj(forAnsMapModel: answer, isSentInstance: isSentInstance)
+                }
+            }
+        }
+        
+        self.manageInstanceComments(instanceComments: rInstance.instanceComments)
+        self.managePhotos(forInstMDocList: rInstance.documentList)
+    }
+    
+    private func manageInstanceComments(instanceComments: [InstanceComment]) {
+        // Store Comments if Not Available in local
+        for comment in instanceComments {
+            if !self.comments.contains(where: {$0.commentId!.lowercased() == comment.clientID.lowercased()}) {
+                let commentObj = CommentModel(comment: comment)
+                commentObj.instanceComment = self.dbRawInstanceObj as? JobInstance
+                if DBJobInstanceServices.saveComment(forCommentObj: commentObj) {
+                    self.comments.append(commentObj)
+                }
+            }
+            else if let localComment = self.comments.filter({ $0.commentId!.lowercased() == comment.clientID.lowercased() }).first {
+                if localComment.commentServerId == 0 {
+                    localComment.commentServerId = comment.id
+                    DBJobInstanceServices.updateCommentId(commentId: localComment.commentId!, serverCommentId: comment.id)
+                }
+            }
+        }
+        
+        //Delete comments from Local if not available in server
+        for commentLmodel in self.comments.filter({ $0.commentServerId != 0 }) {
+            if !instanceComments.contains(where: { $0.id == commentLmodel.commentServerId }) {
+                if DBJobInstanceServices.deleteComment(forCommentServerId: commentLmodel.commentServerId) {
+                    self.comments = self.comments.filter({ $0.commentId != commentLmodel.commentId })
+                } else {
+                    print("++++++++++ Failed to delete Instance comment");
+                }
+            }
+        }
+    }
+    
+    private func managePhotos(forInstMDocList documentList: [DocumentObj]) {
+        for documentObj in documentList {
+            var photoName = Utility.generateDcoumentNameFor(projectNumber: self.template.projectNumber, storeNumber: self.location.storeNumber, taskNumber: nil, attribute: PhotoAttributesTypes.General, documentType: Constants.JPEG_DOC_TYPE)
+            
+            // Saving process will be first, therefore traditional naming process will cause issue since the timestamp would be same for all the photos.
+            // Continue saving the photo name as coming from the server.
+            if let last = documentObj.documentURL.components(separatedBy: "/").last {
+                photoName = last
+            }
+            
+            var isSaved = false
+            let document = DocumentModel(forInstance: self.dbRawInstanceObj as! JobInstance,withDocObject: documentObj, forDocName: photoName){ (success) in
+                isSaved = success
+            }
+            if isSaved { self.documents.append(document) }
         }
     }
 }

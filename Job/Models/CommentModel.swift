@@ -14,6 +14,7 @@ class CommentModel: NSObject {
     dynamic var createdBy: String?
     dynamic var createdDate: NSDate?
     dynamic var flagStatus: Int16 = 0
+    dynamic var commentServerId: Int = 0
     dynamic var isComDeleted: Bool = false
     dynamic var isFlag: Bool = false
     dynamic var answerComment: Answer?
@@ -22,6 +23,7 @@ class CommentModel: NSObject {
     init(comment: Comment) {
         super.init()
         commentId = comment.commentId
+        commentServerId = comment.commentServerId
         commentText = comment.commentText
         createdBy = comment.createdBy
         createdDate = comment.createdDate
@@ -30,6 +32,24 @@ class CommentModel: NSObject {
         isFlag = comment.isFlag
         answerComment = comment.answerComment
         instanceComment = comment.instanceComment
+    }
+    
+    init(comment: InstanceComment) {
+        super.init()
+        commentId = comment.clientID.uppercased()
+        commentServerId = comment.id
+        commentText = comment.text
+        createdBy = comment.creator
+        createdDate = comment.createdOn.dateFromGMTdateString(withTimeZone: "UTC") as NSDate?
+    }
+    
+    init(comment: AnswerComment) {
+        super.init()
+        commentId = comment.clientID.uppercased()
+        commentServerId = comment.id
+        commentText = comment.text
+        createdBy = comment.lastUpdatedByFullName
+        createdDate = comment.createdOn.dateFromGMTdateString(withTimeZone: "UTC") as NSDate?
     }
     
     override init() {
@@ -43,5 +63,9 @@ class CommentModel: NSObject {
         commentObj[Constants.ApiRequestFields.Key_CommentTxt] = self.commentText! as AnyObject
         commentObj[Constants.ApiRequestFields.Key_LastUpdatedOn] = Utility.gmtStringFromDate(date: self.createdDate! as Date) as AnyObject
         return commentObj
+    }
+
+    func addAnswerComment(comment: AnswerComment) {
+        
     }
 }

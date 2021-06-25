@@ -152,6 +152,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate { //, AppseeDelegate {
     // MARK: -
     func add3rdParyApiKeys() {
         setGlobalAppearence();
+        
         FirebaseApp.configure()
         
         #if DEBUG || STAGE

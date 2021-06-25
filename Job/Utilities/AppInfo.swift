@@ -51,6 +51,7 @@ class AppInfo: NSObject {
     @objc static let sharedInstance = AppInfo()
     var userRole: String = ""
     var bgTimeStart: Date!
+    var downloadAltShown: Bool = false
     
     
     override init() {

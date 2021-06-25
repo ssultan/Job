@@ -139,7 +139,7 @@ extension BackgroundServices {
                                 jobInstance.isSent = NSNumber(value: true)
 //                                self.initiateDocumentSendProcess(jobInstance: jobInstance, isUpdating: false)
                                 
-                                let failedToSend = self.sendDocumentsforInstance(instance: jobInstance)
+                                let failedToSend = self.sendDocumentsforInstance(instanceObj: jobInstance)
                                 jobInstance.updateInstAfterPhotoUploadProcessCompleted(forNumOfFailed: failedToSend, andUpdating: isUpdating)
                             }
                         }

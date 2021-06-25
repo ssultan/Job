@@ -26,5 +26,5 @@ extension Comment {
     @NSManaged public var isFlag: Bool
     @NSManaged public var answerComment: Answer?
     @NSManaged public var instanceComment: JobInstance?
-
+    @NSManaged public var commentServerId:Int
 }

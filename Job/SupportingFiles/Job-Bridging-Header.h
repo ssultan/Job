@@ -16,7 +16,7 @@
 #import "BRRequestUpload.h"
 #import "BRRequestDownload.h"
 #import "StepSlider.h"
-#import <FirebaseCrashlytics/FirebaseCrashlytics.h>
+//#import <FirebaseCrashlytics/FirebaseCrashlytics.h>
 //#import <Appsee/Appsee.h>
 
 #endif /* Job_Bridging_Header_h */

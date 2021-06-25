@@ -9,6 +9,7 @@
 import UIKit
 
 class TaskModel: NSObject {
+    
     @objc dynamic var accuracy: NSNumber = NSNumber (value: 25)
     @objc dynamic var allowNA: NSNumber?
     @objc dynamic var documentType: String?

@@ -193,6 +193,8 @@ class LoginService: BaseService {
         self.fetchData(.get, serviceURL: manifestURL, params: nil) { (jsonRes, statusCode, isSucceeded) in
             
             if(isSucceeded) {
+                //print("Manifest: ", jsonRes!)
+                
                 //Do the mapping to get the manifest object
                 let manifestMo = ManifestMapping(dictionary: jsonRes as! NSDictionary)
                 /*****  UNCOMMENT THIS PART OF CODE BEFORE PRODUCTION RELEASE  *****/
@@ -239,23 +241,27 @@ class LoginService: BaseService {
         }
         
         //Save templates into Sqlite database if that templates is note available and there is no modification after last update. Clear the previous templates if that is no longer assined to that user.
-        DBTemplateServices.sharedInstance.getDownloadableJobListAfterDBsync(tempArray, manifest: manifest, completionHandler: { (needToDlTempList, needToDlLocList) in
+        DBTemplateServices.sharedInstance.getDownloadableJobListAfterDBsync(tempArray, manifest: manifest, completionHandler: { (needToDlTempList, needToDlLocList, inCompleteJobList) in
             
             print("--------------------------------------------------------------")
             print("Number Of templates Need to Download: ", needToDlTempList.count)
             print("Number of Project Locations Need to Download: ", needToDlLocList.count)
+            print("Number of Incomplete Jobs: ", inCompleteJobList.count)
             print("--------------------------------------------------------------")
-            Analytics.logEvent("Template_And_Location_Download_Needed", parameters: ["Template": needToDlTempList.count, "Location": needToDlLocList.count])
+            Analytics.logEvent("Template_n_Location_DL_Needed", parameters: ["Template": needToDlTempList.count, "Location": needToDlLocList.count])
             //Crashlytics.sharedInstance().crash()
             
-            if needToDlTempList.count == 0 && needToDlLocList.count == 0 {
+                                                                                
+
+            if needToDlTempList.count == 0 && needToDlLocList.count == 0 && inCompleteJobList.count == 0 {
                 self.delegate.locationDownloaded = true
                 self.delegate.templateDownloaded = true
+                self.delegate.inCompleteJobStatusChecked = true
 
                 // Login process has been completed. Call delegate funcation to go back to main login view conroller to open main menu page.
                 self.delegate.loginSuccess(isOfflineLogin: false)
             } else {
-                self.delegate.startDownloadingTemplates(needToDlTempList, needToDlLocList)
+                self.delegate.startDLTempLocInJobs(forJobTemplates: needToDlTempList, forProjectIdList: needToDlLocList, forIncompleteJobList: inCompleteJobList)
             }
         })
     }

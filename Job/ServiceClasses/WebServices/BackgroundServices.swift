@@ -245,7 +245,9 @@ public let KeyInstServerId = "instanceServerId"
             sendUnsentPhotosForIncompletedInstances()
         }
         
-        if !isFirstThread { self.requestToDeletePhotosFromServerForCompletedInstances() }
+        //if !isFirstThread {
+            self.requestToDeletePhotosFromServerForCompletedInstances()
+        //}
         
         // Before making background thread free to start processing again, check if there is any instances queued. i.e. user completed any instance and marked as send; while BG thread was running to do some process
         self.sendInstancesIfAvailInBGThread()
@@ -261,7 +263,7 @@ public let KeyInstServerId = "instanceServerId"
     fileprivate func sendUnsentPhotosForIncompletedInstances() {
         let allUpdatedInstances = DBJobInstanceServices.getAllUpdateInstancesWhichPhotosAreNotSentYet()
         for instance in allUpdatedInstances {
-            let failedToSend = self.sendDocumentsforInstance(instance: instance)
+            let failedToSend = self.sendDocumentsforInstance(instanceObj: instance)
             if failedToSend > 0 && isRecMemWarning {
                 return
             }
@@ -300,7 +302,7 @@ public let KeyInstServerId = "instanceServerId"
             
             let totalDocNeedToSend:Int = instance.getTotalPhotosOfTheInstances(isSent: false)
             if totalDocNeedToSend > 0 {
-                let failedToSend = self.sendDocumentsforInstance(instance: instance)
+                let failedToSend = self.sendDocumentsforInstance(instanceObj: instance)
                 if failedToSend > 0 && isRecMemWarning {
                     Analytics.logEvent("Skipping photo upload process because of memory warning. Next thread will execute it.", parameters: [:])
                     return
@@ -313,11 +315,11 @@ public let KeyInstServerId = "instanceServerId"
     fileprivate func sendUnsentPhotosForCompletedInstances() {
         // The main purpose is to check All the instance which acknowldegement flag is still false and that instance object already sent to server. Then check is there any photos/documents that client need to send. If No photos are available to send, then just make that acknowledgement call to update instance flag 'acknowledgement'
         let photosNotSentYetInstances = DBJobInstanceServices.loadAllCompleteInstThatPhotosNotSentYet()
-        for instance in photosNotSentYetInstances {
-            
+        for instance in photosNotSentYetInstances
+        {
             let totalDocNeedToSend:Int = instance.getTotalPhotosOfTheInstances(isSent: false)
             if totalDocNeedToSend > 0 {
-                let failedToSend = self.sendDocumentsforInstance(instance: instance)
+                let failedToSend = self.sendDocumentsforInstance(instanceObj: instance)
                 if failedToSend > 0 && isRecMemWarning {
                     return
                 }
@@ -365,7 +367,7 @@ public let KeyInstServerId = "instanceServerId"
         var sendInstanceURL = self.appInfo.httpType + self.appInfo.baseURL + Constants.APIServices.sendInstanceServiceAPI
         let instanceParams = jobInstance.getJSONForJobInstance(isUpdating: isUpdating)
         let jsonStr = String(data: try! JSONSerialization.data(withJSONObject: instanceParams, options: []), encoding: .ascii)
-        print(jsonStr);
+        print("URL: \(sendInstanceURL)\n JSON: \(jsonStr ?? "")");
         
         var method:HTTPMethod = .post
         if let serverId = jobInstance.instServerId  {
@@ -378,20 +380,32 @@ public let KeyInstServerId = "instanceServerId"
         var isSentSucceeded:Bool = false
         var resStatusCode: Int = 0
         var errorJSON: AnyObject!
-        self.fetchData(method, serviceURL: sendInstanceURL, params: instanceParams) { (jsonRes, statusCode, isSucceeded) in
+        
+        self.fetchReponseInData(forRequestType: method, forServiceURL: sendInstanceURL, params: instanceParams) { (jsonRes, resData, statusCode, isSucceeded) in
+//        self.fetchData(method, serviceURL: sendInstanceURL, params: instanceParams) { (jsonRes, statusCode, isSucceeded) in
             resStatusCode = statusCode
             
             if(isSucceeded) {
                 isSentSucceeded = true
-                if let jsonDic = jsonRes as? [String: AnyObject] {
+                if let jsonDic = jsonRes as? [String: AnyObject], let data = resData {
                     
-                    if let serverId = jsonDic[Constants.ApiRequestFields.Key_Id] {
-                        jobInstance.instServerId = String(describing: serverId)
+                    do {
+                        let instMapper = try JSONDecoder().decode(JobInstanceMapping.self, from: data)
+                        jobInstance.updateLocalInstance(forMInstance: instMapper, isSentInstance: true)
+                    } catch {
+                        print("Error: \(error)\n")
+                        
+                        let jsonStr = String(data: try! JSONSerialization.data(withJSONObject: jsonRes!, options: []), encoding: .ascii)
+                        print("Saved JSON: ", jsonStr!)
+
+                        if let serverId = jsonDic[Constants.ApiRequestFields.Key_Id] {
+                            jobInstance.instServerId = String(describing: serverId)
+                        }
+                        if let userId = jsonDic[Constants.ApiRequestFields.Key_UserId] {
+                            jobInstance.user.userId = String(describing: userId)
+                        }
+                        self.setAnswerId(jsonDic)
                     }
-                    if let userId = jsonDic[Constants.ApiRequestFields.Key_UserId] {
-                        jobInstance.user.userId = String(describing: userId)
-                    }
-                    self.setAnswerId(jsonDic)
                     
                     if (!isUpdating) {
                         jobInstance.isSent = NSNumber(value: true)
@@ -413,7 +427,7 @@ public let KeyInstServerId = "instanceServerId"
         }
         
         if (isSentSucceeded) {
-            let failedToSend = self.sendDocumentsforInstance(instance: jobInstance)
+            let failedToSend = self.sendDocumentsforInstance(instanceObj: jobInstance)
             if failedToSend > 0 && isRecMemWarning {
                 //Appsee.addEvent("Skipping photo upload process because of memory warning. Next thread will execute it.")
                 return
@@ -432,7 +446,8 @@ public let KeyInstServerId = "instanceServerId"
                 for answerObj in answers {
                     if let answer = answerObj as? [String: AnyObject] {
                         if let answerId = answer[Constants.ApiRequestFields.Key_ClientId], let serverId = answer[Constants.ApiRequestFields.Key_Id] {
-                            DBAnswerServices.updateAnswerObject(answerId: String(describing: answerId), ansServerId: String(describing: serverId))
+                            DBAnswerServices.updateAnswerId(answerId: String(describing: answerId), ansServerId: String(describing: serverId))
+                            DBAnswerServices.answerUpdated(answerId: answerId as! String, isUpdated: false)
                         }
                     }
                 }
@@ -531,15 +546,20 @@ public let KeyInstServerId = "instanceServerId"
         return numberOfPhotosFailed
     }
     
-    func sendDocumentsforInstance(instance: JobInstanceModel) -> Int {
-        var alreadySent:Int = instance.getTotalPhotosOfTheInstances(isSent: true) + 1
+    func sendDocumentsforInstance(instanceObj: JobInstanceModel) -> Int {
+        var alreadySent:Int = instanceObj.getTotalPhotosOfTheInstances(isSent: true) + 1
         
         // Old approch to get total photos count for an instance from database. This is does not check if the document answer is a branchToQuestion. For now keep it as it is. even i should use the other function 'DBJobInstanceServices.getAllDocumentsThatNeedsToSendForInstnace'
-        var totalDocNeedToSend:Int = instance.getTotalPhotosOfTheInstances(isSent: false)
+        var totalDocNeedToSend:Int = instanceObj.getTotalPhotosOfTheInstances(isSent: false)
         if totalDocNeedToSend == 0 {
             return 0
         }
         totalDocNeedToSend += (alreadySent-1)
+        
+        //Saleh(10/05/2020): Get the updated instance from database, otherwise it is missing the answerId and instanceId at the time of sending instance.
+        guard let instance = DBJobInstanceServices.getJobInstance(instanceId: instanceObj.instId!) else {
+            return totalDocNeedToSend;
+        }
         
         
         let fvPhotos = instance.documents.filter { $0.isPhotoDeleted == NSNumber(value: false) }
@@ -583,10 +603,10 @@ public let KeyInstServerId = "instanceServerId"
         var resStatusCode: Int = 0
         var errorJSON: AnyObject!
         
-        Crashlytics.crashlytics().setCustomValue("MB in Use: \(Helper.getMegabytesUsed() ?? 0.0)Mb out of \(Float(ProcessInfo.processInfo.physicalMemory/1000/1000))Mb", forKey: "Memory Usages")
+        Crashlytics.crashlytics().setCustomValue("MBInUse: \(Helper.getMegabytesUsed() ?? 0.0)Mb out of \(Float(ProcessInfo.processInfo.physicalMemory/1000/1000))Mb", forKey: "Memory Usages")
         if isRecMemWarning { return false }
         else if Helper.getMegabytesUsed() ?? 0.0 > maxMbAppCanUse() {
-            Analytics.logEvent("App is using over \(maxMbAppCanUse())Mb, so system is going to kill the thread", parameters: [:])
+            Analytics.logEvent("Over_\(maxMbAppCanUse())Mb_Caution", parameters: [:])
             isRecMemWarning = true
             return false
         }
@@ -711,7 +731,7 @@ public let KeyInstServerId = "instanceServerId"
         
         //DELETE http://api.staging.clearthread.com/api/MobileDocument/{client_GUID}
         let docDeleteURL = self.appInfo.httpType + self.appInfo.baseURL + Constants.APIServices.DocumentDeleteUpdateAPI + document.documentId!
-        
+        print("Photo Delete URL: ", docDeleteURL)
         
         // For deleting a document we don't need to send the parameters
         self.fetchData(.delete, serviceURL: docDeleteURL, params: nil) { (jsonRes, statusCode, isSucceeded) in
@@ -738,6 +758,10 @@ public let KeyInstServerId = "instanceServerId"
                 Crashlytics.crashlytics().record(error: error as Error)
             }
         }
+    }
+    
+    func downloadImage(forImgURL url: String = "https://clearthread.davacoinc.com/documents/Collection/CustomerId_11/TemplateId_16048/InstanceId_193807/AnswerId_6148016/eVbgRMaWu1-tyE_itvlm0g2.jpg") {
+        
     }
 }
 

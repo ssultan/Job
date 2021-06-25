@@ -116,10 +116,10 @@ extension URL {
 }
 
 extension NSDate {
-    public func convertToString(format:String = "yyyy-MM-dd'T'HH:mm:ss") -> String {
+    public func convertToString(format:String?) -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.timeZone = TimeZone.current
-        dateFormatter.dateFormat = format
+        dateFormatter.dateFormat = format == nil ? Constants.SERVER_EXP_DATE_FORMATE : format
         return dateFormatter.string(from: self as Date)
     }
 }

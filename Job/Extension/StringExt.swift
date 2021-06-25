@@ -24,6 +24,35 @@ extension String {
         return timeStump
     }
     
+    func dateFromString() -> Date? {
+        let dateFormatter = DateFormatter()
+        dateFormatter.timeZone = TimeZone.current
+        dateFormatter.dateFormat = Constants.SERVER_EXP_DATE_FORMATE_2nd
+        if let date = dateFormatter.date(from: self) {
+            return date
+        }
+        
+        dateFormatter.dateFormat = Constants.SERVER_EXP_DATE_FORMATE
+        if let date = dateFormatter.date(from: self) {
+            return date
+        }
+        return nil
+    }
+    
+    func dateFromGMTdateString(withTimeZone timezone:String?) -> Date {
+        let dateFormatter = DateFormatter()
+        dateFormatter.timeZone = timezone == nil ? TimeZone.current : (NSTimeZone(name: timezone!) as TimeZone?)
+        dateFormatter.dateFormat = Constants.SERVER_EXP_DATE_FORMATE
+        
+        if let date = dateFormatter.date(from: self) {
+            return date
+        }
+        dateFormatter.dateFormat = Constants.SERVER_EXP_DATE_FORMATE_2nd
+        if let date = dateFormatter.date(from: self) {
+            return date
+        }
+        return Date()
+    }
     
     func isValidString(regEx: String) -> Bool {
         let predicate = NSPredicate(format: "SELF MATCHES %@", regEx)

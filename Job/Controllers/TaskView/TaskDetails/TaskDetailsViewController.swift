@@ -36,6 +36,7 @@ class TaskDetailsViewController: ParentTaskView, TaskDetailsDelegate {
     var isSliderLoadFirst = true
     var triggerForTakePhoto = false
     var popViewController : PopUpViewControllerSwift!
+    var isAnswerChanged = false
     var isNASelected = false
     
     //MARK: - View life Cycles
@@ -57,15 +58,25 @@ class TaskDetailsViewController: ParentTaskView, TaskDetailsDelegate {
         self.updateFields()
         self.viewSetup()
         if let answer = self.jobVisit.answer {
-            if answer.value ?? "" == "na" {
+            if answer.value ?? "" == "na"  || answer.value ?? "" == "N/A" {
                 ckBoxNA.setBackgroundImage(UIImage(named: "CheckBoxSelected"), for: .normal)
                 isNASelected = true
+                
+                self.isStarted = false
+                self.isFinished = false
+                self.updateJobStart()
             }
         }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
+        
         if let task = jobVisit.task, let answer = jobVisit.answer {
+            let origAnsChanged = answer.isAnsChanged
+            let origAnsVal = answer.value!
+            let origAnsStDate = answer.startDate
+            let origAnsEdDate = answer.endDate
+            
             var taskCompleted = false
             answer.startDate = getDateFromTxb(txb: startDateTxb)
             answer.endDate = getDateFromTxb(txb: completeDatetxb)
@@ -90,9 +101,25 @@ class TaskDetailsViewController: ParentTaskView, TaskDetailsDelegate {
             }
             
             answer.isAnswerCompleted = NSNumber(value: taskCompleted)
+            answer.isAnsChanged = origAnsChanged ? true : self.checkIfAnswerChanged(updatedAns: answer, withVal: origAnsVal, withStartDate: origAnsStDate, withEndDate: origAnsEdDate) // if Already marked as changed, then no need to test it
             self.parentQDelegate.answerFromChild(answer: answer)
         }
+        
         super.viewWillDisappear(animated)
+    }
+    
+    fileprivate func checkIfAnswerChanged(updatedAns: AnswerModel, withVal value: String, withStartDate stDate:NSDate?, withEndDate edDate:NSDate?) -> Bool {
+        if value != updatedAns.value {
+            print("old value: \(String(describing: value)) Vs New Answer: \(String(describing: updatedAns.value))")
+            return true
+        } else if stDate?.convertToString(format: Constants.SERVER_EXP_DATE_FORMATE) != updatedAns.startDate?.convertToString(format: Constants.SERVER_EXP_DATE_FORMATE) {
+            print("old value: \(String(describing: stDate)) Vs New Answer: \(String(describing: updatedAns.startDate))")
+            return true
+        } else if edDate?.convertToString(format: Constants.SERVER_EXP_DATE_FORMATE) != updatedAns.endDate?.convertToString(format: Constants.SERVER_EXP_DATE_FORMATE) {
+            print("old value: \(String(describing: edDate)) Vs New Answer: \(String(describing: updatedAns.endDate))")
+            return true
+        }
+        return false
     }
     
     override func viewWillLayoutSubviews() {

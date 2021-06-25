@@ -41,14 +41,71 @@ class DocumentModel: NSObject {
     @objc dynamic var isDataNull: NSNumber?
     @objc dynamic var photoServerURL: String? // Server photo URL once that specific photo successfully got inserter into server file system and database
     @objc dynamic var isNeedToSend: NSNumber? // For only Update request. If user change the photo name or any attributes of the photo, then do not need to send the photo data; only metadata of the photo.
-    
+    @objc dynamic var documentInstance: JobInstance?
+    @objc dynamic var documentAnswer: Answer?
     
     
     override init() {
         
     }
     
+    init(forAnswerObject answer: Answer, withDocObject docObj:DocumentObj, forDocName photoName: String, completion:(Bool)->()) {
+        super.init()
+        self.answerId = answer.ansId
+        self.instanceId = answer.jobInstance?.instId
+        self.attribute = PhotoAttributesTypes.General.rawValue
+        self.attributeId = String(PhotoAttributesTypes.General.getAttributeId())
+        self.mimeType = Constants.ImageMimeType
+        self.type =  Constants.DocImageType
+        self.name = photoName
+        self.originalName = photoName
+        self.comment = ""
+        self.createdDate = NSDate()
+        self.exifDic = NSDictionary()
+        self.documentId = docObj.docId?.uppercased()
+        self.photoServerURL = docObj.documentURL
+        self.isSent = NSNumber(value: true)
+        self.isNeedToSend = NSNumber(value: false)
+        self.isPhotoDeleted = NSNumber(value: false)
+        self.documentAnswer = answer
+        completion(DBDocumentServices.insertNewPhoto(documentModel: self))
+    }
+    
+    private func getDocId(forURL url: String) -> String {
+        var docId = UUID().uuidString
+        if let last = url.components(separatedBy: "/").last {
+            if last.components(separatedBy: ".").count > 1 {
+                docId = last.components(separatedBy: ".")[0]
+            }
+        }
+        return docId
+    }
+    
+    init(forInstance instance: JobInstance, withDocObject docObj:DocumentObj, forDocName photoName: String, completion:(Bool)->()){
+        super.init()
+        //https://clearthread.davacoinc.com/documents/Collection/CustomerId_11/TemplateId_16048/InstanceId_193807/AnswerId_6148016/eVbgRMaWu1-tyE_itvlm0g2.jpg
+
+        self.instanceId = instance.instId
+        self.attribute = PhotoAttributesTypes.FieldVisit.rawValue
+        self.attributeId = String(PhotoAttributesTypes.FieldVisit.getAttributeId())
+        self.mimeType = Constants.ImageMimeType
+        self.type =  Constants.DocImageType
+        self.name = photoName
+        self.originalName = photoName
+        self.comment = ""
+        self.createdDate = NSDate()
+        self.exifDic = NSDictionary()
+        self.documentId = docObj.docId?.uppercased()
+        self.photoServerURL = docObj.documentURL
+        self.isSent = NSNumber(value: true)
+        self.isNeedToSend = NSNumber(value: false)
+        self.isPhotoDeleted = NSNumber(value: false)
+        self.documentInstance = instance
+        completion(DBDocumentServices.insertNewPhoto(documentModel: self))
+    }
+    
     init(document: Document) {
+        super.init()
         self.attribute = document.attribute
         self.attributeId = document.attributeId
         self.photoAttrType = document.photoAttrType
@@ -194,6 +251,7 @@ class DocumentModel: NSObject {
             docJson[Constants.ApiRequestFields.Key_CategoryId] = 1 as AnyObject // For All photo type: 1
         }
         
+        print("++++ Sending Document InstanceId: \(String(describing: docJson[Constants.ApiRequestFields.Key_InstanceId])), AnswerId: \(String(describing: docJson[Constants.ApiRequestFields.Key_AnswerId])), DocId: \(String(describing: docJson[Constants.ApiRequestFields.Key_DocumentId]))")
         return docJson
     }
     
@@ -204,11 +262,13 @@ class DocumentModel: NSObject {
             
             if Utility.deleteImageFromDocumentDirectory(docName: self.originalName!, folderName: self.instanceId ?? "") {
                 if !Utility.deleteThumbnailImgDocumentFromDirectory(docName: self.originalName!, folderName: self.instanceId ?? "") {
-                    //Appsee.addEvent("\(StringConstants.AppseeEventMessages.Failed_Delete_Thumb_Img) \(AppInfo.sharedInstance.username ?? "")", withProperties: ["ImgName": self.originalName!])
+                    
+                    print("Failed to delete Thumb Image\(StringConstants.AppseeEventMessages.Failed_Delete_Thumb_Img) => \(self.originalName!)" )
                 }
                 return true
             }
         }
+        print("Failed to delete Original Image: \(self.originalName!)" )
         return false
     }
     

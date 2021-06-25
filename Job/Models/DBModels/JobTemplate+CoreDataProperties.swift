@@ -17,6 +17,7 @@ extension JobTemplate {
         return NSFetchRequest<JobTemplate>(entityName: "JobTemplate")
     }
 
+    @NSManaged public var isShared: NSNumber?
     @NSManaged public var lastUpdatedOn: NSDate?
     @NSManaged public var signatureRequired: NSNumber?
     @NSManaged public var templateId: String?

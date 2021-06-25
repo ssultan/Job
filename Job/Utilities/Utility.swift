@@ -182,7 +182,7 @@ class Utility: NSObject {
         if let imgData = document.addImageMetadata(photoName: docName, photoCreator: AppInfo.sharedInstance.username ?? "", photoDesc: "Job app photo taken by \(AppInfo.sharedInstance.username ?? "")", imgMetaDataDic: imgMetaDataDic, lossyData: lossyData)
         {
             do {
-                try imgData.write(to: path, options: .completeFileProtection)
+                try imgData.write(to: path, options: .completeFileProtectionUnlessOpen)
                 return imgData
             } catch {
                 return nil
@@ -207,12 +207,12 @@ class Utility: NSObject {
                                                     "SurveyName" as CFString: instance.template.templateName! as CFString,
                                                     "ProjectNumber" as CFString: instance.projectNumber! as CFString,
                                                     "LocationNumber" as CFString: instance.location.storeNumber! as CFString,
-                                                    "CreatedDate" as CFString: documentObj.createdDate!.convertToString() as CFString]
+                                                    "CreatedDate" as CFString: documentObj.createdDate!.convertToString(format: Constants.SERVER_EXP_DATE_FORMATE) as CFString]
 
         if let imgData = photo.addImageMetadata(photoName: documentObj.originalName!, photoCreator: AppInfo.sharedInstance.username ?? "", photoDesc: String(describing: photoDetailsDic), imgMetaDataDic: documentObj.exifDic!, lossyData: lossyData)
         {
             do {
-                try imgData.write(to: path, options: .completeFileProtection)
+                try imgData.write(to: path, options: .completeFileProtectionUnlessOpen)
                 return imgData
             } catch {
                 return nil
@@ -230,7 +230,7 @@ class Utility: NSObject {
         if let imgData = image.jpegData(compressionQuality: 1.0) {
             
             do {
-                try imgData.write(to: path, options: .completeFileProtection)
+                try imgData.write(to: path, options: .completeFileProtectionUnlessOpen)
                 return imgData
             } catch {
                 return nil
@@ -259,7 +259,7 @@ class Utility: NSObject {
         let resizedImg = orgImage.resizeImage(targetSize: (orgImage.size.width > orgImage.size.height) ? CGSize(width: 400, height: 300) : CGSize(width: 300, height: 400))
         let imgData = resizedImg.jpegData(compressionQuality: 0.5)
         do {
-            try imgData?.write(to: thumbnailPath, options: Data.WritingOptions.completeFileProtection)
+            try imgData?.write(to: thumbnailPath, options: Data.WritingOptions.completeFileProtectionUnlessOpen)
         } catch {
             //AppSee event for failure
         }
@@ -361,6 +361,23 @@ class Utility: NSObject {
         return false
     }
     
+    class func checkDocumentExist(docName: String, folderName:String) -> Bool {
+        if let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            let docPath = dir.appendingPathComponent(docName).path
+            if FileManager.default.fileExists(atPath: docPath) {
+                return true
+            }
+            else {
+                let instanceDir = dir.appendingPathComponent(folderName, isDirectory: true)
+                let docPath = instanceDir.appendingPathComponent(docName).path
+                if FileManager.default.fileExists(atPath: docPath) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+    
     class func deleteInstanceDirectory(instanceId:String) {
         if let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
             let instanceDir = dir.appendingPathComponent(instanceId, isDirectory: true)
@@ -419,20 +436,23 @@ class Utility: NSObject {
     }
     
     class func gmtStringFromDate(date: Date) -> String {
-        return stringFromDate(date: date, format: "yyyy-MM-dd'T'HH:mm:ss")
+        return stringFromDate(date: date, format: Constants.SERVER_EXP_DATE_FORMATE)
     }
     
+    class func UTCStringFromDate(date: Date) -> String {
+        return stringFromDate(date: date, format: Constants.SERVER_EXPECT_DATE_FORMAT_WITH_ZONE)
+    }
     
-    class func dateFromGMTdateStrig(dateStr: String, withTimeZone timezone:String?) -> Date {
+    class func dateFromGMTdateString(dateStr: String, withTimeZone timezone:String?) -> Date {
         let dateFormatter = DateFormatter()
         dateFormatter.timeZone = timezone == nil ? TimeZone.current : (NSTimeZone(name: timezone!) as TimeZone?)
-        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+        dateFormatter.dateFormat = Constants.SERVER_EXP_DATE_FORMATE
         
         if let date = dateFormatter.date(from: dateStr) {
             return date
         }
         
-        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SS"
+        dateFormatter.dateFormat = Constants.SERVER_EXP_DATE_FORMATE_2nd
         if let date = dateFormatter.date(from: dateStr) {
             return date
         }

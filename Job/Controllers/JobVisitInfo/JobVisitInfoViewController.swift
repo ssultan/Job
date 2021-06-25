@@ -58,28 +58,39 @@ class JobVisitInfoViewController: RootViewController {
         if locManager.responds(to: #selector(CLLocationManager.requestWhenInUseAuthorization)) {
             locManager.requestWhenInUseAuthorization()
         }
-        
+
         if UIDevice.current.userInterfaceIdiom == .phone {
             if let appDelegate = UIApplication.shared.delegate as? AppDelegate {
                 appDelegate.supportLandscape = false
                 appDelegate.shouldRotate = false
             }
         }
-        
+
         guard let instModel = self.instance else { return }
         self.loadingView.indicatorView = JGProgressHUDIndeterminateIndicatorView()
         self.loadingView.textLabel.text = StringConstants.StatusMessages.LOADING_JOB_DETAILS
         self.loadingView.show(in: self.view, animated: true)
         
-        DispatchQueue.global().async {
-            self.instance = DBJobInstanceServices.loadJobInstIfExist(instModel: instModel)
-            AppInfo.sharedInstance.selJobInstance = self.instance
-            DispatchQueue.main.async {
+        if self.instance.template.isShared {
+            JobServices().getJobInstance(forInstance: instModel) { (updatedInst) in
+                guard updatedInst.completedDate == nil else {
+                    self.popViewController.showInView(self.view, withTitle: StringConstants.ButtonTitles.TLT_Warning, withMessage: StringConstants.StatusMessages.JOB_COMPLETED, withCloseBtTxt: StringConstants.ButtonTitles.BTN_GO_BACK, withAcceptBt: nil, animated: true, isMessage: false, continueBlock: {
+                    }) { _ = self.navigationController?.popViewController(animated: true) }
+                    return
+                }
+                self.instance = updatedInst
+                AppInfo.sharedInstance.selJobInstance = self.instance
                 self.loadJbInfoData()
             }
+        } else {
+            DispatchQueue.global().async {
+                self.instance = DBJobInstanceServices.loadJobInstIfExist(instModel: instModel)
+                AppInfo.sharedInstance.selJobInstance = self.instance
+                DispatchQueue.main.async {
+                    self.loadJbInfoData()
+                }
+            }
         }
-        
-        self.checkJobLocation()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -93,10 +104,8 @@ class JobVisitInfoViewController: RootViewController {
                 appDelegate.shouldRotate = false
             }
         }
-        
-        if self.instance.instId == nil {
-            self.showBottomBtn(showVbtn: true, showHorBtn: true)
-        } else if !isViewLayoutLoaded {
+
+        if !isViewLayoutLoaded {
             self.resizeBottomViewToFit()
         }
     }
@@ -125,18 +134,14 @@ class JobVisitInfoViewController: RootViewController {
     
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
-    }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
         resizeHeaderToFit()
-        
+
         if UIDevice.current.orientation == .landscapeLeft || UIDevice.current.orientation == .landscapeRight {
             jobVisitTB.isScrollEnabled = true
         } else {
             jobVisitTB.isScrollEnabled = false
         }
-        
+
         if !isTableLoaded && !isViewLayoutLoaded  {
             cellHeight = jobVisitTB.contentSize.height > jobVisitTB.frame.size.height ? 52 : 70
             jobVisitTB.reloadData()
@@ -144,18 +149,36 @@ class JobVisitInfoViewController: RootViewController {
         }
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+    }
     
-    fileprivate func checkJobLocation() {
+    
+    fileprivate func checkJobLocationFirstThenTakeDecision() {
         self.instance.user.isUserNear(storeLocation: self.instance.location) { (isNearStore, distanceAllowed) in
             if !isNearStore {
-//                let message = "We have detected that you are not within \(distanceAllowed) mile(s) of your location. Are you sure this is the correct store?"
-                self.popViewController.showInView(self.view, withTitle: StringConstants.ButtonTitles.TLT_Caution, withMessage: StringConstants.StatusMessages.STORE_LOC_WARNING, withCloseBtTxt: StringConstants.ButtonTitles.BTN_OK, withAcceptBt: nil, animated: true, isMessage: false, cancelBlock: {
+                self.popViewController.showInView(self.view, withTitle: StringConstants.ButtonTitles.TLT_Attention, withMessage: StringConstants.StatusMessages.STORE_LOC_WARNING, withCloseBtTxt: StringConstants.ButtonTitles.BTN_Cancel, withAcceptBt: StringConstants.ButtonTitles.BTN_PROCEED, animated: true, isMessage: false, continueBlock:
+                    {
+                    self.openJobTasks()
+                }, cancelBlock: {
                 })
+            } else {
+                self.openJobTasks()
             }
         }
     }
     
+    fileprivate func openJobTasks() {
+        let taskView = self.storyboard?.instantiateViewController(withIdentifier: "TaskVC") as! TaskViewController
+        taskView.currentTaskIdx = 0
+        self.navigationController?.pushViewController(taskView, animated: true)
+    }
+    
     fileprivate func loadJbInfoData(){
+        
+        if self.instance.instId == nil {
+            self.showBottomBtn(showVbtn: true, showHorBtn: true)
+        }
         
         if let location = instance!.location, let template = instance!.template {
             jobNamelbl.text = String(format: "%@", template.templateName ?? "")
@@ -210,17 +233,20 @@ class JobVisitInfoViewController: RootViewController {
     }
     
     func resizeHeaderToFit() {
-        let headerView = jobVisitTB.tableHeaderView!
-        
-        headerView.setNeedsLayout()
-        headerView.layoutIfNeeded()
-        
-        let height = headerView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height
-        var frame = headerView.frame
-        frame.size.height = height
-        headerView.frame = frame
-        
-        jobVisitTB.tableHeaderView = headerView
+        autoreleasepool {
+            let headerView = jobVisitTB.tableHeaderView!
+            
+            headerView.setNeedsLayout()
+            headerView.layoutIfNeeded()
+            
+            let height = headerView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height
+            var frame = headerView.frame
+            frame.size.height = height
+            headerView.frame = frame
+            
+            // Causes Memory issue and does not let any popup to show
+//            jobVisitTB.tableHeaderView = headerView
+        }
     }
     
     @objc fileprivate func updateJob() {
@@ -334,7 +360,12 @@ class JobVisitInfoViewController: RootViewController {
                         return
                     }
                 }
-                JobServices.completeNSendInstUpdate(jobInstance: instance!)
+//<<<<<<< HEAD
+//                self.instance!.completeNSendInstUpdate()
+//=======
+//                JobServices.completeNSendInstUpdate(jobInstance: instance!)
+//>>>>>>> Dev_new
+                self.instance!.completeNSendInstUpdate()
                 self.loadingView.textLabel.text = StringConstants.StatusMessages.INITIATING_SEND_PROCESS
                 self.loadingView.show(in: self.view, animated: true)
                 self.disableNavigationBtnAction()
@@ -377,7 +408,7 @@ extension JobVisitInfoViewController: CLLocationManagerDelegate {
             guard let settingsURL = URL(string: UIApplication.openSettingsURLString) else {
                 return
             }
-            
+
             self.popViewController.showInView(self.view, withTitle: StringConstants.ButtonTitles.TLT_Warning, withMessage: StringConstants.StatusMessages.LOCATION_ACCESS_NEEDED_MSG, withCloseBtTxt: StringConstants.ButtonTitles.BTN_Cancel, withAcceptBt: StringConstants.ButtonTitles.BTN_SETTINGS, animated: true, isMessage: false, continueBlock: {
                 if UIApplication.shared.canOpenURL(settingsURL) {
                     UIApplication.shared.open(settingsURL)
@@ -385,12 +416,12 @@ extension JobVisitInfoViewController: CLLocationManagerDelegate {
             }, cancelBlock:  {
                 _ = self.navigationController?.popViewController(animated: true)
             })
-            
+
         case .restricted:
             guard let settingsURL = URL(string: UIApplication.openSettingsURLString) else {
                 return
             }
-            
+
             self.popViewController.showInView(self.view, withTitle: StringConstants.ButtonTitles.TLT_Warning, withMessage: StringConstants.StatusMessages.LOCATION_ACCESS_NEEDED_MSG, withCloseBtTxt: StringConstants.ButtonTitles.BTN_Cancel, withAcceptBt: StringConstants.ButtonTitles.BTN_SETTINGS, animated: true, isMessage: false, continueBlock: {
                 if UIApplication.shared.canOpenURL(settingsURL) {
                     UIApplication.shared.open(settingsURL)
@@ -398,7 +429,7 @@ extension JobVisitInfoViewController: CLLocationManagerDelegate {
             }, cancelBlock:  {
                 _ = self.navigationController?.popViewController(animated: true)
             })
-            
+
         case .notDetermined:
             print("not determined.")
         default:
@@ -485,26 +516,20 @@ extension JobVisitInfoViewController: UITableViewDelegate {
             return
         }
         if indexPath.row == 0 {
-            //Appsee.addScreenAction(StringConstants.AppseeScreenAction.START_JOB)
-            let taskView = self.storyboard?.instantiateViewController(withIdentifier: "TaskVC") as! TaskViewController
-            taskView.currentTaskIdx = 0
-            self.navigationController?.pushViewController(taskView, animated: true)
+            self.checkJobLocationFirstThenTakeDecision()
         }
         else if indexPath.row == 1 {
-            //Appsee.addScreenAction(StringConstants.AppseeScreenAction.FV_PHOTO_CLICKED)
             let photoGallery = self.storyboard?.instantiateViewController(withIdentifier: "PhotoGalleryVC") as! PhotoGalleryViewController
             photoGallery.photoGalType = .JobVisitPhotos
             self.navigationController?.pushViewController(photoGallery, animated: true)
         }
         else if indexPath.row == 2 {
-            //Appsee.addScreenAction(StringConstants.AppseeScreenAction.FV_COMMENTS_CLICKED)
             let commentView = self.storyboard!.instantiateViewController(withIdentifier: "CommentsVC") as! CommentsViewController
             self.navigationController?.pushViewController(viewController: commentView, direction: NavPushDirection.Bottom)
 //        }else if indexPath.row == 3 {
 //            let summaryView = self.storyboard?.instantiateViewController(withIdentifier: "NavSummaryVC") as! NavSummaryVController
 //            self.navigationController?.pushViewController(viewController: summaryView, direction: NavPushDirection.Top)
         }else {
-            //Appsee.addScreenAction(StringConstants.AppseeScreenAction.SIGNATURE_CLICKED)
             if let documents = instance?.documents {
                 if let signature = documents.filter({ $0.type == Constants.DocSignatureType }).last {
                     

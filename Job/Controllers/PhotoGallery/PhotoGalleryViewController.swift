@@ -74,6 +74,44 @@ class PhotoGalleryViewController: RootViewController {
         if isPano180Photo() {
             takePhtBtn.setTitle(StringConstants.ButtonTitles.BTN_CHOOSE_PHOTO, for: .normal)
         }
+        
+        var menubtn:UIBarButtonItem? = nil
+        for item in self.navigationItem.rightBarButtonItems! {
+            menubtn = item
+        }
+        let downloadBtn = UIBarButtonItem(image: UIImage(named: "DownloadIcon"), style: .done, target: self, action: #selector(downloadImages))
+        self.navigationItem.rightBarButtonItems = [menubtn!, downloadBtn]
+        NotificationCenter.default.addObserver(self, selector:#selector(reloadGallery), name: NSNotification.Name(rawValue: Constants.NotificationsName.RELOAD_GALLERY_NOTIFY), object: nil)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        var displayAlert = false
+        for document in photoArray {
+            if !Utility.checkDocumentExist(docName: document.originalName!, folderName: document.instanceId!){
+                displayAlert = true
+                break
+            }
+        }
+        if displayAlert && !AppInfo.sharedInstance.downloadAltShown {
+            AppInfo.sharedInstance.downloadAltShown = true
+            self.popViewController.showInView(self.view, withTitle: StringConstants.ButtonTitles.TLT_Attention, withMessage: StringConstants.StatusMessages.Download_photo_Message, withCloseBtTxt: StringConstants.ButtonTitles.BTN_Cancel, withAcceptBt: StringConstants.ButtonTitles.BTN_DOWNLOAD, animated: true, isMessage: false, continueBlock:
+            {
+                self.downloadImages()
+            }, cancelBlock: {})
+        }
+    }
+    
+    @objc fileprivate func downloadImages() {
+        if photoGalType == .JobVisitPhotos {
+            DocumentDLManager().downloadImagesIfNotExist(forInstance: AppInfo.sharedInstance.selJobInstance)
+        } else {
+            DocumentDLManager().downloadImagesIfNotExist(forAnswer: JobVisitModel.sharedInstance.answer)
+        }
+    }
+    
+    @objc fileprivate func reloadGallery() {
+        photoCollectionV.reloadData()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -208,6 +246,7 @@ class PhotoGalleryViewController: RootViewController {
         let cameraView = UIImagePickerController()
         cameraView.sourceType = sourceType
         cameraView.delegate = self
+        cameraView.modalPresentationStyle = .fullScreen
         present(cameraView, animated: true, completion: nil)
     }
 
@@ -536,6 +575,9 @@ extension PhotoGalleryViewController: UICollectionViewDelegate, UICollectionView
     }
 
     fileprivate func showDefaultPhotoViewer(_ indexPath: IndexPath) {
+        if photoArray[indexPath.row].name! == Constants.Empty_Photo_No_Name {
+            return
+        }
         let photoView = self.storyboard?.instantiateViewController(withIdentifier: "PhotoViewC") as! PhotoViewController
         photoView.photoArray = photoArray
         photoView.photoGalType = self.photoGalType
@@ -544,6 +586,7 @@ extension PhotoGalleryViewController: UICollectionViewDelegate, UICollectionView
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
         if photoGalType == .JobVisitPhotos {
             showDefaultPhotoViewer(indexPath)
         }

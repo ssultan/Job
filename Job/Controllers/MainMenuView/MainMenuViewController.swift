@@ -23,12 +23,10 @@ protocol MainMenuViewProtocal {
 class MainMenuViewController: RootViewController {
 
     @IBOutlet weak var menuTableView: UITableView!
-
     let menuArray:NSArray = [StringConstants.MenuTitles.START_NEW_JOB, StringConstants.MenuTitles.INCOMPLETE_JOBS, StringConstants.MenuTitles.TRANSMIT_REPORT]
     
-    var instCompletedCount: Int = 0
+    //var instCompletedCount: Int = 0
     var instInCompletedCount: Int = 0
-    
     var transmitReportCounter = "0/0"
     var isOfflineLogin:Bool = false
     var isLoadingFirstTime = true
@@ -80,8 +78,8 @@ class MainMenuViewController: RootViewController {
         self.setNavRightBarItem()
         self.manageSlideMenu()
         
-        instCompletedCount = JobServices.loadJobInstanceCounter(isCompleted: true)
-        instInCompletedCount = JobServices.loadJobInstanceCounter(isCompleted: false)
+//        instCompletedCount = JobServices.loadJobInstanceCounter(isCompleted: true)
+        instInCompletedCount = JobServices.loadJobInstanceCounter()
         self.transmitReportCounter = JobServices.getTransmitReportCounter()
         self.menuTableView.reloadData()
     }

@@ -146,6 +146,79 @@ import DeviceKit
         }
     }*/
     
+    func fetchReponseInData(forRequestType type:HTTPMethod, forServiceURL url: String, params: [String : AnyObject]?, completionClosure:@escaping (_ jsonRes: AnyObject?, _ data: Data?, _ statusCode: Int, _ isSucceeded:Bool) ->()) {
+        
+        let apiLogModel = ApiLogsModel()
+        apiLogModel.reqURL = url
+        apiLogModel.reqMethod = type.rawValue
+        apiLogModel.requestTime = NSDate()
+        
+        let hearders = HTTPHeaders(getHeaders() ?? [:])
+        AF.request(url, method: type, parameters: params, encoding: JSONEncoding.default, headers: hearders)
+            .downloadProgress(closure: { (progress) in
+            })
+            .validate()
+            .responseJSON { response in
+                if let statusCode = response.response?.statusCode {
+                    
+                    switch response.result {
+                        case .success(_):
+                            if statusCode == HttpRespStatusCodes.HTTP_200_OK.rawValue {
+                                do {
+                                    let json = try JSONSerialization.jsonObject(with: response.data!, options: JSONSerialization.ReadingOptions.mutableContainers)
+                                    completionClosure(json as AnyObject?, response.data!, statusCode, true)
+                                } catch {
+                                    completionClosure(nil, nil, statusCode, false)
+                                }
+                            }
+                            else {
+                                do {
+                                    print("Response: \(response.response!) -> Data: \(response.data!) -> statusCode: \(statusCode)")
+                                    let json = try JSONSerialization.jsonObject(with: response.data!, options: JSONSerialization.ReadingOptions.mutableContainers)
+                                    completionClosure(json as AnyObject?, response.data!, statusCode, false)
+                                }
+                                catch {
+                                    if let error = error as NSError? {
+                                        completionClosure(self.parseError(error as NSError) as AnyObject?, nil, statusCode, false)
+                                    } else {
+                                        completionClosure(nil, nil, statusCode, false)
+                                    }
+                                }
+                            }
+                            break
+                        case .failure(let afError):
+                            if let jData = response.data {
+                                do {
+                                    let json = try JSONSerialization.jsonObject(with: jData, options: JSONSerialization.ReadingOptions.mutableContainers)
+                                    completionClosure(json as AnyObject?, response.data!, statusCode, false)
+                                }
+                                    
+                                catch {
+                                    if let apiRes = response.response {
+                                        apiLogModel.responseJson = String(describing: apiRes)
+                                    }
+                                    
+                                    DBErrorLogServices.storeAllAPILogs(apiLogModel: apiLogModel)
+                                    if let error = afError.underlyingError  {
+                                        completionClosure(self.parseError(error as NSError) as AnyObject?, nil, statusCode, false)
+                                    } else {
+                                        completionClosure(["ErrorCode": HttpRespStatusCodes.RequestTimeOut.rawValue,
+                                        StringConstants.ButtonTitles.TLT_Message: StringConstants.StatusMessages.Request_Timeout_Global] as AnyObject, nil, HttpRespStatusCodes.RequestTimeOut.rawValue, false)
+                                    }
+                                }
+                            } else {
+                                apiLogModel.responseStatus = NSNumber(value: HttpRespStatusCodes.RequestTimeOut.rawValue)
+                                DBErrorLogServices.storeAllAPILogs(apiLogModel: apiLogModel)
+                                completionClosure(["ErrorCode": HttpRespStatusCodes.RequestTimeOut.rawValue,
+                                        StringConstants.ButtonTitles.TLT_Message: StringConstants.StatusMessages.Request_Timeout_Global] as AnyObject, nil, HttpRespStatusCodes.RequestTimeOut.rawValue, false)
+                            }
+                            
+                            break
+                    }
+                }
+        }
+    }
+    
     func fetchDataRAW(_ requestType:HTTPMethod, serviceURL: String, params: [String : AnyObject]?, completionClosure:@escaping (_ jsonRes: AnyObject?, _ statusCode: Int, _ isSucceeded:Bool) ->()) {
         
         let parameters = params as! [String: String]
@@ -189,6 +262,22 @@ import DeviceKit
                 completionClosure(responseObject as AnyObject?, responseN.statusCode, true)
             }
             task.resume()
+        }
+    }
+    
+    func downloadImage(forURL url: String, complitionHandler:@escaping(Bool, UIImage?) ->()){
+        //https://clearthread.davacoinc.com/documents/Collection/CustomerId_11/TemplateId_16048/InstanceId_193807/AnswerId_6148016/eVbgRMaWu1-tyE_itvlm0g2.jpg
+        
+        AF.request(url, method: .get).response{ response in
+            switch response.result {
+                 case .success(let responseData):
+                    complitionHandler(true, UIImage(data: responseData!))
+                      
+
+                 case .failure(let error):
+                    print("++++++ ERROR download photo: ", error)
+                    complitionHandler(false, nil)
+            }
         }
     }
     
