@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15702" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15704"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="EHf-IW-A2E">
+            <objects>
+                <viewController id="01J-lp-oVM" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Llm-lL-Icb"/>
+                        <viewControllerLayoutGuide type="bottom" id="xb3-aO-Qok"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="BgImgNew" translatesAutoresizingMaskIntoConstraints="NO" id="FMO-p1-Yah">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                            </imageView>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="clearthreadMainlogo.png" highlightedImage="clearthreadMainlogo.png" translatesAutoresizingMaskIntoConstraints="NO" id="csg-fO-Y0O">
+                                <rect key="frame" x="50" y="210" width="275" height="47"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="csg-fO-Y0O" secondAttribute="height" multiplier="5.8:1" id="FWi-h6-4iN"/>
+                                    <constraint firstAttribute="height" relation="lessThanOrEqual" constant="100" id="Wey-Se-zr1"/>
+                                </constraints>
+                                <variation key="default">
+                                    <mask key="constraints">
+                                        <exclude reference="Wey-Se-zr1"/>
+                                    </mask>
+                                </variation>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Copyright © 2020 Clearthread. All rights reserved." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ug4-RV-bIE">
+                                <rect key="frame" x="34.5" y="651" width="306" height="16"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" red="0.19215686274509802" green="0.19215686274509802" blue="0.19215686274509802" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="bottom" secondItem="FMO-p1-Yah" secondAttribute="bottom" id="0Mu-Cb-Qv8"/>
+                            <constraint firstAttribute="trailing" secondItem="csg-fO-Y0O" secondAttribute="trailing" constant="50" id="7q5-HD-QkY"/>
+                            <constraint firstItem="FMO-p1-Yah" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="7wv-Hy-mCx"/>
+                            <constraint firstAttribute="trailing" secondItem="FMO-p1-Yah" secondAttribute="trailing" id="Fzx-Ei-8OM"/>
+                            <constraint firstItem="csg-fO-Y0O" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" constant="-100" id="H8p-8u-yKD"/>
+                            <constraint firstItem="csg-fO-Y0O" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="Ze5-6b-2t3" secondAttribute="leadingMargin" constant="30" id="HNn-iB-a0A"/>
+                            <constraint firstItem="FMO-p1-Yah" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="JTG-2z-2D7"/>
+                            <constraint firstItem="csg-fO-Y0O" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="Qc1-2W-GSu"/>
+                            <constraint firstItem="xb3-aO-Qok" firstAttribute="top" secondItem="Ug4-RV-bIE" secondAttribute="bottom" id="gcY-9D-s77"/>
+                            <constraint firstItem="csg-fO-Y0O" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" constant="50" id="ibu-vr-fgH"/>
+                            <constraint firstItem="Ug4-RV-bIE" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="jSy-9g-Y5O"/>
+                            <constraint firstItem="csg-fO-Y0O" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" constant="50" id="v1i-0r-F3y"/>
+                        </constraints>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="HNn-iB-a0A"/>
+                                <exclude reference="v1i-0r-F3y"/>
+                            </mask>
+                        </variation>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="520.79999999999995" y="96.7016491754123"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="BgImgNew" width="375" height="667"/>
+        <image name="clearthreadMainlogo.png" width="10492" height="1788"/>
+    </resources>
+</document>

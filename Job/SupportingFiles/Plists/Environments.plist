@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Debug Prod</key>
+	<dict>
+		<key>ResetDomain</key>
+		<string>portal.davacoinc.com</string>
+		<key>ServerURL</key>
+		<string>api.davaco.clearthread.com</string>
+		<key>HttpType</key>
+		<string>http://</string>
+	</dict>
+	<key>Debug</key>
+	<dict>
+		<key>ResetDomain</key>
+		<string>portal.davacoinc.com</string>
+		<key>ServerURL</key>
+		<string>api.dev.clearthread.com</string>
+		<key>HttpType</key>
+		<string>http://</string>
+	</dict>
+	<key>Staging</key>
+	<dict>
+		<key>ResetDomain</key>
+		<string>portal.davacoinc.com</string>
+		<key>ServerURL</key>
+		<string>api.staging.clearthread.com</string>
+		<key>HttpType</key>
+		<string>http://</string>
+	</dict>
+	<key>Production</key>
+	<dict>
+		<key>ResetDomain</key>
+		<string>portal.davacoinc.com</string>
+		<key>ServerURL</key>
+		<string>api.davacoinc.com</string>
+		<key>HttpType</key>
+		<string>https://</string>
+	</dict>
+	<key>Release</key>
+	<dict>
+		<key>ResetDomain</key>
+		<string>portal.davacoinc.com</string>
+		<key>ServerURL</key>
+		<string>api.davacoinc.com</string>
+		<key>HttpType</key>
+		<string>https://</string>
+	</dict>
+	<key>UAT</key>
+	<dict>
+		<key>ResetDomain</key>
+		<string>portal.davacoinc.com</string>
+		<key>ServerURL</key>
+		<string>apiuat.clearthread.com</string>
+		<key>HttpType</key>
+		<string>https://</string>
+	</dict>
+</dict>
+</plist>

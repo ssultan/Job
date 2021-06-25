@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="16119" systemVersion="19D76" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="Answer" representedClassName=".Answer" syncable="YES">
+        <attribute name="ansId" optional="YES" attributeType="String"/>
+        <attribute name="ansServerId" optional="YES" attributeType="String"/>
+        <attribute name="endDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="flagStatus" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
+        <attribute name="isCompleted" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
+        <attribute name="startDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="taskId" optional="YES" attributeType="String"/>
+        <attribute name="taskType" optional="YES" attributeType="String"/>
+        <attribute name="value" optional="YES" attributeType="String"/>
+        <relationship name="comments" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Comment" inverseName="answerComment" inverseEntity="Comment"/>
+        <relationship name="documents" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Document" inverseName="answer" inverseEntity="Document"/>
+        <relationship name="jobInstance" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JobInstance" inverseName="answers" inverseEntity="JobInstance"/>
+        <relationship name="task" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Task" inverseName="answer" inverseEntity="Task"/>
+    </entity>
+    <entity name="ApiMessageLog" representedClassName=".ApiMessageLog" syncable="YES">
+        <attribute name="apiName" optional="YES" attributeType="String"/>
+        <attribute name="deviceState" optional="YES" attributeType="String"/>
+        <attribute name="reqMethod" optional="YES" attributeType="String"/>
+        <attribute name="requestJson" optional="YES" attributeType="String"/>
+        <attribute name="requestTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="reqURL" optional="YES" attributeType="String"/>
+        <attribute name="responseErrorCode" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO"/>
+        <attribute name="responseJson" optional="YES" attributeType="String"/>
+        <attribute name="responseStatus" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO"/>
+        <attribute name="responseTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="resTimeInSec" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO"/>
+        <attribute name="username" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="Comment" representedClassName=".Comment" syncable="YES">
+        <attribute name="commentId" optional="YES" attributeType="String"/>
+        <attribute name="commentText" optional="YES" attributeType="String"/>
+        <attribute name="createdBy" optional="YES" attributeType="String"/>
+        <attribute name="createdDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="flagStatus" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="isComDeleted" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="isFlag" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <relationship name="answerComment" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Answer" inverseName="comments" inverseEntity="Answer"/>
+        <relationship name="instanceComment" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JobInstance" inverseName="comments" inverseEntity="JobInstance"/>
+    </entity>
+    <entity name="Document" representedClassName=".Document" syncable="YES">
+        <attribute name="attribute" optional="YES" attributeType="String"/>
+        <attribute name="attributeId" optional="YES" attributeType="String"/>
+        <attribute name="comment" optional="YES" attributeType="String"/>
+        <attribute name="createdDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="docServerId" optional="YES" attributeType="String"/>
+        <attribute name="docTags" optional="YES" attributeType="String"/>
+        <attribute name="documentId" attributeType="String"/>
+        <attribute name="exifDic" optional="YES" attributeType="String"/>
+        <attribute name="isDataNull" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
+        <attribute name="isNeedToSend" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
+        <attribute name="isPhotoDeleted" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
+        <attribute name="isSent" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
+        <attribute name="location" optional="YES" attributeType="String"/>
+        <attribute name="mimeType" optional="YES" attributeType="String"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="originalName" optional="YES" attributeType="String"/>
+        <attribute name="photo180GalleryPath" optional="YES" attributeType="String"/>
+        <attribute name="photoAttrType" optional="YES" attributeType="String"/>
+        <attribute name="photoServerURL" optional="YES" attributeType="String"/>
+        <attribute name="sentTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="serverCreatedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="type" optional="YES" attributeType="String"/>
+        <relationship name="answer" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Answer" inverseName="documents" inverseEntity="Answer"/>
+        <relationship name="error" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="ErrorLogs" inverseName="documentError" inverseEntity="ErrorLogs"/>
+        <relationship name="jobInstance" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JobInstance" inverseName="documents" inverseEntity="JobInstance"/>
+    </entity>
+    <entity name="ErrorLogs" representedClassName=".ErrorLogs" syncable="YES">
+        <attribute name="errorCode" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="errorMsg" optional="YES" attributeType="String"/>
+        <attribute name="lastErrorDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="totalCounted" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO"/>
+        <relationship name="documentError" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Document" inverseName="error" inverseEntity="Document"/>
+        <relationship name="instanceError" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JobInstance" inverseName="error" inverseEntity="JobInstance"/>
+    </entity>
+    <entity name="JobInstance" representedClassName=".JobInstance" syncable="YES">
+        <attribute name="completedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="instanceSentTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="instId" attributeType="String"/>
+        <attribute name="instServerId" optional="YES" attributeType="String"/>
+        <attribute name="isCompleted" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
+        <attribute name="isCompleteNSend" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
+        <attribute name="isSent" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
+        <attribute name="isSentForProcessing" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
+        <attribute name="isSentOrUpdated" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
+        <attribute name="locationId" optional="YES" attributeType="String"/>
+        <attribute name="photoAckReceived" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
+        <attribute name="startDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="status" optional="YES" attributeType="String"/>
+        <attribute name="storeNumber" optional="YES" attributeType="String"/>
+        <attribute name="succPhotoUploadTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="templateId" optional="YES" attributeType="String"/>
+        <attribute name="templateName" optional="YES" attributeType="String"/>
+        <relationship name="answers" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Answer" inverseName="jobInstance" inverseEntity="Answer"/>
+        <relationship name="comments" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Comment" inverseName="instanceComment" inverseEntity="Comment"/>
+        <relationship name="documents" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Document" inverseName="jobInstance" inverseEntity="Document"/>
+        <relationship name="error" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="ErrorLogs" inverseName="instanceError" inverseEntity="ErrorLogs"/>
+        <relationship name="jobLocation" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Location" inverseName="jobInstance" inverseEntity="Location"/>
+        <relationship name="jobTemplate" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JobTemplate" inverseName="instance" inverseEntity="JobTemplate"/>
+        <relationship name="manifest" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Manifest" inverseName="jobInstance" inverseEntity="Manifest"/>
+    </entity>
+    <entity name="JobTemplate" representedClassName=".JobTemplate" syncable="YES">
+        <attribute name="lastUpdatedOn" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="signatureRequired" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
+        <attribute name="templateId" optional="YES" attributeType="String"/>
+        <attribute name="templateLongDesc" optional="YES" attributeType="String"/>
+        <attribute name="templateName" optional="YES" attributeType="String"/>
+        <attribute name="templateShortDesc" optional="YES" attributeType="String"/>
+        <attribute name="templateType" optional="YES" attributeType="String"/>
+        <relationship name="instance" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="JobInstance" inverseName="jobTemplate" inverseEntity="JobInstance"/>
+        <relationship name="task" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Task" inverseName="jobTemplate" inverseEntity="Task"/>
+        <relationship name="tempProject" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Project" inverseName="jobTemplate" inverseEntity="Project"/>
+    </entity>
+    <entity name="Location" representedClassName=".Location" syncable="YES">
+        <attribute name="address" optional="YES" attributeType="String"/>
+        <attribute name="city" optional="YES" attributeType="String"/>
+        <attribute name="jobInstanceCount" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="latitude" optional="YES" attributeType="String"/>
+        <attribute name="locationDesc" optional="YES" attributeType="String"/>
+        <attribute name="locationId" optional="YES" attributeType="String"/>
+        <attribute name="locationName" optional="YES" attributeType="String"/>
+        <attribute name="longitude" optional="YES" attributeType="String"/>
+        <attribute name="state" optional="YES" attributeType="String"/>
+        <attribute name="storeId" optional="YES" attributeType="String"/>
+        <attribute name="storeNumber" optional="YES" attributeType="String"/>
+        <attribute name="zipCode" optional="YES" attributeType="String"/>
+        <relationship name="jobInstance" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="JobInstance" inverseName="jobLocation" inverseEntity="JobInstance"/>
+        <relationship name="project" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Project" inverseName="location" inverseEntity="Project"/>
+    </entity>
+    <entity name="Manifest" representedClassName=".Manifest" syncable="YES">
+        <attribute name="aetExpirationDate" optional="YES" attributeType="Date" usesScalarValueType="NO">
+            <userInfo>
+                <entry key="hyper.remoteKey" value="AetExpirationDate"/>
+            </userInfo>
+        </attribute>
+        <attribute name="appUrl" optional="YES" attributeType="String">
+            <userInfo>
+                <entry key="hyper.remoteKey" value="AppUrl"/>
+            </userInfo>
+        </attribute>
+        <attribute name="backupInterval" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO">
+            <userInfo>
+                <entry key="hyper.remoteKey" value="BackupInterval"/>
+            </userInfo>
+        </attribute>
+        <attribute name="helpDeskEmail" optional="YES" attributeType="String"/>
+        <attribute name="helpDeskNumber" optional="YES" attributeType="String">
+            <userInfo>
+                <entry key="hyper.remoteKey" value="HelpDeskNumber"/>
+            </userInfo>
+        </attribute>
+        <attribute name="isUpdateRequired" optional="YES" attributeType="Boolean" usesScalarValueType="NO">
+            <userInfo>
+                <entry key="hyper.remoteKey" value="IsUpdateRequired"/>
+            </userInfo>
+        </attribute>
+        <attribute name="minOSVersion" optional="YES" attributeType="String"/>
+        <attribute name="minWorkDistance" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="reportInterval" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO">
+            <userInfo>
+                <entry key="hyper.remoteKey" value="ReportInterval"/>
+            </userInfo>
+        </attribute>
+        <attribute name="version" optional="YES" attributeType="String"/>
+        <relationship name="jobInstance" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="JobInstance" inverseName="manifest" inverseEntity="JobInstance"/>
+        <relationship name="projects" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Project" inverseName="manifest" inverseEntity="Project"/>
+        <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="manifest" inverseEntity="User"/>
+    </entity>
+    <entity name="Project" representedClassName=".Project" syncable="YES">
+        <attribute name="customerId" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO"/>
+        <attribute name="customerName" optional="YES" attributeType="String"/>
+        <attribute name="lastUpdatedOn" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="programId" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO"/>
+        <attribute name="programName" optional="YES" attributeType="String"/>
+        <attribute name="projectDesc" optional="YES" attributeType="String"/>
+        <attribute name="projectId" optional="YES" attributeType="String"/>
+        <attribute name="projectName" optional="YES" attributeType="String"/>
+        <attribute name="projectNumber" optional="YES" attributeType="String"/>
+        <relationship name="jobTemplate" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="JobTemplate" inverseName="tempProject" inverseEntity="JobTemplate"/>
+        <relationship name="location" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Location" inverseName="project" inverseEntity="Location"/>
+        <relationship name="manifest" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Manifest" inverseName="projects" inverseEntity="Manifest"/>
+    </entity>
+    <entity name="Task" representedClassName=".Task" syncable="YES">
+        <attribute name="accuracy" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="allowNA" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="documentType" optional="YES" attributeType="String"/>
+        <attribute name="documentTypeId" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO"/>
+        <attribute name="hasChildren" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
+        <attribute name="isActive" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="ordinal" optional="YES" attributeType="String"/>
+        <attribute name="photoRequired" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
+        <attribute name="required" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
+        <attribute name="taskDesc" optional="YES" attributeType="String"/>
+        <attribute name="taskId" optional="YES" attributeType="String"/>
+        <attribute name="taskNo" optional="YES" attributeType="String"/>
+        <attribute name="taskTitle" optional="YES" attributeType="String"/>
+        <attribute name="taskType" optional="YES" attributeType="String"/>
+        <attribute name="taskTypeId" optional="YES" attributeType="String"/>
+        <attribute name="toolTip" optional="YES" attributeType="String"/>
+        <attribute name="weight" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="answer" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Answer" inverseName="task" inverseEntity="Answer"/>
+        <relationship name="jobTemplate" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JobTemplate" inverseName="task" inverseEntity="JobTemplate"/>
+        <relationship name="parentTask" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="Task" inverseName="subTask" inverseEntity="Task"/>
+        <relationship name="subTask" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Task" inverseName="parentTask" inverseEntity="Task"/>
+    </entity>
+    <entity name="User" representedClassName=".User" syncable="YES">
+        <attribute name="buildEnvironment" optional="YES" attributeType="String"/>
+        <attribute name="fullName" optional="YES" attributeType="String"/>
+        <attribute name="isAcceptedTnC" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
+        <attribute name="loginTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="roleName" optional="YES" attributeType="String"/>
+        <attribute name="token" optional="YES" attributeType="String">
+            <userInfo>
+                <entry key="hyper.remoteKey" value="Token"/>
+            </userInfo>
+        </attribute>
+        <attribute name="userId" optional="YES" attributeType="String"/>
+        <attribute name="userName" optional="YES" attributeType="String"/>
+        <attribute name="userPhone" optional="YES" attributeType="String"/>
+        <relationship name="manifest" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="Manifest" inverseName="user" inverseEntity="Manifest"/>
+    </entity>
+    <elements>
+        <element name="Answer" positionX="-150.26171875" positionY="-22.5390625" width="128" height="240"/>
+        <element name="ApiMessageLog" positionX="346.23828125" positionY="179.5234375" width="128" height="225"/>
+        <element name="Comment" positionX="68.58203125" positionY="246.56640625" width="128" height="180"/>
+        <element name="Document" positionX="677.83203125" positionY="244" width="128" height="420"/>
+        <element name="ErrorLogs" positionX="-146.05859375" positionY="634.66796875" width="128" height="135"/>
+        <element name="JobInstance" positionX="-803.16796875" positionY="-45.4921875" width="128" height="405"/>
+        <element name="JobTemplate" positionX="679.26953125" positionY="-56.28125" width="128" height="195"/>
+        <element name="Location" positionX="-846.99609375" positionY="537.875" width="128" height="255"/>
+        <element name="Manifest" positionX="-353.20703125" positionY="-96.734375" width="128" height="238"/>
+        <element name="Project" positionX="-285.6875" positionY="420.484375" width="128" height="225"/>
+        <element name="Task" positionX="498.390625" positionY="189.10546875" width="128" height="358"/>
+        <element name="User" positionX="-668.91796875" positionY="520.37890625" width="128" height="193"/>
+    </elements>
+</model>
