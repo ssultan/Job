@@ -38,8 +38,6 @@ class CommentsViewController: RootViewController, UITextViewDelegate {
     var answerModel: AnswerModel!
     var commentsList = [CommentModel]()
     var comMaxCharLength: Int = 0
-    var taskDelegate: TaskDetailsDelegate!
-    var isNewCommentAdded: Bool = false
     
     @IBOutlet weak var commentTxtView: UITextView!
     @IBOutlet weak var maxLimitlbl: UILabel!
@@ -107,10 +105,8 @@ class CommentsViewController: RootViewController, UITextViewDelegate {
         self.view.endEditing(true)
     }
     
+    
     @IBAction func doneNCloseBtnAction() {
-        if taskDelegate != nil && isNewCommentAdded {
-            taskDelegate.triggerAnsChangedByAddingPhotoOrComment()
-        }
         self.navigationController?.popViewController(animated: true, direction: .Top)
     }
     
@@ -127,7 +123,6 @@ class CommentsViewController: RootViewController, UITextViewDelegate {
                     } else {
                         self.answerModel.comments.append(commentObj)
                     }
-                    self.isNewCommentAdded = true
                     self.commentsTbList.reloadData()
                 }
             }
@@ -144,8 +139,6 @@ class CommentsViewController: RootViewController, UITextViewDelegate {
         comment.commentText = commentTxt
         comment.createdBy = AppInfo.sharedInstance.username!
         comment.createdDate = NSDate()
-        comment.lastUpdatedBy = AppInfo.sharedInstance.username!
-        comment.lastUpdatedOn = Date()
         guard let commentObj = JobServices.saveComment(commentObj: comment, ansModel: self.answerModel) else { return nil }
         return commentObj
     }
@@ -196,7 +189,7 @@ extension CommentsViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "CommentCardCell", for: indexPath) as! CommentCardCell
-        cell.commentTitle.text = "\(commentsList[indexPath.row].lastUpdatedBy ?? "Anonymous User") - \(commentsList[indexPath.row].lastUpdatedOn!.convertToString(format: "MM/dd/yyyy hh:mm a"))"
+        cell.commentTitle.text = "\(commentsList[indexPath.row].createdBy!) - \(commentsList[indexPath.row].createdDate!.convertToString(format: "MM/dd/yyyy hh:mm a"))"
         cell.comment.text = commentsList[indexPath.row].commentText ?? ""
         return cell
     }

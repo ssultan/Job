@@ -14,7 +14,7 @@
 
 import UIKit
 import Zip
-import FirebaseAnalytics
+//import Appsee
 
 enum SelectedOption:Int {
     case DatabaseOnly = 0
@@ -295,7 +295,7 @@ extension EmergSendProcVController: BRRequestDelegate {
     
     func requestFailed(_ request: BRRequest!) {
         print("Failed to up FTP Data")
-        Analytics.logEvent("Failed to send FTP Data" , parameters: ["Username": AppInfo.sharedInstance.username ?? AppInfo.sharedInstance.deviceId])
+        //Appsee.addEvent("Failed to send FTP Data", withProperties: [Constants.ApiRequestFields.Key_Username: AppInfo.sharedInstance.username ?? AppInfo.sharedInstance.deviceId])
         
         self.removeZipFile()
         uploadFile = nil

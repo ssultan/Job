@@ -14,10 +14,10 @@
 
 import UIKit
 //import Appsee
-//import Fabric
+import Fabric
 import Firebase
 import Alamofire
-import FirebaseCrashlytics
+import Crashlytics
 import UserNotifications
 import SlideMenuControllerSwift
 
@@ -135,7 +135,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate { //, AppseeDelegate {
     
     func applicationDidReceiveMemoryWarning(_ application: UIApplication) {
         print("********************* MEMORY WARNING ***********************")
-        Crashlytics.crashlytics().setCustomValue("Application received memory warning", forKey: "Warning")
+        Crashlytics.sharedInstance().setObjectValue("Application received memory warning", forKey: "Warning")
         //Appsee.addEvent("Application received memory warning", withProperties: ["MemoryInUse": "\(Helper.getMegabytesUsed() ?? 0.0)",Constants.ApiRequestFields.Key_Username: AppInfo.sharedInstance.username ?? AppInfo.sharedInstance.deviceId])
         Analytics.logEvent("Application_received_memory_warning", parameters: ["MemoryInUse": "\(Helper.getMegabytesUsed() ?? 0.0)",
             Constants.ApiRequestFields.Key_Username: AppInfo.sharedInstance.username ?? AppInfo.sharedInstance.deviceId])
@@ -153,24 +153,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate { //, AppseeDelegate {
     func add3rdParyApiKeys() {
         setGlobalAppearence();
         
-        FirebaseApp.configure()
-        
         #if DEBUG || STAGE
         //Appsee.start(Constants.Keys.AppSeeKey)
         //Appsee.setDelegate(self)
         
-//        Fabric.with([Crashlytics.self])
-//        Fabric.sharedSDK().debug = false
+        FirebaseApp.configure()
+        Fabric.with([Crashlytics.self])
+        Fabric.sharedSDK().debug = false
         
-        ///bin/sh
-        //"${PODS_ROOT}/Fabric/run" b5f7b3415e6727fd78152e715f7a7e7f4d4a1020 3fc466a346661da83cd01f7f4c0df09220bfa2ab3cf0e8f54cbbdeb93c06b34a
-
         #else
         //Appsee.start(Constants.Keys.AppSeeKey)
         //Appsee.setDelegate(self)
         
-        //FirebaseApp.configure()
-//        Fabric.with([Crashlytics.self])
+        FirebaseApp.configure()
+        Fabric.with([Crashlytics.self])
         
         #endif
     }

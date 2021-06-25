@@ -68,7 +68,6 @@ class TemplateMapping: EVObject {
     @objc var TotalInstanceCount:Int = 0
     @objc var ExceptionInstanceCount:Int = 0
     @objc var DiscrepancyDefinitionCount:Int = 0
-    @objc var IsShared: Bool = false
 
     
     override func propertyMapping() -> [(keyInObject: String?, keyInResource: String?)] {

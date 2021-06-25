@@ -11,7 +11,6 @@ import EVReflection
 
 class TaskMapping: EVObject {
     @objc var Accuracy:Int = 25
-    @objc var AllowNA:Bool = false
     @objc var BaseId: String = ""
     @objc var CreatedBy: String = ""
     @objc var CreatedOn:NSDate = NSDate()

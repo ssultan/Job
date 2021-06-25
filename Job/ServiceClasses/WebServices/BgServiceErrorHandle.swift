@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import FirebaseAnalytics
+//import Appsee
 
 extension BackgroundServices {
     
@@ -16,10 +16,7 @@ extension BackgroundServices {
             NotificationCenter.default.post(name: NSNotification.Name(rawValue: Constants.NotificationsName.ReloadReportTableNotifier), object: nil,
                                             userInfo: [KeyInstanceId: clientId,
                                                        KeyStatus : status,
-                                                       KeyUserId : instance.user.userName ?? appInfo.deviceId,
-                                                       Constants.BgUIUpdateNotifierKeys.KeyInstProjId: instance.project.projectId ?? "",
-                                                       Constants.BgUIUpdateNotifierKeys.KeyInstTempId: instance.template.templateId ?? "",
-                                                       Constants.BgUIUpdateNotifierKeys.KeyInstLocId: instance.location.locationId ?? ""])
+                                                       KeyUserId : instance.user.userName ?? appInfo.deviceId])
         }
     }
     
@@ -32,8 +29,7 @@ extension BackgroundServices {
             //Show status that refreshing token
             jobInstance.status = StringConstants.StatusMessages.TokenExpired
             notifyStatusUpdate(instance: jobInstance)
-            
-            Analytics.logEvent(StringConstants.AppseeEventMessages.Token_Expired_BG_SendProcess, parameters: ["UserId": jobInstance.user.userName ?? appInfo.deviceId])
+            //Appsee.addEvent(StringConstants.AppseeEventMessages.Token_Expired_BG_SendProcess, withProperties: ["UserId": jobInstance.user.userName ?? appInfo.deviceId])
             DBJobInstanceServices.updateJobInstance(jobInstance: jobInstance)
             
             //Refresh token
@@ -48,7 +44,8 @@ extension BackgroundServices {
         }
         else if resStatusCode == HttpRespStatusCodes.BadRequestCode.rawValue {
             jobInstance.status = StringConstants.StatusMessages.BAD_REQUEST
-            Analytics.logEvent(StringConstants.AppseeEventMessages.BAD_REQUEST, parameters: ["UserId": jobInstance.user.userName ?? appInfo.deviceId])
+            //Appsee.addEvent(StringConstants.AppseeEventMessages.BAD_REQUEST, withProperties: ["UserId": jobInstance.user.userName ?? appInfo.deviceId])
+            
             
             notifyStatusUpdate(instance: jobInstance)
             DBJobInstanceServices.updateJobInstance(jobInstance: jobInstance)
@@ -56,7 +53,7 @@ extension BackgroundServices {
         }
         else if resStatusCode == HttpRespStatusCodes.NotFoundCode.rawValue {
             jobInstance.status = StringConstants.StatusMessages.NOT_FOUND_ERROR
-            Analytics.logEvent(StringConstants.AppseeEventMessages.NOT_FOUND_ERROR, parameters: ["UserId": jobInstance.user.userName ?? appInfo.deviceId])
+            //Appsee.addEvent(StringConstants.AppseeEventMessages.NOT_FOUND_ERROR, withProperties: ["UserId": jobInstance.user.userName ?? appInfo.deviceId])
             notifyStatusUpdate(instance: jobInstance)
             DBJobInstanceServices.updateJobInstance(jobInstance: jobInstance)
             Utility.showAlertMsgWhenRunningInBG(withMessage: StringConstants.StatusMessages.NOT_FOUND_ERROR)
@@ -64,7 +61,7 @@ extension BackgroundServices {
             
         else if resStatusCode == HttpRespStatusCodes.RequestTimeOut.rawValue {
             jobInstance.status = StringConstants.StatusMessages.Request_Timeout
-            Analytics.logEvent(StringConstants.AppseeEventMessages.Request_Timeout_BG_SendProcess_Instance, parameters: ["UserId": jobInstance.user.userName ?? appInfo.deviceId])
+            //Appsee.addEvent(StringConstants.AppseeEventMessages.Request_Timeout_BG_SendProcess_Instance, withProperties: ["UserId": jobInstance.user.userName ?? appInfo.deviceId])
             notifyStatusUpdate(instance: jobInstance)
             DBJobInstanceServices.updateJobInstance(jobInstance: jobInstance)
             Utility.showAlertMsgWhenRunningInBG(withMessage: StringConstants.StatusMessages.Request_Timeout)
@@ -79,12 +76,12 @@ extension BackgroundServices {
                     message = "Error: \(message)"
                 }
                 
-                Analytics.logEvent("Failed to \(!isUpdating ? "send" : "update") Survey Instance", parameters: [
-                "UserId": jobInstance.user.userName ?? appInfo.deviceId,
-                "ResStatusCode" : String(describing: resStatusCode),
-                "ErrorCode": String(describing: eCode),
-                "InstClientId": jobInstance.instId ?? "",
-                "ErrorMessage": message])
+                //Appsee.addEvent("Failed to \(!isUpdating ? "send" : "update") Job Instance", withProperties: [
+//                    "UserId": jobInstance.user.userName ?? appInfo.deviceId,
+//                    "ResStatusCode" : String(describing: resStatusCode),
+//                    "ErrorCode": String(describing: eCode),
+//                    "InstClientId": jobInstance.instId ?? "",
+//                    "ErrorMessage": message])
                 
                 if let errorCode = eCode as? NSInteger {
                     jobInstance.errorCode = Int64(errorCode)
@@ -142,7 +139,7 @@ extension BackgroundServices {
                                 jobInstance.isSent = NSNumber(value: true)
 //                                self.initiateDocumentSendProcess(jobInstance: jobInstance, isUpdating: false)
                                 
-                                let failedToSend = self.sendDocumentsforInstance(instanceObj: jobInstance)
+                                let failedToSend = self.sendDocumentsforInstance(instance: jobInstance)
                                 jobInstance.updateInstAfterPhotoUploadProcessCompleted(forNumOfFailed: failedToSend, andUpdating: isUpdating)
                             }
                         }
@@ -185,10 +182,10 @@ extension BackgroundServices {
             }
         }
         else {
-            Analytics.logEvent("Failed to \(!isUpdating ? "send" : "update") Survey Instance", parameters:
-            ["UserId": jobInstance.user.userName ?? appInfo.deviceId,
-             "RequestStatusCode": resStatusCode,
-             "ErrorMessage": StringConstants.StatusMessages.UnknownError])
+            //Appsee.addEvent("Failed to \(!isUpdating ? "send" : "update") Job Instance", withProperties:
+//                ["UserId": jobInstance.user.userName ?? appInfo.deviceId,
+//                 "RequestStatusCode": resStatusCode,
+//                 "ErrorMessage": StringConstants.StatusMessages.UnknownError])
             
             jobInstance.status = StringConstants.StatusMessages.UnknownError
             notifyStatusUpdate(instance: jobInstance)
@@ -209,12 +206,9 @@ extension BackgroundServices {
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: Constants.NotificationsName.ReloadReportTableNotifier),
                                             object: nil, userInfo: [KeyInstanceId: jobInstance.instId!,
                                                                     KeyStatus : StringConstants.StatusMessages.TokenExpired,
-                                                                    KeyInstServerId: serverId,
-                                                                    Constants.BgUIUpdateNotifierKeys.KeyInstProjId: jobInstance.project.projectId ?? "",
-                                                                    Constants.BgUIUpdateNotifierKeys.KeyInstTempId: jobInstance.template.templateId ?? "",
-                                                                    Constants.BgUIUpdateNotifierKeys.KeyInstLocId: jobInstance.location.locationId ?? ""])
+                                                                    KeyInstServerId: serverId])
             }
-            Analytics.logEvent(StringConstants.AppseeEventMessages.Token_Expired_BG_SendProcess, parameters: ["UserId": jobInstance.user.userName ?? appInfo.deviceId])
+            //Appsee.addEvent(StringConstants.AppseeEventMessages.Token_Expired_BG_SendProcess, withProperties: ["UserId": jobInstance.user.userName ?? appInfo.deviceId])
             
             //Refresh token
             if loginInBackgroundToGetNewToken() {
@@ -227,18 +221,18 @@ extension BackgroundServices {
         }
         else if resStatusCode == HttpRespStatusCodes.BadRequestCode.rawValue {
             jobInstance.status = StringConstants.StatusMessages.BAD_REQUEST
-            Analytics.logEvent(StringConstants.AppseeEventMessages.BAD_REQUEST, parameters: ["UserId": jobInstance.user.userName ?? appInfo.deviceId])
+            //Appsee.addEvent(StringConstants.AppseeEventMessages.BAD_REQUEST, withProperties: ["UserId": jobInstance.user.userName ?? appInfo.deviceId])
             jobInstance.status = StringConstants.StatusMessages.UnknownError
         }
         else if resStatusCode == HttpRespStatusCodes.NotFoundCode.rawValue {
             jobInstance.status = StringConstants.StatusMessages.NOT_FOUND_ERROR
-            Analytics.logEvent(StringConstants.AppseeEventMessages.BAD_REQUEST, parameters: ["UserId": jobInstance.user.userName ?? appInfo.deviceId])
+            //Appsee.addEvent(StringConstants.AppseeEventMessages.BAD_REQUEST, withProperties: ["UserId": jobInstance.user.userName ?? appInfo.deviceId])
             jobInstance.status = StringConstants.StatusMessages.UnknownError
         }
             
         else if resStatusCode == HttpRespStatusCodes.RequestTimeOut.rawValue {
             jobInstance.status = StringConstants.StatusMessages.Request_Timeout
-            Analytics.logEvent(StringConstants.AppseeEventMessages.Request_Timeout_BG_SendProcess_Photo, parameters: ["UserId": jobInstance.user.userName ?? appInfo.deviceId])
+            //Appsee.addEvent(StringConstants.AppseeEventMessages.Request_Timeout_BG_SendProcess_Photo, withProperties: ["UserId": jobInstance.user.userName ?? appInfo.deviceId])
             jobInstance.status = StringConstants.StatusMessages.UnknownError
         }
             
@@ -246,13 +240,13 @@ extension BackgroundServices {
         else if resStatusCode == HttpRespStatusCodes.RequestHasErrorCode.rawValue, let jsonDic = errorJSON as? [String: AnyObject] {
             if let eCode = jsonDic[Constants.ApiRequestFields.Key_ErrorCode], let message = jsonDic[Constants.ApiRequestFields.Key_Message] {
                 
-                Analytics.logEvent(StringConstants.AppseeEventMessages.Failed_To_Upload_Image, parameters: [
-                "UserId": jobInstance.user.userName ?? appInfo.deviceId,
-                "ResStatusCode" : String(describing: resStatusCode),
-                "InstanceId": jobInstance.instServerId ?? "(unknown)",
-                "DocumentId": document.documentId ?? "",
-                "ErrorCode": String(describing: eCode),
-                "ErrorMessage": String(describing: message)])
+                //Appsee.addEvent(StringConstants.AppseeEventMessages.Failed_To_Upload_Image, withProperties: [
+//                    "UserId": jobInstance.user.userName ?? appInfo.deviceId,
+//                    "ResStatusCode" : String(describing: resStatusCode),
+//                    "InstanceId": jobInstance.instServerId ?? "(unknown)",
+//                    "DocumentId": document.documentId ?? "",
+//                    "ErrorCode": String(describing: eCode),
+//                    "ErrorMessage": String(describing: message)])
                 
                 if let errorCode = eCode as? NSInteger {
                     
@@ -260,9 +254,10 @@ extension BackgroundServices {
                     let totalErrCount = DBErrorLogServices.addUpdateErrorObject(forInstance: nil, forDocument: document, forErrorCode: errorCode, forErrorMsg: String(describing: message))
                     if totalErrCount >= Constants.DocErrorThresholdMaxCounter {
                         
-                        Analytics.logEvent("Document tried to send more than \(Constants.DocErrorThresholdMaxCounter) times", parameters: ["Username": appInfo.username ?? "",
-                        "DocumentId": document.documentId ?? "NoID",
-                        "InstanceId": jobInstance.instServerId ?? "Unknown"])
+                        //Appsee.addEvent("Document tried to send more than \(Constants.DocErrorThresholdMaxCounter) times",
+//                            withProperties: ["Username": appInfo.username ?? "",
+//                                             "DocumentId": document.documentId ?? "NoID",
+//                                             "InstanceId": jobInstance.instServerId ?? "Unknown"])
                         document.isSent = NSNumber(value: true)
                         DBDocumentServices.updateDocument(documentModel: document)
                         isSentSuccessfully = true
@@ -283,7 +278,7 @@ extension BackgroundServices {
                         document.isDataNull = NSNumber(value: true)
                         document.isSent = NSNumber(value: true)
                         DBDocumentServices.updateDocument(documentModel: document)
-                        Analytics.logEvent(StringConstants.AppseeEventMessages.Empty_Photo_Data_Property, parameters: [:])
+                        //Appsee.addEvent(StringConstants.AppseeEventMessages.Empty_Photo_Data_Property)
                         
                         self.tracErrorInCrashlytics(forErrorJson: errorJSON, withStatusCode: errorCode, msgToDisplay: "Photo Insert Failed: Data Property NULL")
                     }
@@ -294,7 +289,7 @@ extension BackgroundServices {
                         DBDocumentServices.updateDocument(documentModel: document)
                     }
                     else if errorCode == SendProcErrorCode.InstIdorClientIdNullInJSON.rawValue {
-                        Analytics.logEvent(StringConstants.AppseeEventMessages.InstanceId_ClientId_Empty_In_JSON, parameters: [:])
+                        //Appsee.addEvent(StringConstants.AppseeEventMessages.InstanceId_ClientId_Empty_In_JSON)
                         self.tracErrorInCrashlytics(forErrorJson: errorJSON, withStatusCode: errorCode, msgToDisplay: "Photo Insert Failed: Instance Id null")
                         
                         // This is not applicable for iOS, as database does not allow to add empty clientInstanceId. As roberto asked, I added it.
@@ -311,7 +306,7 @@ extension BackgroundServices {
                         
                         self.tracErrorInCrashlytics(forErrorJson: errorJSON, withStatusCode: errorCode, msgToDisplay: "Photo Upload Failure: Instance not exist")
                         if jobInstance.instServerId != nil && jobInstance.instServerId != "" {
-                            Analytics.logEvent(StringConstants.AppseeEventMessages.InstanceId_ClientInstanceId_Not_Found, parameters: [:])
+                            //Appsee.addEvent(StringConstants.AppseeEventMessages.InstanceId_ClientInstanceId_Not_Found)
                             
                             //System will make the instance POST request next time.
                             jobInstance.instServerId = ""
@@ -337,7 +332,7 @@ extension BackgroundServices {
             }
         }
         else {
-            Analytics.logEvent(StringConstants.AppseeEventMessages.Failed_To_Upload_Image, parameters: ["UserId": jobInstance.user.userName ?? appInfo.deviceId, "RequestStatusCode": resStatusCode,"ErrorMessage": StringConstants.StatusMessages.UnknownError])
+            //Appsee.addEvent(StringConstants.AppseeEventMessages.Failed_To_Upload_Image, withProperties: ["UserId": jobInstance.user.userName ?? appInfo.deviceId, "RequestStatusCode": resStatusCode,"ErrorMessage": StringConstants.StatusMessages.UnknownError])
             
             jobInstance.status = StringConstants.StatusMessages.UnknownError
             notifyStatusUpdate(instance: jobInstance)

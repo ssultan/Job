@@ -37,7 +37,6 @@ extension Task {
     @NSManaged public var parentTask: Task?
     @NSManaged public var subTask: NSSet?
     @NSManaged public var isActive: NSNumber?
-    @NSManaged public var allowNA: NSNumber?
 }
 
 // MARK: Generated accessors for answer

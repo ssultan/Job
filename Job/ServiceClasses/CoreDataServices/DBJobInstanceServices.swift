@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 import ImageIO
-import FirebaseCrashlytics
+import Crashlytics
 //import Appsee
 
 class DBJobInstanceServices: CoreDataBusiness {
@@ -17,11 +17,11 @@ class DBJobInstanceServices: CoreDataBusiness {
     // This function is responsible for adding a new job instance object to the database from local instance singleton object.
     class func insertNewJobInstance(jobInstance: JobInstanceModel) -> JobInstance {
         let managedObjectContext = CoreDataManager.sharedInstance.managedObjectContext
-        let instanceId = jobInstance.instId == nil ? UUID().uuidString : jobInstance.instId
+        let instanceId = UUID().uuidString
         
         let instance = NSEntityDescription.insertNewObject(forEntityName: Constants.EntityNames.JobInstanceEntity, into: managedObjectContext) as! JobInstance
         instance.instId = instanceId
-        instance.startDate = jobInstance.startDate == nil ? NSDate() : jobInstance.startDate
+        instance.startDate = jobInstance.startDate
         instance.isCompleted = NSNumber(value: false)
         instance.isSent = NSNumber(value: false)
         instance.isSentForProcessing = NSNumber(value: false)
@@ -29,12 +29,6 @@ class DBJobInstanceServices: CoreDataBusiness {
         instance.photoAckReceived = NSNumber(value: false)
         instance.isSentOrUpdated = NSNumber(value: false)
         instance.status = ""
-        if let lastUpBy = jobInstance.lastUpdatedBy {
-            instance.lastUpdatedBy = lastUpBy
-        }
-        if let serverId = instance.instServerId {
-            instance.instServerId = serverId
-        }
         
         if let template = jobInstance.template.dbRawTempObj as? JobTemplate {
             instance.jobTemplate = template
@@ -89,35 +83,6 @@ class DBJobInstanceServices: CoreDataBusiness {
         return instanceList
     }
     
-    class func sharedUnsentJobInstance(isCompleteInst:Bool, existingInst:[JobInstanceModel]) -> [JobInstanceModel] {
-        let managedObjectContext = CoreDataManager.sharedInstance.managedObjectContext
-        var instanceList = [JobInstanceModel]()
-        let predicate = NSPredicate(format: "isSent = %@ AND isCompleteNSend = %@ AND manifest.user.userName = %@", NSNumber(value: false), NSNumber(value: false), AppInfo.sharedInstance.username)
-        
-        if let suveyInstList = self.fetchData(managedObjectContext, entityName: Constants.EntityNames.JobInstanceEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: predicate) as? [JobInstance] {
-            
-            for instance in suveyInstList {
-                instanceList.append(JobInstanceModel(jobInstance: instance))
-            }
-        }
-        
-        return instanceList
-    }
-    
-    class func loadAllJobInstance() -> [JobInstanceModel] {
-        let managedObjectContext = CoreDataManager.sharedInstance.managedObjectContext
-        var instanceList = [JobInstanceModel]()
-        let predicate = NSPredicate(format: "isSent = %@ AND isCompleteNSend = %@ AND (isDeletedInstance = %@ OR isDeletedInstance = nil) AND manifest.user.userName = %@", NSNumber(value: false), NSNumber(value: false), NSNumber(value: false), AppInfo.sharedInstance.username)
-        
-        if let suveyInstList = self.fetchData(managedObjectContext, entityName: Constants.EntityNames.JobInstanceEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: predicate) as? [JobInstance] {
-            for instance in suveyInstList {
-                instanceList.append(JobInstanceModel(jobInstance: instance))
-            }
-        }
-        return instanceList
-    }
-    
-    
     class func loadAllJobInstance(isCompleteInst:Bool) -> [JobInstanceModel] {
         let managedObjectContext = CoreDataManager.sharedInstance.managedObjectContext
         
@@ -143,12 +108,6 @@ class DBJobInstanceServices: CoreDataBusiness {
         return completedCount
     }
     
-    class func shreardJobInstCounter() -> Int {
-        let managedObjectContext = CoreDataManager.sharedInstance.managedObjectContext
-        let predicate = NSPredicate(format: "isSent = %@ AND isCompleteNSend = %@ AND manifest.user.userName = %@", NSNumber(value: false), NSNumber(value: false), AppInfo.sharedInstance.username)
-        let completedCount = self.countFetchData(managedObjectContext, entityName: Constants.EntityNames.JobInstanceEntity, fetchByPredicate: predicate)
-        return completedCount
-    }
     
     class func loadAllJobInstanceForReport(isCompleteInst:Bool) -> [JobInstanceModel] {
         let managedObjectContext = CoreDataManager.sharedInstance.managedObjectContext
@@ -173,7 +132,7 @@ class DBJobInstanceServices: CoreDataBusiness {
         let managedObjectContext = CoreDataManager.sharedInstance.managedObjectContext
         
         // Photo Acknowledgement flag is added in the query because, if photo data property null is found, then we are considering that instance as sent, since user has no way to retake that photo.
-        let predicate = NSPredicate(format: "(status CONTAINS[cd] %@ OR status CONTAINS[cd] %@) AND manifest.user.userName = %@", StringConstants.StatusMessages.SuccessfullySent, StringConstants.StatusMessages.SuccessfullyUpdated, AppInfo.sharedInstance.username)
+        let predicate = NSPredicate(format: "(status = %@ OR status = %@) AND manifest.user.userName = %@", StringConstants.StatusMessages.SuccessfullySent, StringConstants.StatusMessages.SuccessfullyUpdated, AppInfo.sharedInstance.username)
         let predicate2 = NSPredicate(format: "isSentOrUpdated = %@ AND manifest.user.userName = %@", NSNumber(value: true), AppInfo.sharedInstance.username)
         
         let completedCount = self.countFetchData(managedObjectContext, entityName: Constants.EntityNames.JobInstanceEntity, fetchByPredicate: predicate)
@@ -219,7 +178,7 @@ class DBJobInstanceServices: CoreDataBusiness {
     
     class func getAllUpdateInstancesWhichPhotosAreNotSentYet() -> [JobInstanceModel] {
         let managedObjectContext = CoreDataManager.sharedInstance.managedObjectContext
-        let predicate = NSPredicate(format: "isSentOrUpdated = %@ AND isCompleted = %@ AND status != %@ AND manifest.user.userName = %@", NSNumber(value: true), NSNumber(value: false), StringConstants.StatusMessages.SuccessfullyUpdated, AppInfo.sharedInstance.username) //error.errorCode = %@ AND
+        let predicate = NSPredicate(format: "isSentOrUpdated = %@ AND isCompleted = %@ AND status != %@ AND error.errorCode = %@ AND manifest.user.userName = %@", NSNumber(value: true), NSNumber(value: false), StringConstants.StatusMessages.SuccessfullyUpdated, NSNumber(value: 0), AppInfo.sharedInstance.username)
         
         var instanceList = [JobInstanceModel]()
         if let suveyInstList = self.fetchData(managedObjectContext, entityName: Constants.EntityNames.JobInstanceEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: predicate) as? [JobInstance] {
@@ -298,7 +257,7 @@ class DBJobInstanceServices: CoreDataBusiness {
         
         managedObjectContext.perform {
             if let instanceId = jobInstance.instId {
-                if let instance = self.fetchData(managedObjectContext, entityName:Constants.EntityNames.JobInstanceEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: NSPredicate(format: "instId = %@ AND manifest.user.userName = %@", instanceId, AppInfo.sharedInstance.username!)).first as? JobInstance {
+                if let instance = self.fetchData(managedObjectContext, entityName:Constants.EntityNames.JobInstanceEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: NSPredicate(format: "instId = %@", instanceId)).first as? JobInstance {
                     
                     if let status = jobInstance.status {
                         instance.status = status
@@ -306,7 +265,7 @@ class DBJobInstanceServices: CoreDataBusiness {
                         do {
                             try managedObjectContext.save()
                         } catch {
-                            Crashlytics.crashlytics().record(error: error)
+                            Crashlytics.sharedInstance().recordError(error, withAdditionalUserInfo: ["ErrorPlace": "Updating instance status."])
                             //Appsee.addEvent("Failed to update Instance status.", withProperties: ["Username": AppInfo.sharedInstance.username ?? "", "InstanceClientId": jobInstance.instId ?? ""])
                             
                             
@@ -333,7 +292,7 @@ class DBJobInstanceServices: CoreDataBusiness {
         let managedObjectContext = CoreDataManager.sharedInstance.managedObjectContext
         
         managedObjectContext.perform {
-            if let instance = self.fetchData(managedObjectContext, entityName:Constants.EntityNames.JobInstanceEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: NSPredicate(format: "instId = %@ AND manifest.user.userName = %@", jobInstance.instId!, AppInfo.sharedInstance.username)).first as? JobInstance{
+            if let instance = self.fetchData(managedObjectContext, entityName:Constants.EntityNames.JobInstanceEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: NSPredicate(format: "instId = %@", jobInstance.instId!)).first as? JobInstance {
                 
                 if instance.instServerId != jobInstance.instServerId {
                     instance.instServerId = jobInstance.instServerId
@@ -347,12 +306,9 @@ class DBJobInstanceServices: CoreDataBusiness {
                 if !(instance.isSent?.isEqual(to: jobInstance.isSent))! {
                     instance.isSent = jobInstance.isSent
                 }
-                
-                if instance.percentCompleted != jobInstance.percentCompleted {
-                    instance.percentCompleted = jobInstance.percentCompleted
+                if !(instance.isSentForProcessing?.isEqual(to: jobInstance.isSentForProcessing))! {
+                    instance.isSentForProcessing = jobInstance.isSentForProcessing
                 }
-                
-                instance.isSentForProcessing = jobInstance.isSentForProcessing
                 if !(instance.isCompleteNSend?.isEqual(to: jobInstance.isCompleteNSend))! {
                     instance.isCompleteNSend = jobInstance.isCompleteNSend
                 }
@@ -372,9 +328,6 @@ class DBJobInstanceServices: CoreDataBusiness {
                 }
                 if let uploadTime = jobInstance.succPhotoUploadTime {
                     instance.succPhotoUploadTime = uploadTime
-                }
-                if let lastUpBy = jobInstance.lastUpdatedBy {
-                    instance.lastUpdatedBy = lastUpBy
                 }
                 if let status = jobInstance.status, instance.status != jobInstance.status {
                     instance.status = jobInstance.status
@@ -404,76 +357,15 @@ class DBJobInstanceServices: CoreDataBusiness {
                         }
                     }
                     
-                    Crashlytics.crashlytics().record(error: error)
+                    Crashlytics.sharedInstance().recordError(error, withAdditionalUserInfo: ["ErrorPlace": "At the time of updating all the details of the instance"])
                 }
             }
         }
     }
-    
-    
-    class func updateSharedJobInstance(jobInstance: JobInstanceModel) {
-        let managedObjectContext = CoreDataManager.sharedInstance.managedObjectContext
-        
-        var predicate = NSPredicate(format: "instId = %@ AND manifest.user.userName = %@", jobInstance.instId!, AppInfo.sharedInstance.username!)
-        if jobInstance.template!.isShared {
-            predicate = NSPredicate(format: "templateId = %@ AND jobTemplate.tempProject.projectId = %@ AND locationId = %@ AND manifest.user.userName = %@", jobInstance.templateId!, jobInstance.project!.projectId!, jobInstance.locationId!, AppInfo.sharedInstance.username)
-        }
-        
-        //managedObjectContext.perform {
-            if let instance = self.fetchData(managedObjectContext, entityName:Constants.EntityNames.JobInstanceEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: predicate).first as? JobInstance {
-                
-                if instance.instServerId != jobInstance.instServerId {
-                    instance.instServerId = jobInstance.instServerId
-                }
-                if instance.instId != jobInstance.instId {
-                    instance.instId = jobInstance.instId
-                }
-                
-                if !(instance.isCompleted?.isEqual(to: jobInstance.isCompleted))! {
-                    instance.isCompleted = jobInstance.isCompleted
-                }
-                if let completedDate = jobInstance.completedDate {
-                    instance.completedDate = completedDate
-                }
-                
-                if let lastUpBy = jobInstance.lastUpdatedBy {
-                    instance.lastUpdatedBy = lastUpBy
-                }
-//                if let status = jobInstance.status, instance.status != jobInstance.status {
-//                    instance.status = jobInstance.status
-//                    if status.contains("Successfully") && instance.error != nil {
-//                        instance.error?.errorCode = 0
-//                    }
-//                }
-//
-                
-                do {
-                    try managedObjectContext.save()
-                } catch {
-                    print("++++++++++++++++++++++++++ Merge Conflict")
-                    // Sometime app is causing some merge conflict issue. This below portion of code will make sure it solve the conflict and merge them.
-                    let nserror = error as NSError
-                    if let conflictListArray = nserror.userInfo["conflictList"] as? [NSConstraintConflict] {
-                        if conflictListArray.count > 0 {
-                            let mergePolicy = NSMergePolicy(merge: NSMergePolicyType.overwriteMergePolicyType)
-                            do {
-                                try mergePolicy.resolve(constraintConflicts: conflictListArray)
-                            } catch {
-                            }
-                        }
-                    }
-                    
-                    Crashlytics.crashlytics().setCustomValue("\(error)", forKey: "Error_fetching_password")
-                }
-            }
-//        }
-    }
-    
-    
     
     class func getAllOldInstance(forInterval interval: Int) -> [JobInstanceModel] {
         let managedObjectContext = CoreDataManager.sharedInstance.managedObjectContext
-        let predicate = NSPredicate(format: "(isSent = %@ AND photoAckReceived = %@ AND manifest.user.userName = %@ AND completedDate != nil AND (%@ - completedDate) > %ld) OR (isDeletedInstance = %@ AND (%@ - completedDate) > %ld)", NSNumber(value: true), NSNumber(value: true), AppInfo.sharedInstance.username, NSDate(), interval, NSNumber(value: false), NSDate(), interval)
+        let predicate = NSPredicate(format: "isSent = %@ AND photoAckReceived = %@ AND manifest.user.userName = %@ AND completedDate != nil AND %@ - completedDate > %ld", NSNumber(value: true), NSNumber(value: true), AppInfo.sharedInstance.username, NSDate(), interval)
         
         var instModelList = [JobInstanceModel]()
         if let instanceList = self.fetchData(managedObjectContext, entityName: Constants.EntityNames.JobInstanceEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: predicate) as? [JobInstance] {
@@ -485,25 +377,13 @@ class DBJobInstanceServices: CoreDataBusiness {
         return instModelList
     }
     
-    class func markInstanceAsDeleted(forInstId instClientId: String){
-        let managedObjectContext = CoreDataManager.sharedInstance.managedObjectContext
-        
-        managedObjectContext.perform {
-            if let instance = self.fetchData(managedObjectContext, entityName:Constants.EntityNames.JobInstanceEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: NSPredicate(format: "instId = %@ AND manifest.user.userName = %@", instClientId, AppInfo.sharedInstance.username!)).first as? JobInstance {
-                
-                do {
-                    instance.isDeletedInstance = NSNumber(value: true)
-                    try managedObjectContext.save()
-                } catch {
-                }
-            }
-        }
-    }
     
     class func removeInstance(ForInstId instanceId: String) -> Bool {
         let managedObjectContext = CoreDataManager.sharedInstance.managedObjectContext
-        return self.deleteData(managedObjectContext, entityName:Constants.EntityNames.JobInstanceEntity, fetchByPredicate: NSPredicate(format: "instId = %@ AND manifest.user.userName = %@", instanceId, AppInfo.sharedInstance.username!))
+        return self.deleteData(managedObjectContext, entityName:Constants.EntityNames.JobInstanceEntity, fetchByPredicate: NSPredicate(format: "instId = %@", instanceId))
     }
+    
+    
     
     // FOR TESTING
     class func loadAllJobInstanceForReport_TEST(isCompleteInst:Bool) -> [JobInstanceModel] {
@@ -539,61 +419,45 @@ class DBJobInstanceServices: CoreDataBusiness {
         return false
     }
     
-//    class func getSurveyInstance(ForInstModel instModel:JobInstanceModel) -> JobInstance? {
-//        let managedObjContext = CoreDataManager.sharedInstance.managedObjectContext
-//
-//        if let instance = self.fetchData(managedObjContext, entityName:Constants.EntityNames.JobInstanceEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: NSPredicate(format: "instId = %@", instModel.instId!)).first as? JobInstance {
-//
-//            return instance
-//        }
-//        return nil
-//    }
-    
-    
-    class func deleteComment(forCommentServerId serverId: Int) -> Bool {
-        let managedObjectContext = CoreDataManager.sharedInstance.managedObjectContext
-        return self.deleteData(managedObjectContext, entityName:Constants.EntityNames.CommentEntity, fetchByPredicate: NSPredicate(format: "commentServerId = %d", serverId))
-    }
-    
-    class func updateCommentId(commentId: String, serverCommentId: Int) {
+    class func getSurveyInstance(ForInstModel instModel:JobInstanceModel) -> JobInstance? {
         let managedObjContext = CoreDataManager.sharedInstance.managedObjectContext
-        let predicateNew = NSPredicate(format: "(commentId = %@ OR commentId = %@) AND instanceComment.manifest.user.userName = %@", commentId.uppercased(), commentId.lowercased(), AppInfo.sharedInstance.username!)
-        if let commentObj = CoreDataBusiness.fetchData(managedObjContext, entityName:Constants.EntityNames.CommentEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: predicateNew).first as? Comment {
+        
+        if let instance = self.fetchData(managedObjContext, entityName:Constants.EntityNames.JobInstanceEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: NSPredicate(format: "instId = %@", instModel.instId!)).first as? JobInstance {
             
-            commentObj.commentServerId = Int32(serverCommentId)
-            do {
-                try managedObjContext.save()
-            } catch {
-                print("Failed to update comment object")
-            }
+            return instance
         }
-    }
-    
-    class func updateCommentFromServer(commentModel: CommentModel) {
-        let managedObjContext = CoreDataManager.sharedInstance.managedObjectContext
-        let predicateNew = NSPredicate(format: "(commentId = %@ OR commentId = %@) AND instanceComment.manifest.user.userName = %@", commentModel.commentId!.uppercased(), commentModel.commentId!.lowercased(), AppInfo.sharedInstance.username!)
-        
-        if let commentObj = CoreDataBusiness.fetchData(managedObjContext, entityName:Constants.EntityNames.CommentEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: predicateNew).first as? Comment {
-            commentObj.commentText = commentModel.commentText
-            commentObj.lastUpdatedOn = commentModel.lastUpdatedOn
-            commentObj.lastUpdatedBy = commentModel.lastUpdatedBy
-            commentObj.commentServerId = Int32(commentModel.commentServerId)
-            do {
-                try managedObjContext.save()
-            } catch {
-                print("Failed to update comment object")
-            }
-        }
-    }
-    
-    class func getJobInstance(instanceId: String) -> JobInstanceModel? {
-        let managedObjectContext = CoreDataManager.sharedInstance.managedObjectContext
-        let predicate = NSPredicate(format: "(instId = %@ OR instId = %@) AND manifest.user.userName = %@", instanceId.uppercased(), instanceId.lowercased(), AppInfo.sharedInstance.username!)
-        
-        if let instance = self.fetchData(managedObjectContext, entityName: Constants.EntityNames.JobInstanceEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: predicate).first as? JobInstance {
-            return JobInstanceModel(jobInstance: instance)
-        }
-        print("******** NO INSTANCE FOUND ************")
         return nil
+    }
+    
+    class func saveComment(forCommentObj commentModel: CommentModel) -> Bool {
+        let managedObjContext = CoreDataManager.sharedInstance.managedObjectContext
+        let comment = NSEntityDescription.insertNewObject(forEntityName: Constants.EntityNames.CommentEntity, into: managedObjContext) as! Comment
+        comment.commentId = commentModel.commentId
+        comment.instanceComment = commentModel.instanceComment
+        comment.createdDate = commentModel.createdDate
+        comment.createdBy = commentModel.createdBy
+        comment.commentText = commentModel.commentText
+        comment.answerComment = commentModel.answerComment
+        do {
+            try managedObjContext.save()
+            return true
+        } catch {
+            print("Failed to insert instance.")
+            return false
+        }
+    }
+    
+    class func updateCommentId(commentId: String, serverId: String) {
+//        let managedObjectContext = CoreDataManager.sharedInstance.managedObjectContext
+//        let predicate = NSPredicate(format: "isSent = %@ AND photoAckReceived = %@ AND manifest.user.userName = %@ AND completedDate != nil AND %@ - completedDate > %ld", NSNumber(value: true), NSNumber(value: true), AppInfo.sharedInstance.username, NSDate(), interval)
+//
+//        var instModelList = [JobInstanceModel]()
+//        if let instanceList = self.fetchData(managedObjectContext, entityName: Constants.EntityNames.JobInstanceEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: predicate) as? [JobInstance] {
+//
+//            for instance in instanceList {
+//                instModelList.append(JobInstanceModel(jobInstance: instance))
+//            }
+//        }
+//        return instModelList
     }
 }

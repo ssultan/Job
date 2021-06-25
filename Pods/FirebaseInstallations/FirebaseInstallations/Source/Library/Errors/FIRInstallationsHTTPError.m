@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsHTTPError.h"
-#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
+#import "FIRInstallationsHTTPError.h"
+#import "FIRInstallationsErrorUtil.h"
 
 @implementation FIRInstallationsHTTPError
 
@@ -41,10 +41,9 @@
 + (NSDictionary *)userInfoWithHTTPResponse:(NSHTTPURLResponse *)HTTPResponse
                                       data:(nullable NSData *)data {
   NSString *responseString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-  NSString *failureReason =
-      [NSString stringWithFormat:@"The server responded with an error: \n - URL: %@ \n - HTTP "
-                                 @"status code: %ld \n - Response body: %@",
-                                 HTTPResponse.URL, (long)HTTPResponse.statusCode, responseString];
+  NSString *failureReason = [NSString
+      stringWithFormat:@"The server responded with an error. HTTP response: %@\nResponse body: %@",
+                       HTTPResponse, responseString];
   return @{NSLocalizedFailureReasonErrorKey : failureReason};
 }
 

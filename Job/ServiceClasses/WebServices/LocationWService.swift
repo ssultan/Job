@@ -14,7 +14,7 @@
 
 import UIKit
 import CoreLocation
-import FirebaseAnalytics
+//import Appsee
 
 let GoogleGeoCodeAPI = "http://maps.google.com/maps/api/geocode/json?sensor=false"
 class LocationWService: BaseService {
@@ -95,16 +95,16 @@ class LocationWService: BaseService {
                     if let errorJson = jsonRes as? NSMutableDictionary {
                         errorJson.setValue(AppInfo.sharedInstance.username, forKey: Constants.ApiRequestFields.Key_Username)
                         errorJson.setValue(project.projectName ?? "", forKey: "Project")
-                        Analytics.logEvent("Failed to download Project Location, StatusCode: \(statusCode)", parameters: errorJson as? [String: Any])
+                        //Appsee.addEvent("Failed to download Project Location, StatusCode: \(statusCode)", withProperties: errorJson as? [AnyHashable : Any])
                     } else {
-                        Analytics.logEvent("Failed to download Project Location, StatusCode: \(statusCode)", parameters: ["Username": AppInfo.sharedInstance.username ?? AppInfo.sharedInstance.deviceId, "Project": project.projectName ?? ""])
+                        //Appsee.addEvent("Failed to download Project Location, StatusCode: \(statusCode)", withProperties: ["Username": AppInfo.sharedInstance.username ?? AppInfo.sharedInstance.deviceId, "Project": project.projectName ?? ""])
                     }
                 }
                 completion()
             }
         } else {
             if let projectName = project.projectName {
-                Analytics.logEvent("Project ID null during location download", parameters: ["Username": AppInfo.sharedInstance.username ?? "", "ProjectName": projectName])
+                //Appsee.addEvent("Project ID null during location download", withProperties: [Constants.ApiRequestFields.Key_Username: AppInfo.sharedInstance.username ?? "", "ProjectName": projectName])
             }
             completion()
         }

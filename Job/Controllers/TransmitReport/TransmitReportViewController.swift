@@ -74,49 +74,29 @@ class TransmitReportViewController: RootViewController, MFMailComposeViewControl
         super.viewWillAppear(animated)
         NotificationCenter.default.addObserver(self, selector: #selector(reloadTableView(notification:)), name: NSNotification.Name(rawValue: Constants.NotificationsName.ReloadReportTableNotifier), object: nil)
     }
-
     
     @objc func reloadTableView(notification: Notification) {
+        
         if let dictionary = notification.userInfo {
+            
             DispatchQueue.main.async {
                 var index = 0
                 for instance in self.sendReportList {
                     if let instId = instance.instId, let notifyInstId = dictionary[KeyInstanceId] as? String, let status = dictionary[KeyStatus] as? String {
-                        //projectid=\(projectId)&templateid=\(templateId)&locationid=\(locationId)
-                        if instId.uppercased() == notifyInstId.uppercased() {
+                        
+                        if let instServerId = dictionary[KeyInstServerId] as? String {
+                            instance.instServerId = instServerId
+                        }
+                        
+                        if let instSentTime = dictionary[KeyInstanceSentTime] as? NSDate {
+                            instance.succPhotoUploadTime = instSentTime
+                        }
+                        
+                        if  instId == notifyInstId {
                             self.sendReportList.remove(at: index)
-                            
-                            if let instServerId = dictionary[KeyInstServerId] as? String {
-                                instance.instServerId = instServerId
-                            }
-                            
-                            if let instSentTime = dictionary[KeyInstanceSentTime] as? NSDate {
-                                instance.succPhotoUploadTime = instSentTime
-                            }
                             instance.status = status
                             self.sendReportList.insert(instance, at: index)
                             break
-                        }
-                        
-                        if instance.template != nil && instance.template.isShared {
-                            if let projectId = instance.project.projectId, let template = instance.template.templateId, let locId = instance.location.locationId,
-                               let notifyProjId = dictionary[Constants.BgUIUpdateNotifierKeys.KeyInstProjId] as? String,
-                               let notifyTempId = dictionary[Constants.BgUIUpdateNotifierKeys.KeyInstTempId] as? String,
-                               let notifyLocId = dictionary[Constants.BgUIUpdateNotifierKeys.KeyInstLocId] as? String {
-                                
-                                if projectId == notifyProjId && template == notifyTempId && locId == notifyLocId {
-                                    self.sendReportList.remove(at: index)
-                                    instance.status = status
-                                    if let instServerId = dictionary[KeyInstServerId] as? String {
-                                        instance.instServerId = instServerId
-                                    }
-                                    if let instSentTime = dictionary[KeyInstanceSentTime] as? NSDate {
-                                        instance.succPhotoUploadTime = instSentTime
-                                    }
-                                    self.sendReportList.insert(instance, at: index)
-                                    break
-                                }
-                            }
                         }
                     }
                     index += 1;
@@ -132,6 +112,7 @@ class TransmitReportViewController: RootViewController, MFMailComposeViewControl
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
+        //Appsee.addEvent("Received Memory warning in Transmit Report Page.")
     }
     
     

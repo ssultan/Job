@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStore.h"
+#import "FIRInstallationsStore.h"
 
 #import <GoogleUtilities/GULUserDefaults.h>
 
@@ -24,16 +24,15 @@
 #import "FBLPromises.h"
 #endif
 
-#import <GoogleUtilities/GULKeychainStorage.h>
-
-#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
-#import "FirebaseInstallations/Source/Library/FIRInstallationsItem.h"
-#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredItem.h"
+#import "FIRInstallationsErrorUtil.h"
+#import "FIRInstallationsItem.h"
+#import "FIRInstallationsStoredItem.h"
+#import "FIRSecureStorage.h"
 
 NSString *const kFIRInstallationsStoreUserDefaultsID = @"com.firebase.FIRInstallations";
 
 @interface FIRInstallationsStore ()
-@property(nonatomic, readonly) GULKeychainStorage *secureStorage;
+@property(nonatomic, readonly) FIRSecureStorage *secureStorage;
 @property(nonatomic, readonly, nullable) NSString *accessGroup;
 @property(nonatomic, readonly) dispatch_queue_t queue;
 @property(nonatomic, readonly) GULUserDefaults *userDefaults;
@@ -41,7 +40,7 @@ NSString *const kFIRInstallationsStoreUserDefaultsID = @"com.firebase.FIRInstall
 
 @implementation FIRInstallationsStore
 
-- (instancetype)initWithSecureStorage:(GULKeychainStorage *)storage
+- (instancetype)initWithSecureStorage:(FIRSecureStorage *)storage
                           accessGroup:(NSString *)accessGroup {
   self = [super init];
   if (self) {

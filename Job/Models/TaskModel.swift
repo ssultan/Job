@@ -9,9 +9,7 @@
 import UIKit
 
 class TaskModel: NSObject {
-    
     @objc dynamic var accuracy: NSNumber = NSNumber (value: 25)
-    @objc dynamic var allowNA: NSNumber?
     @objc dynamic var documentType: String?
     @objc dynamic var documentTypeId: NSNumber?
     @objc dynamic var hasChildren: NSNumber?
@@ -50,8 +48,6 @@ class TaskModel: NSObject {
         self.required = task.required
         self.isActive = task.isActive
         self.toolTip = task.toolTip
-        self.allowNA = task.allowNA
-        
         if let qParent = task.parentTask {
             self.parentId = qParent.taskId
         }

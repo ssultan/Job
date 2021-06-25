@@ -8,10 +8,7 @@
 
 import UIKit
 
-class JobServices: BaseService {
-    
-    weak var delegate:LoginOberverDelegate!
-    
+class JobServices: NSObject {
     class func isResizePhoto(photoType: String) -> Bool {
         // From next version we will use 'photoAttrType'
         if photoType != PhotoAttributesTypes.FieldVisit.rawValue, let resId = JobVisitModel.sharedInstance.task.documentTypeId {
@@ -30,19 +27,7 @@ class JobServices: BaseService {
             if let dic = Utility.getMetaDataFromImgData(imgData: imgData as NSData) {
                 documentObj.exifDic = dic
             }
-            
-            // From next version we will use 'photoAttrType'
-            if documentObj.attribute! == PhotoAttributesTypes.FieldVisit.rawValue {
-                if let jobIns = AppInfo.sharedInstance.selJobInstance.dbRawInstanceObj as? JobInstance {
-                    documentObj.documentInstance = jobIns
-                }
-            }
-            else if let answer = JobVisitModel.sharedInstance.answer.dbRawAnsObj as? Answer {
-                documentObj.documentAnswer = answer
-                DBAnswerServices.answerUpdated(answerId: answer.ansId!, isUpdated: true)
-            }
-            
-            _ = DBDocumentServices.insertNewPhoto(documentModel: documentObj)
+            DBDocumentServices.insertNewPhoto(documentModel: documentObj)
         } else {
             return nil
         }
@@ -76,12 +61,7 @@ class JobServices: BaseService {
                     if (DBJobInstanceServices.removeDocument(documentId: document.documentId!)) {
                         if (Utility.deleteImageFromDocumentDirectory(docName: document.name!, folderName: document.instanceId ?? "")) {
                             instance.documents.remove(at: docIndex)
-                            
-                            if document.type == Constants.DocSignatureType && (document.isSent ?? 0).boolValue {
-                                DocumentDLManager.deleteSignatureFromServer(documentId: document.documentId!)
-                            }
                         }
-                        documentObj.isSent = NSNumber(value: false)
                     }
                 } else {
                     documentObj.documentId = document.documentId
@@ -135,6 +115,23 @@ class JobServices: BaseService {
         DBJobInstanceServices.updateJobInstance(jobInstance: jobInstance)
     }
     
+    class func completeNSendInstUpdate(jobInstance: JobInstanceModel) {
+        // Remove all the orphane answers when user mark it as completed.
+        // For configurable task, we keep all the answers until user mark the survey as completed and send.
+        for ansModel in jobInstance.orphaneAnsModels {
+            ansModel.removeAnswer()
+        }
+        
+        jobInstance.completedDate = NSDate()
+        jobInstance.instanceSentTime = NSDate()
+        jobInstance.isCompleted = NSNumber(value: true)
+        jobInstance.isSentForProcessing = NSNumber(value: true)
+        jobInstance.isCompleteNSend = NSNumber(value: true)
+        jobInstance.isSentOrUpdated = NSNumber(value: true)
+        jobInstance.status = StringConstants.StatusMessages.SendingJob
+        DBJobInstanceServices.updateJobInstance(jobInstance: jobInstance)
+    }
+    
     class func removeDocument(docId: String) -> Bool{
         // remove document from local database.
         return (DBJobInstanceServices.removeDocument(documentId: docId))
@@ -145,37 +142,27 @@ class JobServices: BaseService {
         return DBJobInstanceServices.loadAllJobInstance(isCompleteInst: isCompleted, existingInst: currentList)
     }
     
-    
-    // NO NEED
     class func loadJobInstance(isCompleted: Bool, completion:(_ instances: [JobInstanceModel])->()) {
         completion(DBJobInstanceServices.loadAllJobInstance(isCompleteInst: isCompleted))
     }
     
-    class func loadJobInstance(completion:(_ instances: [JobInstanceModel])->()) {
-        completion(DBJobInstanceServices.loadAllJobInstance())
-    }
-    
-    
-    class func loadJobInstanceCounter() -> Int {
-        return DBJobInstanceServices.shreardJobInstCounter()
+    class func loadJobInstanceCounter(isCompleted: Bool) -> Int {
+        return DBJobInstanceServices.loadAllJobInstanceCounter(isCompleteInst: isCompleted)
     }
     
     class func getTransmitReportCounter() -> String {
         return DBJobInstanceServices.getTransmitReportCounter()
     }
     
-    class func saveAnswer(ansModel: AnswerModel, selInstanceObj: JobInstance) {
-        ansModel.dbRawAnsObj = DBAnswerServices.saveAnswerObject(ansModel, selInstanceObj: selInstanceObj)
+    class func saveAnswer(ansModel: AnswerModel) {
+        ansModel.dbRawAnsObj = DBAnswerServices.saveAnswerObject(ansModel)
     }
     
     class func saveComment(commentObj: CommentModel, ansModel:AnswerModel?) -> CommentModel? {
         let instance = createInstanceObjectIfNotAvilable()
         commentObj.instanceComment = instance.dbRawInstanceObj as? JobInstance
-        if ansModel != nil {
-            commentObj.answerComment = ansModel?.dbRawAnsObj as? Answer
-            DBAnswerServices.answerUpdated(answerId: commentObj.answerComment!.ansId!)
-        }
-        if DBDocumentServices.saveComment(forCommentObj: commentObj) {
+        if ansModel != nil { commentObj.answerComment = ansModel?.dbRawAnsObj as? Answer }
+        if DBJobInstanceServices.saveComment(forCommentObj: commentObj) {
             return commentObj
         }
         return nil
@@ -276,110 +263,5 @@ class JobServices: BaseService {
         instance.locationId = loc.locationId
         instance.storeNumber = loc.storeNumber
         return DBJobInstanceServices.loadJobInstIfExist(instModel: instance)
-    }
-    
-    
-    
-    //This function is reponsible to download Locations For list of projectIDs that we calculated at the time of adding project.
-    func checkAllInstanceUpdate(instanceList: [JobInstanceModel]) {
-        var totalJobInstChecked = 0
-        for instance in instanceList {
-            self.getInstanceStatus(forInstance: instance, completion: {
-                self.delegate.increaseProgressbar()
-                
-                totalJobInstChecked = totalJobInstChecked + 1
-                if totalJobInstChecked == instanceList.count {
-                    self.delegate.inCompleteJobStatusChecked = true
-                    self.delegate.loginSuccess(isOfflineLogin: false)
-                }
-            })
-        }
-    }
-    
-    func getInstanceStatus(forInstance instance:JobInstanceModel, completion:@escaping () ->()) {
-        
-        if let projectId = instance.project?.projectId, let templateId = instance.templateId, let locationId = instance.locationId {
-            var url = AppInfo.sharedInstance.httpType + AppInfo.sharedInstance.baseURL + Constants.APIServices.GET_InstanceStatusUpdate + "0" + "?projectid=\(projectId)&templateid=\(templateId)&locationid=\(locationId)"
-            if let instanceServerId = instance.instServerId {
-                url = AppInfo.sharedInstance.httpType + AppInfo.sharedInstance.baseURL + Constants.APIServices.GET_InstanceStatusUpdate + instanceServerId
-            }
-            
-            print("Status URL: \(url)")
-            self.fetchReponseInData(forRequestType: .get, forServiceURL: url, params: nil) { (resJson, resData, statusCode, isSucceeded) in
-                if(isSucceeded) {
-                    if let data = resData {
-                        do {
-                            let jsonStr = String(data: try! JSONSerialization.data(withJSONObject: resJson as Any, options: []), encoding: .ascii)
-                            print("Status JsonOutput: \(String(describing: jsonStr ?? ""))");
-                            
-                            let instStatus = try JSONDecoder().decode(InstanceStatusMapping.self, from: data)
-                            instStatus.updateLocalInstanceStatus(jobInst: instance)
-                        }catch {
-                            print("Error: \(error)")
-//                            Appsee.addEvent(StringConstants.AppseeEventMessages.Failed_To_Get_InstanceId_For_Status, withProperties: resJson as? [String: AnyObject])
-                        }
-                    }
-                }
-                else {
-                    print("**************** Status: Instance NOT exist.****************")
-//                    Appsee.addEvent(StringConstants.AppseeEventMessages.Failed_To_Get_InstanceId_For_Status, withProperties: ["Response": resJson!, "ErrorCode": statusCode])
-                }
-                completion()
-            }
-        }
-        else {
-
-            print("TemplateName :\(String(describing: instance.templateName)), templateId: \(String(describing: instance.templateId)), locationId:\(String(describing: instance.locationId))")
-            completion()
-        }
-    }
-    
-    func getJobInstance(forInstance instance: JobInstanceModel, isSummaryPage:Bool = false, completionHandler:@escaping (_ jobInstance: JobInstanceModel, _ mapperModel: JobInstanceMapping?)->()){
-        
-        if let projectId = instance.project?.projectId, let templateId = instance.templateId, let locationId = instance.locationId {
-            var url = AppInfo.sharedInstance.httpType + AppInfo.sharedInstance.baseURL + Constants.APIServices.GET_SharedInstance  + "0" + "?projectid=\(projectId)&templateid=\(templateId)&locationid=\(locationId)"
-            if let instanceServerId = instance.instServerId {
-                url = AppInfo.sharedInstance.httpType + AppInfo.sharedInstance.baseURL + Constants.APIServices.GET_SharedInstance + instanceServerId
-            }
-            
-            print("URL: \(url)")
-            self.fetchReponseInData(forRequestType: .get, forServiceURL: url, params: nil) { (resJson, resData, statusCode, isSucceeded) in
-                if(isSucceeded) {
-                    if let data = resData {
-                        do {
-                            let instMapper = try JSONDecoder().decode(JobInstanceMapping.self, from: data)
-                            //let jsonStr = String(data: try! JSONSerialization.data(withJSONObject: resJson as Any, options: []), encoding: .ascii)
-                            print("Shared JSON Output: \(String(describing: resJson))");
-                            
-                            if !isSummaryPage {
-                                if let comDate = instMapper.completedOn {
-                                    
-                                    // if istanceId is not same the as the one we have locally, then move all the images
-                                    if instance.instId != nil && instance.instId!.uppercased() != instMapper.clientID.uppercased() {
-                                        Utility.moveImageToNewDirectory(forSourceFolder: instance.instId!.uppercased(), withDestinationFolder: instMapper.clientID.uppercased())
-                                    }
-                                    instance.instId = instMapper.clientID.uppercased()
-                                    instance.completedDate = Utility.dateFromGMTdateString(dateStr:comDate, withTimeZone: "UTC") as NSDate
-                                }
-                                completionHandler(instance, instMapper)
-                                return
-                            }
-                            else {
-                                instance.updateLocalInstance(forMInstance: instMapper)
-                            }
-                        }catch {
-                            print("Error: \(error)\n\n Output: \(String(describing: resJson))")
-                        }
-                    }
-                }
-                else {
-                    print("------------------------Instance NOT exist-------------------------")
-                }
-                completionHandler(instance, nil)
-            }
-        }
-        else {
-            completionHandler(instance, nil)
-        }
     }
 }

@@ -13,7 +13,7 @@
 //
 
 import UIKit
-import FirebaseAnalytics
+//import Appsee
 
 class TemplatesDLService: BaseService {
     
@@ -42,6 +42,11 @@ class TemplatesDLService: BaseService {
     // Download All job templates
     func fetchAllTemplates(_ jobTempArr: NSMutableArray) {
         var totalDownloaded = 0
+        if jobTempArr.count == 0 {
+            self.delegate.templateDownloaded = true
+            self.delegate.loginSuccess(isOfflineLogin: false)
+        }
+        
         for item in jobTempArr {
             if let template = item as? JobTemplate {
                 
@@ -62,11 +67,9 @@ class TemplatesDLService: BaseService {
     
     func downloadTemplate(_ template: JobTemplate, completion:@escaping () ->()) {
         let templateURL = appInfo.httpType + appInfo.baseURL + Constants.APIServices.templateServiceAPI + "\(template.templateId! as String)"
-        print("Template URL: " + templateURL);
         self.fetchData(.get, serviceURL: templateURL, params: nil) { (jsonRes, statusCode, isSucceeded) in
             
             if isSucceeded, let json = jsonRes {
-                //print("Template: ", json)
                 if let tasks = json.object(forKey: "Children") as? NSArray {
                     for item in tasks {
                         DBTaskServices.sharedInstance.saveTask(TaskMapping(dictionary:item as! NSDictionary), template: template, parentTask: nil)
@@ -76,9 +79,9 @@ class TemplatesDLService: BaseService {
                 if let errorJson = jsonRes as? NSMutableDictionary {
                     errorJson.setValue(AppInfo.sharedInstance.username, forKey: "Username")
                     errorJson.setValue(template.templateName ?? "", forKey: "Template")
-                    Analytics.logEvent("Failed to download Template, StatusCode: \(statusCode)", parameters: errorJson as? [String : Any])
+                    //Appsee.addEvent("Failed to download Template, StatusCode: \(statusCode)", withProperties: errorJson as? [AnyHashable : Any])
                 } else {
-                    Analytics.logEvent("Failed to download Template, StatusCode: \(statusCode)", parameters: ["Username": AppInfo.sharedInstance.username ?? AppInfo.sharedInstance.deviceId, "Template": template.templateName ?? ""])
+                    //Appsee.addEvent("Failed to download Template, StatusCode: \(statusCode)", withProperties: ["Username": AppInfo.sharedInstance.username ?? AppInfo.sharedInstance.deviceId, "Template": template.templateName ?? ""])
                 }
                 DBTemplateServices.sharedInstance.roleBackTemplateLastUpdatedDate(template: template)
             }

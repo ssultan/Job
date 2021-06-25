@@ -51,7 +51,6 @@ class AppInfo: NSObject {
     @objc static let sharedInstance = AppInfo()
     var userRole: String = ""
     var bgTimeStart: Date!
-    var downloadAltShown: Bool = false
     
     
     override init() {
@@ -98,6 +97,7 @@ class AppInfo: NSObject {
         let deviceDetails = ["Version": self.appVersion,
                              "IP_Address" : self.findMyIP() ?? "No-Network",
                              "Device_Name" : UIDevice.current.name]
+        //Appsee.addEvent("Device Info", withProperties: deviceDetails)
         Analytics.setUserProperty(self.deviceId, forName: "DeviceId")
         Analytics.logEvent("Device_Info", parameters: deviceDetails)
         
@@ -116,10 +116,6 @@ class AppInfo: NSObject {
                 else if enviroment == Constants.Environments.kProdUAT {
                     detailDic = envDic.object(forKey: UAT) as! NSDictionary
                     self.environment = Constants.Environments.kProdUAT
-                }
-                else if enviroment == Constants.Environments.kApiTest {
-                    detailDic = envDic.object(forKey: enviroment) as! NSDictionary
-                    self.environment = Constants.Environments.kApiTest
                 }
                 else {
                     detailDic = envDic.object(forKey: RELEASE) as! NSDictionary
@@ -148,7 +144,8 @@ class AppInfo: NSObject {
         if let userName = self.username {
             //Appsee.setUserID(userName)
             Analytics.setUserID(userName)
-            Crashlytics.crashlytics().setUserID(userName)
+            Crashlytics.sharedInstance().setUserName(userName)
+            Crashlytics.sharedInstance().setUserIdentifier(userName)
         } else {
             // Logged as last logged in username
             do {
@@ -156,19 +153,22 @@ class AppInfo: NSObject {
                     
                     //Appsee.setUserID(lastLoggedInAct.account)
                     Analytics.setUserID(lastLoggedInAct.account)
-                    Crashlytics.crashlytics().setUserID(lastLoggedInAct.account)
+                    Crashlytics.sharedInstance().setUserName(lastLoggedInAct.account)
+                    Crashlytics.sharedInstance().setUserIdentifier(lastLoggedInAct.account)
                 }
                 else {
                     // if No user available then store device Id
                     //Appsee.setUserID(self..deviceId)
                     Analytics.setUserID(self.deviceId)
-                    Crashlytics.crashlytics().setUserID(self.deviceId)
+                    Crashlytics.sharedInstance().setUserName(self.deviceId)
+                    Crashlytics.sharedInstance().setUserIdentifier(self.deviceId)
                 }
             }catch {
                 // if No user available then store device Id
                 //Appsee.setUserID(self.deviceId)
                 Analytics.setUserID(self.deviceId)
-                Crashlytics.crashlytics().setUserID(self.deviceId)
+                Crashlytics.sharedInstance().setUserName(self.deviceId)
+                Crashlytics.sharedInstance().setUserIdentifier(self.deviceId)
             }
         }
     }

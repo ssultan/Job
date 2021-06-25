@@ -12,7 +12,7 @@
  */
 //
 
-import FirebaseAnalytics
+//import Appsee
 import UIKit
 
 class ErrorHandler: NSObject {
@@ -28,35 +28,35 @@ class ErrorHandler: NSObject {
     func handleLoginRequestBadStatusCode(_ view:UIView, statusCode: Int) {
         switch statusCode {
         case HttpRespStatusCodes.RequestHasErrorCode.rawValue :
-            Analytics.logEvent(StringConstants.AppseeEventMessages.Login_Error_500, parameters: [:])
+            //Appsee.addEvent(StringConstants.AppseeEventMessages.Login_Error_500)
             self.popViewController.showInView(view, withTitle: StringConstants.ButtonTitles.TLT_Warning,
                                               withMessage:StringConstants.StatusMessages.UnknownError,
                                               withCloseBtTxt: StringConstants.ButtonTitles.BTN_Close, withAcceptBt: nil,
                                               animated: true, isMessage: false)
             break
         case HttpRespStatusCodes.BadRequestCode.rawValue :
-            Analytics.logEvent(StringConstants.AppseeEventMessages.Login_Error_405, parameters: [:])
+            //Appsee.addEvent(StringConstants.AppseeEventMessages.Login_Error_405)
             self.popViewController.showInView(view, withTitle: StringConstants.ButtonTitles.TLT_Warning,
                                               withMessage:StringConstants.StatusMessages.BAD_REQUEST,
                                               withCloseBtTxt: StringConstants.ButtonTitles.BTN_Close, withAcceptBt: nil,
                                               animated: true, isMessage: false)
             break
         case HttpRespStatusCodes.NotFoundCode.rawValue :
-            Analytics.logEvent(StringConstants.AppseeEventMessages.Login_Error_404, parameters: [:])
+            //Appsee.addEvent(StringConstants.AppseeEventMessages.Login_Error_404)
             self.popViewController.showInView(view, withTitle: StringConstants.ButtonTitles.TLT_Warning,
                                               withMessage:StringConstants.StatusMessages.NOT_FOUND_ERROR,
                                               withCloseBtTxt: StringConstants.ButtonTitles.BTN_Close, withAcceptBt: nil,
                                               animated: true, isMessage: false)
             break
         case HttpRespStatusCodes.TokenExpiredCode.rawValue:
-            Analytics.logEvent(StringConstants.AppseeEventMessages.Login_Token_Expired, parameters: [:])
+            //Appsee.addEvent(StringConstants.AppseeEventMessages.Login_Token_Expired)
             self.popViewController.showInView(view, withTitle: StringConstants.ButtonTitles.TLT_Warning,
                                               withMessage:StringConstants.StatusMessages.kInvalidUsernameOrPassword,
                                               withCloseBtTxt: StringConstants.ButtonTitles.BTN_Close, withAcceptBt: nil,
                                               animated: true, isMessage: false)
             break
         default:
-            Analytics.logEvent("\(StringConstants.AppseeEventMessages.Unknow_Login_Error)\(statusCode)", parameters: [:])
+            //Appsee.addEvent("\(StringConstants.AppseeEventMessages.Unknow_Login_Error)\(statusCode)")
             self.popViewController.showInView(view, withTitle: StringConstants.ButtonTitles.TLT_Warning,
                                               withMessage:StringConstants.StatusMessages.UnknownError,
                                               withCloseBtTxt: StringConstants.ButtonTitles.BTN_Close, withAcceptBt: nil,
@@ -73,7 +73,7 @@ class ErrorHandler: NSObject {
                     
                 // Username or password is incorrect
                 case LoginRequestErrCode.LogonFailed.rawValue:
-                    Analytics.logEvent(StringConstants.AppseeEventMessages.WrongUsernamePassword, parameters: [:])
+                    //Appsee.addEvent(StringConstants.AppseeEventMessages.WrongUsernamePassword)
                     self.popViewController.showInView(view, withTitle: StringConstants.ButtonTitles.TLT_Caution,
                                                       withMessage:StringConstants.StatusMessages.kInvalidUsernameOrPassword,
                                                       withCloseBtTxt: StringConstants.ButtonTitles.BTN_GOT_IT, withAcceptBt: nil,
@@ -82,7 +82,7 @@ class ErrorHandler: NSObject {
                     
                 // Account Dead or no longer a valid user or User Terminated
                 case LoginRequestErrCode.UserTerminated.rawValue:
-                    Analytics.logEvent(StringConstants.AppseeEventMessages.InvalidUser, parameters: [:])
+                    //Appsee.addEvent(StringConstants.AppseeEventMessages.InvalidUser)
                     let isAnonymousUser = (username.lowercased().contains(Constants.Anonymous_Initial) || username.lowercased().contains(Constants.Anonymous_Initial2)) ? true : false
                     let errMsg = isAnonymousUser ? StringConstants.StatusMessages.ACCOUNT_DEAD_LOGIN_ERROR_ANONYMOUS : StringConstants.StatusMessages.ACCOUNT_DEAD_LOGIN_ERROR
                     self.popViewController.showMsgInWebView(view, withTitle: StringConstants.ButtonTitles.TLT_Caution,
@@ -95,7 +95,7 @@ class ErrorHandler: NSObject {
                     
                 // Account Locked out
                 case LoginRequestErrCode.UserLockedOut.rawValue:
-                    Analytics.logEvent(StringConstants.AppseeEventMessages.AccountLocked, parameters: [:])
+                    //Appsee.addEvent(StringConstants.AppseeEventMessages.AccountLocked)
                     self.popViewController.showMsgInWebView(view, withTitle: StringConstants.ButtonTitles.TLT_Caution,
                                                             withMessage: StringConstants.StatusMessages.ACCOUNT_LOCKEDOUT_LOGIN_ERROR,
                                                             withHtmlFileName:nil,
@@ -106,7 +106,7 @@ class ErrorHandler: NSObject {
                     
                 // Password Expired
                 case LoginRequestErrCode.PasswordExpired.rawValue:
-                    Analytics.logEvent(StringConstants.AppseeEventMessages.PasswordExpired, parameters: [:])
+                    //Appsee.addEvent(StringConstants.AppseeEventMessages.PasswordExpired)
                     let isAnonymousUser = (username.lowercased().contains(Constants.Anonymous_Initial) || username.lowercased().contains(Constants.Anonymous_Initial2)) ? true : false
                      let errMsg = isAnonymousUser ? StringConstants.StatusMessages.PASSWORD_EXPIRED_LOGIN_ERROR_ANONYMOUS : StringConstants.StatusMessages.PASSWORD_EXPIRED_LOGIN_ERROR
                     self.popViewController.showMsgInWebView(view, withTitle: StringConstants.ButtonTitles.TLT_Caution,
@@ -127,7 +127,7 @@ class ErrorHandler: NSObject {
                     
                 // Manifest error
                 case LoginRequestErrCode.GenManifestError.rawValue:
-                    Analytics.logEvent(StringConstants.AppseeEventMessages.ManifestError, parameters: ["UserName": AppInfo.sharedInstance.username ?? AppInfo.sharedInstance.deviceId, "ErrorCode": errorCodeInt, StringConstants.ButtonTitles.TLT_Message: errorMsg])
+                    //Appsee.addEvent(StringConstants.AppseeEventMessages.ManifestError, withProperties: ["UserName": AppInfo.sharedInstance.username ?? AppInfo.sharedInstance.deviceId, "ErrorCode": errorCodeInt, StringConstants.ButtonTitles.TLT_Message: errorMsg])
                     self.popViewController.showInView(view, withTitle: StringConstants.ButtonTitles.TLT_Caution,
                                                       withMessage:errorMsg,
                                                       withCloseBtTxt: StringConstants.ButtonTitles.BTN_Close, withAcceptBt: nil,
@@ -137,7 +137,7 @@ class ErrorHandler: NSObject {
                     
                 // Default message
                 default:
-                    Analytics.logEvent(StringConstants.AppseeEventMessages.UnknownError, parameters: ["UserName": AppInfo.sharedInstance.username ?? AppInfo.sharedInstance.deviceId, "ErrorCode": errorCodeInt, StringConstants.ButtonTitles.TLT_Message: errorMsg])
+                    //Appsee.addEvent(StringConstants.AppseeEventMessages.UnknownError, withProperties: ["UserName": AppInfo.sharedInstance.username ?? AppInfo.sharedInstance.deviceId, "ErrorCode": errorCodeInt, StringConstants.ButtonTitles.TLT_Message: errorMsg])
                     self.popViewController.showInView(view, withTitle: StringConstants.ButtonTitles.TLT_Caution,
                                                       withMessage:StringConstants.StatusMessages.kDefaultLoginError,
                                                       withCloseBtTxt: StringConstants.ButtonTitles.BTN_Close, withAcceptBt: nil,

@@ -30,8 +30,7 @@ extension Answer {
     @NSManaged public var documents: NSSet?
     @NSManaged public var jobInstance: JobInstance?
     @NSManaged public var task: Task?
-    @NSManaged public var isAnsChanged: NSNumber?
-    @NSManaged public var docCountInServer: NSNumber?
+
 }
 
 // MARK: Generated accessors for comments

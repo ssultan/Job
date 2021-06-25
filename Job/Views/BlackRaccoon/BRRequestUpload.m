@@ -45,7 +45,7 @@
 
 // ---------- include files
 #import "BRRequestUpload.h"
-#import <FirebaseCrashlytics/FirebaseCrashlytics.h>
+#import <Crashlytics/Crashlytics.h>
 //#import <Appsee/Appsee.h>
 
 // ---------- enumerated data types
@@ -290,7 +290,7 @@
         {
             [self.streamInfo streamError:self errorCode:[BRRequestError errorCodeWithError:[theStream streamError]]];    // perform callbacks and close out streams
             if (self.error) {
-                [[FIRCrashlytics crashlytics] setCustomValue:self.error.message forKey:@"FTP Data Send Failure."];
+                [[Crashlytics sharedInstance] setObjectValue:self.error.message forKey:@"FTP Data Send Failure."];
 //                [Appsee addEvent:@"FTP Data Send Failure" withProperties:[NSDictionary dictionaryWithObjectsAndKeys:self.error.message, @"ErrorMsg", nil]];
                 NSLog(@"%@", self.error.message);
             }

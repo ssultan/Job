@@ -39,6 +39,7 @@ class JobVisitModel: NSObject {
     func connectSubtasksWithParent(_ ansModel: AnswerModel, _ answers: [Any]) {
         self.answer = ansModel
         
+        
         let subFvModelArr = self.subFVModels.sorted(by: { Int($0.task.ordinal ?? "0")! < Int($1.task.ordinal ?? "0")! })
         for subFV in subFvModelArr {
             

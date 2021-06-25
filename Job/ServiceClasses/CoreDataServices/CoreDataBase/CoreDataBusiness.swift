@@ -14,7 +14,7 @@
 
 import UIKit
 import CoreData
-//import FirebasePerformance
+import FirebasePerformance
 
 class CoreDataBusiness: NSObject {
     
@@ -38,12 +38,12 @@ class CoreDataBusiness: NSObject {
         do {
 //            return try managedObjContext.fetch(fetchRequest) as! [NSManagedObject]
             
-//            let trace = Performance.startTrace(name: "MonitorManagedObjectFetch")
+            let trace = Performance.startTrace(name: "MonitorManagedObjectFetch")
             let obj = try managedObjContext.fetch(fetchRequest)
             guard let manageObjList = obj as? [NSManagedObject] else {
                 return [NSManagedObject]()
             }
-//            trace?.stop()
+            trace?.stop()
             return manageObjList
         } catch {
             return [NSManagedObject]()

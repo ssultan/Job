@@ -171,50 +171,6 @@ class Utility: NSObject {
         return nil
     }
     
-    class func moveImageToNewDirectory(forSourceFolder srcFolder: String, withDestinationFolder destFolder:String) {
-        let docList = DBDocumentServices.getDocumentList(forInstanceId: srcFolder)
-        
-        for document in docList {
-            if let sourcePath = getPhotoParentDir(imgName: document.originalName!, folderName: srcFolder), let destinationPath = getInstanceFolder(folderName: destFolder) {
-                if secureCopyItem(at: sourcePath.appendingPathComponent(document.originalName!), to: destinationPath.appendingPathComponent(document.originalName!)) {
-                    self.createThumbnailFolder(forDirectory: destinationPath)
-                    
-                    let srcThumbFolder = sourcePath.appendingPathComponent(Constants.ThumbImagesFolder).appendingPathComponent(document.originalName!)
-                    let destThumbFolder = destinationPath.appendingPathComponent(Constants.ThumbImagesFolder).appendingPathComponent(document.originalName!)
-                    if !secureCopyItem(at: srcThumbFolder, to: destThumbFolder) {
-                        print("************* Failed to copy thumbnail photo.")
-                    }
-                }
-            }
-        }
-        deleteInstanceDirectory(instanceId: srcFolder)
-    }
-    
-    class func createThumbnailFolder(forDirectory directory: URL) {
-        // Create Thubmnail Directory if not exist.
-        if !FileManager.default.fileExists(atPath: directory.appendingPathComponent(Constants.ThumbImagesFolder).path) {
-            do {
-                try FileManager.default.createDirectory(at: directory.appendingPathComponent(Constants.ThumbImagesFolder), withIntermediateDirectories: false, attributes: nil)
-            } catch {
-                print("Failed to Create directory path")
-                return
-            }
-        }
-    }
-    
-    class func secureCopyItem(at srcURL: URL, to dstURL: URL) -> Bool {
-        do {
-            if FileManager.default.fileExists(atPath: dstURL.path) {
-                try FileManager.default.removeItem(at: dstURL)
-            }
-            try FileManager.default.moveItem(at: srcURL, to: dstURL)
-        } catch (let error) {
-            print("Cannot copy item at \n\(srcURL) to => => \n\(dstURL); \n\nERROR: \(error)")
-            return false
-        }
-        return true
-    }
-    
     
     // Save document in application document folder after converting them into JPEG format
     class func saveDocumentInDocumentDirectory(document: UIImage, docName: String, folderName:String, imgMetaDataDic: NSDictionary, lossyData:Bool) -> Data? {
@@ -226,7 +182,7 @@ class Utility: NSObject {
         if let imgData = document.addImageMetadata(photoName: docName, photoCreator: AppInfo.sharedInstance.username ?? "", photoDesc: "Job app photo taken by \(AppInfo.sharedInstance.username ?? "")", imgMetaDataDic: imgMetaDataDic, lossyData: lossyData)
         {
             do {
-                try imgData.write(to: path, options: .completeFileProtectionUnlessOpen)
+                try imgData.write(to: path, options: .completeFileProtection)
                 return imgData
             } catch {
                 return nil
@@ -251,12 +207,12 @@ class Utility: NSObject {
                                                     "SurveyName" as CFString: instance.template.templateName! as CFString,
                                                     "ProjectNumber" as CFString: instance.projectNumber! as CFString,
                                                     "LocationNumber" as CFString: instance.location.storeNumber! as CFString,
-                                                    "CreatedDate" as CFString: documentObj.createdDate!.convertToString(format: Constants.SERVER_EXP_DATE_FORMATE) as CFString]
+                                                    "CreatedDate" as CFString: documentObj.createdDate!.convertToString() as CFString]
 
         if let imgData = photo.addImageMetadata(photoName: documentObj.originalName!, photoCreator: AppInfo.sharedInstance.username ?? "", photoDesc: String(describing: photoDetailsDic), imgMetaDataDic: documentObj.exifDic!, lossyData: lossyData)
         {
             do {
-                try imgData.write(to: path, options: .completeFileProtectionUnlessOpen)
+                try imgData.write(to: path, options: .completeFileProtection)
                 return imgData
             } catch {
                 return nil
@@ -274,7 +230,7 @@ class Utility: NSObject {
         if let imgData = image.jpegData(compressionQuality: 1.0) {
             
             do {
-                try imgData.write(to: path, options: .completeFileProtectionUnlessOpen)
+                try imgData.write(to: path, options: .completeFileProtection)
                 return imgData
             } catch {
                 return nil
@@ -303,7 +259,7 @@ class Utility: NSObject {
         let resizedImg = orgImage.resizeImage(targetSize: (orgImage.size.width > orgImage.size.height) ? CGSize(width: 400, height: 300) : CGSize(width: 300, height: 400))
         let imgData = resizedImg.jpegData(compressionQuality: 0.5)
         do {
-            try imgData?.write(to: thumbnailPath, options: Data.WritingOptions.completeFileProtectionUnlessOpen)
+            try imgData?.write(to: thumbnailPath, options: Data.WritingOptions.completeFileProtection)
         } catch {
             //AppSee event for failure
         }
@@ -405,23 +361,6 @@ class Utility: NSObject {
         return false
     }
     
-    class func checkDocumentExist(docName: String, folderName:String) -> Bool {
-        if let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-            let docPath = dir.appendingPathComponent(docName).path
-            if FileManager.default.fileExists(atPath: docPath) {
-                return true
-            }
-            else {
-                let instanceDir = dir.appendingPathComponent(folderName, isDirectory: true)
-                let docPath = instanceDir.appendingPathComponent(docName).path
-                if FileManager.default.fileExists(atPath: docPath) {
-                    return true
-                }
-            }
-        }
-        return false
-    }
-    
     class func deleteInstanceDirectory(instanceId:String) {
         if let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
             let instanceDir = dir.appendingPathComponent(instanceId, isDirectory: true)
@@ -480,23 +419,20 @@ class Utility: NSObject {
     }
     
     class func gmtStringFromDate(date: Date) -> String {
-        return stringFromDate(date: date, format: Constants.SERVER_EXP_DATE_FORMATE)
+        return stringFromDate(date: date, format: "yyyy-MM-dd'T'HH:mm:ss")
     }
     
-    class func UTCStringFromDate(date: Date) -> String {
-        return stringFromDate(date: date, format: Constants.SERVER_EXPECT_DATE_FORMAT_WITH_ZONE)
-    }
     
-    class func dateFromGMTdateString(dateStr: String, withTimeZone timezone:String?) -> Date {
+    class func dateFromGMTdateStrig(dateStr: String, withTimeZone timezone:String?) -> Date {
         let dateFormatter = DateFormatter()
         dateFormatter.timeZone = timezone == nil ? TimeZone.current : (NSTimeZone(name: timezone!) as TimeZone?)
-        dateFormatter.dateFormat = Constants.SERVER_EXP_DATE_FORMATE
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
         
         if let date = dateFormatter.date(from: dateStr) {
             return date
         }
         
-        dateFormatter.dateFormat = Constants.SERVER_EXP_DATE_FORMATE_2nd
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SS"
         if let date = dateFormatter.date(from: dateStr) {
             return date
         }

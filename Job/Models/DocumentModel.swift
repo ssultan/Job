@@ -41,75 +41,14 @@ class DocumentModel: NSObject {
     @objc dynamic var isDataNull: NSNumber?
     @objc dynamic var photoServerURL: String? // Server photo URL once that specific photo successfully got inserter into server file system and database
     @objc dynamic var isNeedToSend: NSNumber? // For only Update request. If user change the photo name or any attributes of the photo, then do not need to send the photo data; only metadata of the photo.
-    @objc dynamic var documentInstance: JobInstance?
-    @objc dynamic var documentAnswer: Answer?
-    @objc dynamic var isAddedByOthers: Bool = false
+    
+    
     
     override init() {
         
     }
     
-    init(forAnswerObject answer: Answer, withDocObject docObj:DocumentObj, forDocName photoName: String, completion:(Bool)->()) {
-        super.init()
-        self.answerId = answer.ansId
-        self.instanceId = answer.jobInstance?.instId
-        self.attribute = PhotoAttributesTypes.General.rawValue
-        self.attributeId = String(PhotoAttributesTypes.General.getAttributeId())
-        self.mimeType = Constants.ImageMimeType
-        self.type =  Constants.DocImageType
-        self.name = photoName
-        self.originalName = photoName
-        self.comment = ""
-        self.createdDate = NSDate()
-        self.exifDic = NSDictionary()
-        self.documentId = docObj.docId?.uppercased()
-        self.photoServerURL = docObj.documentURL
-        self.docServerId = String(docObj.docServerId)
-        self.isSent = NSNumber(value: true)
-        self.isNeedToSend = NSNumber(value: false)
-        self.isPhotoDeleted = NSNumber(value: false)
-        self.documentAnswer = answer
-        self.isAddedByOthers = true
-        completion(DBDocumentServices.insertNewPhoto(documentModel: self, isAddedByOtherUser: true))
-    }
-    
-    private func getDocId(forURL url: String) -> String {
-        var docId = UUID().uuidString
-        if let last = url.components(separatedBy: "/").last {
-            if last.components(separatedBy: ".").count > 1 {
-                docId = last.components(separatedBy: ".")[0]
-            }
-        }
-        return docId
-    }
-    
-    init(forInstance instance: JobInstance, withDocObject docObj:DocumentObj, forDocName photoName: String, completion:(Bool)->()){
-        super.init()
-        //https://clearthread.davacoinc.com/documents/Collection/CustomerId_11/TemplateId_16048/InstanceId_193807/AnswerId_6148016/eVbgRMaWu1-tyE_itvlm0g2.jpg
-
-        self.instanceId = instance.instId
-        self.attribute = PhotoAttributesTypes.FieldVisit.rawValue
-        self.attributeId = String(PhotoAttributesTypes.FieldVisit.getAttributeId())
-        self.mimeType = Constants.ImageMimeType
-        self.type =  Constants.DocImageType
-        self.name = photoName
-        self.originalName = photoName
-        self.comment = ""
-        self.createdDate = NSDate()
-        self.exifDic = NSDictionary()
-        self.documentId = docObj.docId?.uppercased()
-        self.photoServerURL = docObj.documentURL
-        self.docServerId = String (docObj.docServerId)
-        self.isSent = NSNumber(value: true)
-        self.isNeedToSend = NSNumber(value: false)
-        self.isPhotoDeleted = NSNumber(value: false)
-        self.documentInstance = instance
-        self.isAddedByOthers = true
-        completion(DBDocumentServices.insertNewPhoto(documentModel: self, isAddedByOtherUser: true))
-    }
-    
     init(document: Document) {
-        super.init()
         self.attribute = document.attribute
         self.attributeId = document.attributeId
         self.photoAttrType = document.photoAttrType
@@ -121,15 +60,14 @@ class DocumentModel: NSObject {
         self.mimeType = document.mimeType
         self.name = document.name
         self.originalName = document.originalName
-        self.sentTime = document.sentTime as NSDate?
-        self.createdDate = document.createdDate as NSDate?
+        self.sentTime = document.sentTime
+        self.createdDate = document.createdDate
         self.type = document.type
         self.photoServerURL = document.photoServerURL
         self.isNeedToSend = document.isNeedToSend
         self.isDataNull = document.isDataNull
         self.photo180GalleryPath = document.photo180GalleryPath
         self.isPhotoDeleted = document.isPhotoDeleted ?? NSNumber(value: false)
-        self.isAddedByOthers = document.isAddedByOthers
         
         if let instance = document.jobInstance {
             self.instanceId = instance.instId
@@ -256,7 +194,6 @@ class DocumentModel: NSObject {
             docJson[Constants.ApiRequestFields.Key_CategoryId] = 1 as AnyObject // For All photo type: 1
         }
         
-        print("++++ Sending Document InstanceId: \(String(describing: docJson[Constants.ApiRequestFields.Key_InstanceId])), AnswerId: \(String(describing: docJson[Constants.ApiRequestFields.Key_AnswerId])), DocId: \(String(describing: docJson[Constants.ApiRequestFields.Key_DocumentId]))")
         return docJson
     }
     
@@ -267,15 +204,11 @@ class DocumentModel: NSObject {
             
             if Utility.deleteImageFromDocumentDirectory(docName: self.originalName!, folderName: self.instanceId ?? "") {
                 if !Utility.deleteThumbnailImgDocumentFromDirectory(docName: self.originalName!, folderName: self.instanceId ?? "") {
-                    print("Failed to delete Thumb Image\(StringConstants.AppseeEventMessages.Failed_Delete_Thumb_Img) => \(self.originalName!)" )
-                }
-                if self.type == Constants.DocSignatureType && (self.isSent ?? 0).boolValue{
-                    DocumentDLManager.deleteSignatureFromServer(documentId: self.documentId!)
+                    //Appsee.addEvent("\(StringConstants.AppseeEventMessages.Failed_Delete_Thumb_Img) \(AppInfo.sharedInstance.username ?? "")", withProperties: ["ImgName": self.originalName!])
                 }
                 return true
             }
         }
-        print("Failed to delete Original Image: \(self.originalName!)" )
         return false
     }
     

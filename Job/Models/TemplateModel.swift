@@ -23,7 +23,6 @@ class TemplateModel: NSObject {
     @objc dynamic var templateType: String?
     @objc dynamic var lastUpdatedOn: NSDate?
     @objc dynamic var signatureRequired: Bool = false
-    @objc dynamic var isShared: Bool = false
     @objc dynamic var projectNumber: String?
     @objc dynamic var projectName: String?
     @objc dynamic var projectId: String?
@@ -41,8 +40,7 @@ class TemplateModel: NSObject {
         self.projectNumber = template.tempProject?.projectNumber
         self.projectName = template.tempProject?.projectName
         self.projectId = template.tempProject?.projectId
-        self.signatureRequired = (template.signatureRequired ?? NSNumber(value: false)).boolValue
-        self.isShared = (template.isShared ?? NSNumber(value: false)).boolValue
+        self.signatureRequired = (template.signatureRequired?.boolValue)!
         self.dbRawTempObj = template
         self.project = ProjectModel(template: template)
         

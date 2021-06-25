@@ -6,10 +6,7 @@
 //  Copyright (c) 2014 Jonas Gessner. All rights reserved.
 //
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wquoted-include-in-framework-header"
 #import "JGProgressHUDAnimation.h"
-#pragma clang diagnostic pop
 
 /**
  A simple fade animation that fades the HUD from alpha @c 0.0 to alpha @c 1.0.

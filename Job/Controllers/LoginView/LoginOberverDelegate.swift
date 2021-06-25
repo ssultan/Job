@@ -11,11 +11,10 @@ import Foundation
 @objc protocol LoginOberverDelegate {
     var templateDownloaded:Bool { get set }
     var locationDownloaded:Bool { get set }
-    var inCompleteJobStatusChecked:Bool { get set }
     
     func versionUpdateRequired(manifestModel: ManifestMapping)
     func loginSuccess(isOfflineLogin: Bool)
-    func startDLTempLocInJobs(forJobTemplates templateList:NSMutableArray, forProjectIdList projectList:NSMutableArray, forIncompleteJobList jobInsList: [JobInstanceModel])
+    func startDownloadingTemplates(_ jobDLList:NSMutableArray, _ projectIdList:NSMutableArray)
     func loginFailureWithError(_ errorJson: NSDictionary?, reqStatusCode: Int)
     func noTemplateAssignedError()
     

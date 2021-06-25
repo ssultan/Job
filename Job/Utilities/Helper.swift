@@ -1,6 +1,5 @@
 import Foundation
 import UIKit
-import FirebaseAnalytics
 
 class Helper: NSObject {
     
@@ -112,11 +111,6 @@ class Helper: NSObject {
         }
         return photoCount
     }
-    
-    class func setFireBaseScreenName(className: String) {
-        Analytics.setScreenName(Helper.getAppSeeScreenNameForClassName(screenName: className), screenClass: className)
-    }
-    
     
     class func getAppSeeScreenNameForClassName(screenName: String) -> String {
         

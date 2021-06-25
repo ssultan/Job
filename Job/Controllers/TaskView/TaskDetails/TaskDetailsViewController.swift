@@ -12,7 +12,6 @@ import ActionSheetPicker_3_0
 
 @objc protocol TaskDetailsDelegate {
     func triggerCompletedDate()
-    func triggerAnsChangedByAddingPhotoOrComment()
 }
 var DATE_FORMAT = "MMMM dd, yyyy hh:mm a"
 var LOWEST_ACCURACY_ALLOWED = 20
@@ -26,9 +25,6 @@ class TaskDetailsViewController: ParentTaskView, TaskDetailsDelegate {
     @IBOutlet weak var ckBoxComplete: UIButton!
     @IBOutlet weak var sliderView: StepSlider!
     @IBOutlet weak var sliderViewHeight: NSLayoutConstraint!
-    @IBOutlet weak var ckBoxNA: UIButton!
-    @IBOutlet weak var nalbl: UILabel!
-    
     var isStarted = false
     var isFinished = false
     var accuracy: Int = 100
@@ -37,8 +33,6 @@ class TaskDetailsViewController: ParentTaskView, TaskDetailsDelegate {
     var isSliderLoadFirst = true
     var triggerForTakePhoto = false
     var popViewController : PopUpViewControllerSwift!
-    var isAnswerChanged = false
-    var isNASelected = false
     
     //MARK: - View life Cycles
     override func initFun (jobVisitInfo: JobVisitModel, delegate: TaskViewDelegate) {
@@ -56,74 +50,49 @@ class TaskDetailsViewController: ParentTaskView, TaskDetailsDelegate {
         self.slideMaxIdx = UInt(MaxValue/accuracy + 1)
         self.setupSlider()
         
-        self.updateFields()
-        self.viewSetup()
         if let answer = self.jobVisit.answer {
-            if answer.value ?? "" == "na"  || answer.value ?? "" == "N/A" {
-                ckBoxNA.setBackgroundImage(UIImage(named: "CheckBoxSelected"), for: .normal)
-                isNASelected = true
-                
-                self.isStarted = false
-                self.isFinished = false
-                self.updateJobStart()
+            if let startDate = answer.startDate {
+                isStarted = true
+                ckBoxStart.setBackgroundImage(UIImage(named: "CheckBoxSelected"), for: .normal)
+                self.startDateTxb.text = Utility.stringFromDate(date: startDate as Date, format: DATE_FORMAT)
+            }
+            if let endDate = answer.endDate {
+                isFinished = true
+                ckBoxComplete.setBackgroundImage(UIImage(named: "CheckBoxSelected"), for: .normal)
+                self.completeDatetxb.text = Utility.stringFromDate(date: endDate as Date, format: DATE_FORMAT)
             }
         }
+        
+        self.startDateTxb.attributedPlaceholder = NSAttributedString(string: "placeholder text", attributes: [NSAttributedString.Key.foregroundColor: UIColor.lightGray])
+        self.completeDatetxb.attributedPlaceholder = NSAttributedString(string: "placeholder text", attributes: [NSAttributedString.Key.foregroundColor: UIColor.lightGray])
+        self.percentTxb.attributedPlaceholder = NSAttributedString(string: "placeholder text", attributes: [NSAttributedString.Key.foregroundColor: UIColor.lightGray])
+        
+        self.startDateTxb.placeholder = "Month DD, yyyy  hh:mm a"
+        self.completeDatetxb.placeholder = "Month DD, yyyy  hh:mm a"
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        
         if let task = jobVisit.task, let answer = jobVisit.answer {
-            let origAnsChanged = answer.isAnsChanged
-            let origAnsVal = (answer.value == nil || answer.value == "") ? "0" : answer.value!
-            let origAnsStDate = answer.startDate
-            let origAnsEdDate = answer.endDate
-            
             var taskCompleted = false
             answer.startDate = getDateFromTxb(txb: startDateTxb)
             answer.endDate = getDateFromTxb(txb: completeDatetxb)
             
-            if isNASelected {
-                answer.value = "na"
-                taskCompleted = true
-            }
-            else {
-                if let answerStr = percentTxb.text {
-                    if Int(truncating: task.required ?? 0) == 1 && isFinished {
-                        taskCompleted = true
-                        if Int(truncating: task.photoRequired ?? 0) == 1 && answer.ansDocuments.count == 0 { taskCompleted = false }
-                    }
-                    else if isFinished {
-                        if Bool(truncating: task.photoRequired ?? 0) && answer.ansDocuments.count == 0 { taskCompleted = false}
-                        else { taskCompleted = true }
-                    }
-                    answer.value = answerStr.components(separatedBy: "%")[0]
+            if let answerStr = percentTxb.text {
+                if Int(truncating: task.required ?? 0) == 1 && isFinished {
+                    taskCompleted = true
+                    if Int(truncating: task.photoRequired ?? 0) == 1 && answer.ansDocuments.count == 0 { taskCompleted = false }
                 }
-                else { answer.value = "0" }
+                else if isFinished {
+                    if Bool(truncating: task.photoRequired ?? 0) && answer.ansDocuments.count == 0 { taskCompleted = false}
+                    else { taskCompleted = true }
+                }
+                answer.value = answerStr.components(separatedBy: "%")[0]
             }
-            
+            else { answer.value = "0" }
             answer.isAnswerCompleted = NSNumber(value: taskCompleted)
-            answer.isAnsChanged = origAnsChanged ? true : self.checkIfAnswerChanged(updatedAns: answer, withVal: origAnsVal == "N/A" ? "na" : origAnsVal, withStartDate: origAnsStDate, withEndDate: origAnsEdDate) // if Already marked as changed, then no need to test it
             self.parentQDelegate.answerFromChild(answer: answer)
         }
-        
         super.viewWillDisappear(animated)
-    }
-    
-    fileprivate func checkIfAnswerChanged(updatedAns: AnswerModel, withVal value: String, withStartDate stDate:NSDate?, withEndDate edDate:NSDate?) -> Bool {
-        if (value == "" && updatedAns.value == "0") && stDate == nil {
-            return false
-        }
-        else if value != updatedAns.value {
-            print("old value: \(String(describing: value)) Vs New Answer: \(String(describing: updatedAns.value))")
-            return true
-        } else if stDate?.convertToString(format: Constants.SERVER_EXP_DATE_FORMATE) != updatedAns.startDate?.convertToString(format: Constants.SERVER_EXP_DATE_FORMATE) {
-            print("old value: \(String(describing: stDate)) Vs New Answer: \(String(describing: updatedAns.startDate))")
-            return true
-        } else if edDate?.convertToString(format: Constants.SERVER_EXP_DATE_FORMATE) != updatedAns.endDate?.convertToString(format: Constants.SERVER_EXP_DATE_FORMATE) {
-            print("old value: \(String(describing: edDate)) Vs New Answer: \(String(describing: updatedAns.endDate))")
-            return true
-        }
-        return false
     }
     
     override func viewWillLayoutSubviews() {
@@ -147,36 +116,6 @@ class TaskDetailsViewController: ParentTaskView, TaskDetailsDelegate {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         isSliderLoadFirst = false
-    }
-    
-    
-    fileprivate func viewSetup() {
-        self.startDateTxb.attributedPlaceholder = NSAttributedString(string: "placeholder text", attributes: [NSAttributedString.Key.foregroundColor: UIColor.lightGray])
-        self.completeDatetxb.attributedPlaceholder = NSAttributedString(string: "placeholder text", attributes: [NSAttributedString.Key.foregroundColor: UIColor.lightGray])
-        self.percentTxb.attributedPlaceholder = NSAttributedString(string: "placeholder text", attributes: [NSAttributedString.Key.foregroundColor: UIColor.lightGray])
-        
-        self.startDateTxb.placeholder = "Month DD, yyyy  hh:mm a"
-        self.completeDatetxb.placeholder = "Month DD, yyyy  hh:mm a"
-    }
-    
-    fileprivate func updateFields() {
-        if let answer = self.jobVisit.answer, let task = self.jobVisit.task {
-            if let startDate = answer.startDate {
-                isStarted = true
-                ckBoxStart.setBackgroundImage(UIImage(named: "CheckBoxSelected"), for: .normal)
-                self.startDateTxb.text = Utility.stringFromDate(date: startDate as Date, format: DATE_FORMAT)
-            }
-            if let endDate = answer.endDate {
-                isFinished = true
-                ckBoxComplete.setBackgroundImage(UIImage(named: "CheckBoxSelected"), for: .normal)
-                self.completeDatetxb.text = Utility.stringFromDate(date: endDate as Date, format: DATE_FORMAT)
-            }
-            
-            if Bool(truncating: task.allowNA ?? 0) {
-                ckBoxNA.isHidden = false
-                nalbl.isHidden = false
-            }
-        }
     }
     
     fileprivate func setupSlider() {
@@ -207,9 +146,6 @@ class TaskDetailsViewController: ParentTaskView, TaskDetailsDelegate {
     }
     
     @IBAction func sliderValueChanged(_ sender: StepSlider) {
-        if isNASelected && sender.index > 0 {
-            self.ckBoxNASelected(ckBoxNA)
-        }
         if isSliderLoadFirst { return }
         self.percentTxb.text = String(Int(sender.index) * accuracy) + "%"
         if !isStarted && sender.index > 0 { isStarted = true; updateJobStart() }
@@ -219,9 +155,6 @@ class TaskDetailsViewController: ParentTaskView, TaskDetailsDelegate {
     }
     
     @IBAction func ckBoxSelected(_ sender: UIButton) {
-        if isNASelected {
-            self.ckBoxNASelected(ckBoxNA)
-        }
         if sender.tag == 1 && !isFinished { isStarted = !isStarted; updateJobStart(); }
         else if sender.tag == 2 { isFinished = !isFinished; updateCompleteJob(); }
     }
@@ -274,23 +207,6 @@ class TaskDetailsViewController: ParentTaskView, TaskDetailsDelegate {
             self.updateCompleteJob()
         }
     }
-    
-    func triggerAnsChangedByAddingPhotoOrComment() {
-        self.jobVisit.answer.isAnsChanged = true
-    }
-    
-    //MARK: -
-    @IBAction func ckBoxNASelected(_ sender: UIButton) {
-        isNASelected = !isNASelected
-        ckBoxNA.setBackgroundImage(isNASelected ? UIImage(named: "CheckBoxSelected"):UIImage(named: "CheckBoxUnSelected"), for: .normal)
-        if isNASelected {
-            self.isStarted = false
-            self.isFinished = false
-            self.updateJobStart()
-        } else {
-            self.updateFields()
-        }
-    }
 }
 
 extension TaskDetailsViewController: UITextFieldDelegate {
@@ -299,7 +215,7 @@ extension TaskDetailsViewController: UITextFieldDelegate {
         if textField.tag == 1 && self.isStarted { return false }
         else if textField.tag == 2 && self.isFinished { return false }
         
-        let dateTimePicker = ActionSheetDatePicker(title: textField.tag == 1 ? "TASK START TIME" : "TASK END TIME",
+        let dateTimePicker = ActionSheetDatePicker(title: textField.tag == 1 ? "TAST START TIME" : "TASK END TIME",
                                                    datePickerMode: .dateAndTime, selectedDate: Date(),
         doneBlock: { (datePicker, selectedDate, index) in
             guard let selDate = selectedDate as? Date else { return }

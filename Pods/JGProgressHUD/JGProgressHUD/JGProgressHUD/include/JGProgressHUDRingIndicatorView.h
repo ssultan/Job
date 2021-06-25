@@ -6,15 +6,18 @@
 //  Copyright (c) 2014 Jonas Gessner. All rights reserved.
 //
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wquoted-include-in-framework-header"
+#import "JGProgressHUD-Defines.h"
 #import "JGProgressHUDIndicatorView.h"
-#pragma clang diagnostic pop
 
 /**
  A ring shaped determinate progress indicator.
  */
 @interface JGProgressHUDRingIndicatorView : JGProgressHUDIndicatorView
+
+/**
+ Initializes the indicator view and sets the correct color to match the HUD style.
+ */
+- (instancetype __nonnull)initWithHUDStyle:(JGProgressHUDStyle)style __attribute((deprecated(("This initializer is no longer needed. Use the init initializer method."))));
 
 /**
  Background color of the ring.

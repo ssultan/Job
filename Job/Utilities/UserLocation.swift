@@ -81,7 +81,7 @@ class UserLocation: NSObject, CLLocationManagerDelegate {
                                 let locDesc = "\(addressObj.locality ?? ""), \(addressObj.administrativeArea ?? ""), \(addressObj.country ?? "")"
                                 //Appsee.setLocationDescription(locDesc)
                                 //Appsee.setLocation(currentLoc.coordinate.latitude, longitude: currentLoc.coordinate.longitude, horizontalAccuracy: 0, verticalAccuracy: 0)
-                                Crashlytics.crashlytics().setCustomValue(locDesc, forKey: "GeoLocation")
+                                Crashlytics.sharedInstance().setObjectValue(locDesc, forKey: "GeoLocation")
                                 Analytics.logEvent("User_Location", parameters: ["Address": addressObj.locality ?? "",
                                                                                         "City": addressObj.administrativeArea ?? "",
                                                                                         "Country": addressObj.country ?? "",

@@ -13,15 +13,15 @@
 //
 
 import UIKit
-import FirebaseCrashlytics
+import Crashlytics
 import AudioToolbox
 import JGProgressHUD
 import Alamofire
-//import Appsee
+////import Appsee
 import Firebase
-//import FirebasePerformance
+import FirebasePerformance
 
-let stagingPassword = "Welcome1"
+let stagingPassword = ""
 let prodPassword = ""
 
 class LoginTextField: UITextField {
@@ -42,7 +42,6 @@ class LoginTextField: UITextField {
 }
 
 class LoginViewController: RootViewController, UITextFieldDelegate, LoginOberverDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIPopoverPresentationControllerDelegate {
-    
     internal func verifyEULAAcceptedForUser(_ userId: String, continueBlock: @escaping () -> ()) {
         self.eulaContinueBlock = continueBlock
         let termsVC = self.storyboard?.instantiateViewController(withIdentifier: "TermsConditionVC") as! TermsConditionViewController
@@ -74,8 +73,6 @@ class LoginViewController: RootViewController, UITextFieldDelegate, LoginOberver
     @IBOutlet weak var eyeIconImg: UIImageView!
     @IBOutlet weak var showHidePassBtn: UIButton!
     
-
-    var inCompleteJobStatusChecked = false
     var templateDownloaded = false
     var locationDownloaded = false
     var isTouchIdChanged = false
@@ -135,7 +132,7 @@ class LoginViewController: RootViewController, UITextFieldDelegate, LoginOberver
             }
             biometricPassSetup(isFirstLoad:true)
         } catch {
-            Crashlytics.crashlytics().setCustomValue("\(error)", forKey: "Error fetching password items") 
+            Crashlytics.sharedInstance().setObjectValue("\(error)", forKey: "Error fetching password items")
 //            //Appsee.addEvent("Error fetching Keychain password items", withProperties: [Constants.ApiRequestFields.Key_Username: AppInfo.sharedInstance.username ?? AppInfo.sharedInstance.deviceId, "Error":  "\(error)"])
         }
     }
@@ -355,16 +352,6 @@ class LoginViewController: RootViewController, UITextFieldDelegate, LoginOberver
                 UserDefaults.standard.setValue(Constants.Environments.kRelease, forKey: Constants.kSelectedEnvironment)
             #endif
         }))
-        alert.addAction(UIAlertAction(title: Constants.Environments.kApiTest, style: .default, handler:  { (alertAction) in
-            self.appInfo.setupEnvironment(enviroment: Constants.Environments.kApiTest)
-            self.environmentlbl.text = Constants.Environments.kApiTest
-            self.envPickerBt.setTitle(self.appInfo.baseURL, for: UIControl.State())
-            
-            #if DEBUG || STAGE
-            self.passwordTxtFi.text = prodPassword
-            UserDefaults.standard.setValue(Constants.Environments.kApiTest, forKey: Constants.kSelectedEnvironment)
-            #endif
-        }))
         alert.addAction(UIAlertAction(title: StringConstants.ButtonTitles.BTN_Cancel, style: .destructive, handler: {(alertAction) in
             self.dismiss(animated: true, completion: nil)
         }))
@@ -432,15 +419,14 @@ class LoginViewController: RootViewController, UITextFieldDelegate, LoginOberver
     }
     
     func callLoginProcess() {
-        self.templateDownloaded = false
-        self.locationDownloaded = false
-        self.inCompleteJobStatusChecked = false
+        templateDownloaded = false
+        locationDownloaded = false
         
-        self.totalItmNeedToDl = 0
-        self.totalItmDownloaded = 0
+        totalItmNeedToDl = 0
+        totalItmDownloaded = 0
         
-        self.changeTxtFiBorderColor(userNaTxtFi, isError: false)
-        self.changeTxtFiBorderColor(passwordTxtFi, isError: false)
+        changeTxtFiBorderColor(userNaTxtFi, isError: false)
+        changeTxtFiBorderColor(passwordTxtFi, isError: false)
         
         
         guard let userName = self.userNaTxtFi.text?.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines).lowercased(),
@@ -465,7 +451,8 @@ class LoginViewController: RootViewController, UITextFieldDelegate, LoginOberver
         //Set userId for the Appsee Session
 //        //Appsee.setUserID(userName)
         Analytics.setUserID(userName)
-        Crashlytics.crashlytics().setUserID(userName)
+        Crashlytics.sharedInstance().setUserName(userName)
+        Crashlytics.sharedInstance().setUserIdentifier(userName)
         
         self.passwordTxtFi.resignFirstResponder()
         loginBasedOnNetworkAvailability(userName, password)
@@ -525,7 +512,7 @@ class LoginViewController: RootViewController, UITextFieldDelegate, LoginOberver
     //MARK: - Login Delegate methods
     func loginSuccess(isOfflineLogin: Bool) {
         
-        if self.templateDownloaded && self.locationDownloaded && self.inCompleteJobStatusChecked { // All download finished
+        if templateDownloaded == true && locationDownloaded == true {
             self.loadingView.dismiss()
             
             //Turn OFF device dimming
@@ -542,16 +529,19 @@ class LoginViewController: RootViewController, UITextFieldDelegate, LoginOberver
             // This funcation will check if there is any orphan instance avilable, which is not associated with any template or location. If there is, then it will map the instance with template and location if available.
             self.loginReq.syncExistingInstances()
             
+            
             //Set userId for the Appsee Session
             if let userId = AppInfo.sharedInstance.username {
 //                //Appsee.setUserID(userId)
                 Analytics.setUserID(userId)
-                Crashlytics.crashlytics().setUserID(userId)
+                Crashlytics.sharedInstance().setUserName(userId)
+                Crashlytics.sharedInstance().setUserIdentifier(userId)
                 Analytics.logEvent(AnalyticsEventLogin, parameters: [AnalyticsParameterMethod: AppInfo.sharedInstance.username.contains(Constants.Anonymous_Initial2) ? "Anonymous" : "Employee", Constants.ApiRequestFields.Key_UserName: userId])
             }
             
             // Start background thread
             BackgroundServices.sharedInstance.startTimer()
+            
             
             //Go to main menu page
             let mainMenuVC = self.storyboard?.instantiateViewController(withIdentifier: "MainMenuVC") as! MainMenuViewController
@@ -591,15 +581,19 @@ class LoginViewController: RootViewController, UITextFieldDelegate, LoginOberver
     }
     
     
-    func startDLTempLocInJobs(forJobTemplates templateList:NSMutableArray, forProjectIdList projectList:NSMutableArray, forIncompleteJobList jobInsList: [JobInstanceModel]) {
+    func startDownloadingTemplates(_ jobDLList:NSMutableArray, _ projectIdList:NSMutableArray) {
+        
+        // Check if any of these list items are empty. If empty, then change the delegate boolean variable flag to true. Because based on these flags we will consider our users to login into our app and show the main menu of the app.
+        if jobDLList.count == 0 {
+            templateDownloaded = true
+        } else if projectIdList.count == 0 {
+            locationDownloaded = true
+        }
         
         // Count total number of items system needs to download. If the counter is 0, then skip the calling downlaod template and download location function call
-        self.totalItmNeedToDl = templateList.count + projectList.count + jobInsList.count
-        if self.totalItmNeedToDl == 0 {
+        totalItmNeedToDl = jobDLList.count + projectIdList.count
+        if totalItmNeedToDl == 0 {
             self.loadingView.dismiss(animated: true)
-            self.locationDownloaded = true
-            self.templateDownloaded = true
-            self.inCompleteJobStatusChecked = true
             self.loginSuccess(isOfflineLogin: false)
         }
         else {
@@ -608,23 +602,15 @@ class LoginViewController: RootViewController, UITextFieldDelegate, LoginOberver
             loadingView.indicatorView?.setProgress(0.0, animated: true)
             loadingView.show(in: self.view, animated: true)
             
-            if templateList.count > 0 {
-                let tempDL = TemplatesDLService()
-                tempDL.delegate = self
-                tempDL.fetchAllTemplates(templateList)
-            } else { self.templateDownloaded = true }
-
-            if projectList.count > 0 {
-                let locService = LocationWService()
-                locService.delegate = self
-                locService.fetchAllLocations(projectList: projectList)
-            } else { self.locationDownloaded = true }
             
-            if jobInsList.count > 0 {
-                let jobService = JobServices()
-                jobService.delegate = self
-                jobService.checkAllInstanceUpdate(instanceList: jobInsList)
-            } else { self.inCompleteJobStatusChecked = true }
+            let tempDL = TemplatesDLService()
+            tempDL.delegate = self
+            tempDL.fetchAllTemplates(jobDLList)
+
+
+            let locService = LocationWService()
+            locService.delegate = self
+            locService.fetchAllLocations(projectList: projectIdList)
         }
     }
     
@@ -780,7 +766,7 @@ class LoginViewController: RootViewController, UITextFieldDelegate, LoginOberver
     
     // MARK: - Older version of OS using
     func showOlderOSWarning(continueBlock: @escaping () -> ()) {
-        self.popViewController.showInView(self.view, withTitle: StringConstants.ButtonTitles.TLT_Caution, withMessage: StringConstants.StatusMessages.UNSUPPORTED_OS_VERSION, withCloseBtTxt: StringConstants.ButtonTitles.BTN_W_OK, withAcceptBt: nil, animated: true, isMessage: false, cancelBlock: {
+        self.popViewController.showInView(self.view, withTitle: StringConstants.ButtonTitles.TLT_Attention, withMessage: StringConstants.StatusMessages.UNSUPPORTED_OS_VERSION, withCloseBtTxt: StringConstants.ButtonTitles.BTN_Understood, withAcceptBt: nil, animated: true, isMessage: false, cancelBlock: {
             continueBlock()
         })
     }
@@ -901,7 +887,7 @@ class LoginViewController: RootViewController, UITextFieldDelegate, LoginOberver
                 
                 self.registerBioAuth()
             } catch {
-                Crashlytics.crashlytics().setCustomValue("\(error)", forKey: "Error Adding/Updating Keychain")
+                Crashlytics.sharedInstance().setObjectValue("\(error)", forKey: "Error Adding/Updating Keychain")
                 //Appsee.addEvent("Error adding/updating keychain", withProperties: [Constants.ApiRequestFields.Key_Username: AppInfo.sharedInstance.username ?? AppInfo.sharedInstance.deviceId, "Error":  "\(error)"])
             }
         }

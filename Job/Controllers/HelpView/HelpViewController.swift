@@ -21,7 +21,7 @@ class HelpViewController: RootViewController, UITableViewDelegate, UITableViewDa
     var helpArray = [StringConstants.MenuTitles.CALL_HELP_DESK, StringConstants.MenuTitles.EMAIL_HELP_DESK, StringConstants.MenuTitles.DOCUMENTATION, StringConstants.MenuTitles.SUPPORTED_DEVICES, StringConstants.MenuTitles.WHATS_NEW]
     let appInfo = AppInfo.sharedInstance
     var isFromMenu = false
-    var popupView : PopupWTxbInputView!
+    var popupView : BarcodeManualView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,7 +34,7 @@ class HelpViewController: RootViewController, UITableViewDelegate, UITableViewDa
         }
         
         if self.popupView == nil {
-            self.popupView = self.storyboard?.instantiateViewController(withIdentifier: "PopupWTxbInputV") as? PopupWTxbInputView
+            self.popupView = self.storyboard?.instantiateViewController(withIdentifier: "BarcodeManualVC") as? BarcodeManualView
         }
         
         if let user = UserModel.getUser(forUserName: AppInfo.sharedInstance.username!) {
