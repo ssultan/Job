@@ -116,10 +116,34 @@ extension URL {
 }
 
 extension NSDate {
-    public func convertToString(format:String = "yyyy-MM-dd'T'HH:mm:ss") -> String {
+    public func convertToString(format:String?) -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.timeZone = TimeZone.current
-        dateFormatter.dateFormat = format
+        dateFormatter.dateFormat = format == nil ? Constants.SERVER_EXP_DATE_FORMATE : format
         return dateFormatter.string(from: self as Date)
+    }
+}
+
+extension Date {
+    public func convertToString(format:String?) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.timeZone = TimeZone.current
+        dateFormatter.dateFormat = format == nil ? Constants.SERVER_EXP_DATE_FORMATE : format
+        return dateFormatter.string(from: self)
+    }
+}
+
+extension FileManager {
+    open func secureCopyItem(at srcURL: URL, to dstURL: URL) -> Bool {
+        do {
+            try FileManager.default.copyItem(at: srcURL, to: dstURL)
+            if FileManager.default.fileExists(atPath: dstURL.path) {
+                try FileManager.default.removeItem(at: dstURL)
+            }
+        } catch (let error) {
+            print("Cannot copy item at \(srcURL) to \(dstURL): \(error)")
+            return false
+        }
+        return true
     }
 }

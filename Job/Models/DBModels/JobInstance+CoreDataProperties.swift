@@ -27,6 +27,8 @@ extension JobInstance {
     @NSManaged public var isSentForProcessing: NSNumber?
     @NSManaged public var isSentOrUpdated: NSNumber?
     @NSManaged public var photoAckReceived: NSNumber?
+    @NSManaged public var isDeletedInstance: NSNumber?
+    @NSManaged public var percentCompleted: NSNumber?
     @NSManaged public var startDate: NSDate?
     @NSManaged public var status: String?
     @NSManaged public var succPhotoUploadTime: NSDate?
@@ -41,6 +43,7 @@ extension JobInstance {
     @NSManaged public var manifest: Manifest?
     @NSManaged public var templateId: String?
     @NSManaged public var templateName: String? // When assignemed a template, if there is an incompleted instance; then this will help us to find ou the instance.
+    @NSManaged public var lastUpdatedBy: String?
 }
 
 // MARK: Generated accessors for answers

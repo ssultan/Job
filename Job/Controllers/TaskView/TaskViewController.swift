@@ -135,6 +135,7 @@ class TaskViewController: RootViewController, TaskViewDelegate {
             if fvInfo.task != nil, let taskType = fvInfo.task.taskType {
                 if taskType == .ParentTask, let answer = fvInfo.answer {
                     answer.isAnswerCompleted = NSNumber(value: true)
+                    answer.value = "."
                     answer.syncAnswerToDB()
                 }
             }
@@ -446,6 +447,7 @@ class TaskViewController: RootViewController, TaskViewDelegate {
         //Appsee.addScreenAction(StringConstants.AppseeScreenAction.COMMENT_BTN_CLICKED)
         let commentView = self.storyboard!.instantiateViewController(withIdentifier: "CommentsVC") as! CommentsViewController
         commentView.answerModel = currentFB?.answer
+        commentView.taskDelegate = self.taskChildView as? TaskDetailsDelegate
         self.navigationController?.pushViewController(viewController: commentView, direction: NavPushDirection.Bottom)
     }
     

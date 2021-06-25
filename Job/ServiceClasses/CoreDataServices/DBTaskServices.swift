@@ -9,14 +9,13 @@
 import UIKit
 import CoreData
 
-class DBTaskServices: NSObject {
+class DBTaskServices: CoreDataBusiness {
     static var sharedInstance = DBTaskServices()
     var managedObjContext: NSManagedObjectContext!
     
     override init() {
         managedObjContext = CoreDataManager.sharedInstance.managedObjectContext
     }
-    
     
     func saveTask(_ taskModel: TaskMapping, template: JobTemplate, parentTask: Task?) {
         let task = NSEntityDescription.insertNewObject(forEntityName: Constants.EntityNames.TaskEntity, into: managedObjContext) as! Task
@@ -50,5 +49,15 @@ class DBTaskServices: NSObject {
         for subTask in taskModel.Children {
             self.saveTask(subTask, template: template, parentTask: task)
         }
+    }
+    
+    
+    class func getTaskObject(forTaskId taskId: Int) -> Task? {
+        let predicate = NSPredicate(format: "taskId = %d)", taskId)
+        
+        if let task = self.fetchData(CoreDataManager.sharedInstance.managedObjectContext, entityName: Constants.EntityNames.TaskEntity, shortDescriptor: nil, IsAscending: nil, fetchByPredicate: predicate).first as? Task {
+            return task
+        }
+        return nil
     }
 }

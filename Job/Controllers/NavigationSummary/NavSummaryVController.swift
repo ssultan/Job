@@ -13,6 +13,7 @@
 //
 
 import UIKit
+import JGProgressHUD
 
 class NavigationHeaderTVCell: UITableViewCell {
     
@@ -41,16 +42,15 @@ class NavigationHeaderTVCell: UITableViewCell {
 }
 
 class NavSummaryVController: RootViewController {
-
     @IBOutlet weak var summaryTB: UITableView!
     @IBOutlet weak var gotoTopBtn: UIButton!
     
-    
-    let summaryArray = [StringConstants.MenuTitles.UNANSWERED_ONLY, StringConstants.MenuTitles.JOB_VISIT_INFO]
-    let jobVisits: NSMutableArray = AppInfo.sharedInstance.selJobInstance.jobVisits
+    var summaryArray = [StringConstants.MenuTitles.UNANSWERED_ONLY, StringConstants.MenuTitles.JOB_VISIT_INFO]
+    var jobVisits: NSMutableArray = AppInfo.sharedInstance.selJobInstance.jobVisits
     let localFVs = NSMutableArray()
     var currTaskIdx:Int = 0
     var isShowingAllQ:Bool = true
+    var loadingView = JGProgressHUD(style: .extraLight)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -59,6 +59,10 @@ class NavSummaryVController: RootViewController {
         
         self.summaryTB.estimatedRowHeight = 150.0; // for example. Set your average height
         self.summaryTB.rowHeight = UITableView.automaticDimension;
+        
+        if AppInfo.sharedInstance.selJobInstance.template.isShared {
+            summaryArray = [StringConstants.MenuTitles.UNANSWERED_ONLY, StringConstants.MenuTitles.JOB_VISIT_INFO, StringConstants.MenuTitles.REFRESH_JOB_INFO]
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -137,7 +141,11 @@ extension NavSummaryVController: UITableViewDelegate, UITableViewDataSource {
             }
             if (indexPath.row == 0) {
                 cell.summTitleIcon.image = isShowingAllQ ? UIImage(named: "HideMinusIcon") : UIImage(named: "ShowAllIcon")
-            } else {
+            }
+            else if indexPath.row == 2 {
+                cell.summTitleIcon.image = UIImage(named: "RefreshIcon")
+            }
+            else {
                 cell.summTitleIcon.image = UIImage(named: "InfoIcon")
             }
             return cell
@@ -235,9 +243,25 @@ extension NavSummaryVController: UITableViewDelegate, UITableViewDataSource {
                     }
                 }
             }
+            else if indexPath.row == 2 {
+                getJobInstanceFromServer()
+            }
         }
         else {
             self.loadTask(rowIdx: indexPath)
+        }
+    }
+    
+    func getJobInstanceFromServer() {
+        self.loadingView.indicatorView = JGProgressHUDIndeterminateIndicatorView()
+        self.loadingView.textLabel.text = StringConstants.StatusMessages.LOADING_JOB_DETAILS
+        self.loadingView.show(in: self.view, animated: true)
+        
+        JobServices().getJobInstance(forInstance: AppInfo.sharedInstance.selJobInstance, isSummaryPage: true) { (updatedInst, instMapper) in
+            AppInfo.sharedInstance.selJobInstance = updatedInst
+            self.jobVisits = updatedInst.jobVisits
+            self.summaryTB.reloadData()
+            self.loadingView.dismiss()
         }
     }
     

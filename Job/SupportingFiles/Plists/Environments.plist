@@ -56,5 +56,14 @@
 		<key>HttpType</key>
 		<string>https://</string>
 	</dict>
+	<key>APITEST</key>
+	<dict>
+		<key>ResetDomain</key>
+		<string>portal.davacoinc.com</string>
+		<key>ServerURL</key>
+		<string>apitest.davacoinc.com</string>
+		<key>HttpType</key>
+		<string>https://</string>
+	</dict>
 </dict>
 </plist>

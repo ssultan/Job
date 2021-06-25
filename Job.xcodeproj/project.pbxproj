@@ -16,6 +16,9 @@
 		12255A11232AA89F0019B5A8 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 12255A10232AA89F0019B5A8 /* MapKit.framework */; };
 		1226DCF622DD0C3300A88A0E /* BgServiceErrorHandle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1226DCF422DD0C3300A88A0E /* BgServiceErrorHandle.swift */; };
 		1226DCF722DD0C3300A88A0E /* BackgroundServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1226DCF522DD0C3300A88A0E /* BackgroundServices.swift */; };
+		122DF8332530BD48009389D3 /* Document+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 122DF8312530BD48009389D3 /* Document+CoreDataClass.swift */; };
+		122DF8342530BD48009389D3 /* Document+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 122DF8322530BD48009389D3 /* Document+CoreDataProperties.swift */; };
+		122EA9FE24EDAB620023CBCA /* PopupWTxbInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 122EA9FD24EDAB620023CBCA /* PopupWTxbInputView.swift */; };
 		124CAA8123D605EE00F1F265 /* Segoe UI-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 124CAA7F23D605EE00F1F265 /* Segoe UI-Bold.ttf */; };
 		124CAA8223D605EE00F1F265 /* Segoe UI.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 124CAA8023D605EE00F1F265 /* Segoe UI.ttf */; };
 		124CAA8823D63AE300F1F265 /* Roboto-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 124CAA8623D63AE300F1F265 /* Roboto-Black.ttf */; };
@@ -55,6 +58,8 @@
 		1251B2BC2285B9A2001A0D4A /* BRRequest+_UserData.m in Sources */ = {isa = PBXBuildFile; fileRef = 1251B2B22285B9A2001A0D4A /* BRRequest+_UserData.m */; };
 		1251B2BD2285B9A2001A0D4A /* BRRequestListDirectory.m in Sources */ = {isa = PBXBuildFile; fileRef = 1251B2B32285B9A2001A0D4A /* BRRequestListDirectory.m */; };
 		1251B2BE2285B9A2001A0D4A /* BRRequestCreateDirectory.m in Sources */ = {isa = PBXBuildFile; fileRef = 1251B2B42285B9A2001A0D4A /* BRRequestCreateDirectory.m */; };
+		1260434C2538BD7200972258 /* Comment+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1260434A2538BD7200972258 /* Comment+CoreDataClass.swift */; };
+		1260434D2538BD7200972258 /* Comment+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1260434B2538BD7200972258 /* Comment+CoreDataProperties.swift */; };
 		1264051A22AE8587000D8A79 /* SignatureViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1264051922AE8587000D8A79 /* SignatureViewController.swift */; };
 		1264052422AE8FCF000D8A79 /* PhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1264051E22AE8FCE000D8A79 /* PhotoViewController.swift */; };
 		1264052522AE8FCF000D8A79 /* PageItemController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1264051F22AE8FCE000D8A79 /* PageItemController.swift */; };
@@ -67,6 +72,8 @@
 		1264053422AE9DF8000D8A79 /* TaskViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1264053322AE9DF7000D8A79 /* TaskViewController.swift */; };
 		1264053722AE9F1F000D8A79 /* InstructionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1264053622AE9F1F000D8A79 /* InstructionViewController.swift */; };
 		1264054122AEA250000D8A79 /* CommentsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1264054022AEA250000D8A79 /* CommentsViewController.swift */; };
+		1267CE2823CF836800F6AD47 /* JobInstanceMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1267CE2723CF836800F6AD47 /* JobInstanceMapping.swift */; };
+		1267CE2A23CF837A00F6AD47 /* InstanceStatusMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1267CE2923CF837A00F6AD47 /* InstanceStatusMapping.swift */; };
 		126F18EB22945ADE00F92EDE /* PhotoGalleryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 126F18EA22945ADE00F92EDE /* PhotoGalleryViewController.swift */; };
 		126F18FC229471A500F92EDE /* StartJobTvCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 126F18FB229471A500F92EDE /* StartJobTvCell.swift */; };
 		126F18FE229471D500F92EDE /* StartJobViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 126F18FD229471D500F92EDE /* StartJobViewController.swift */; };
@@ -74,16 +81,12 @@
 		126F19062294737D00F92EDE /* LocationCardCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 126F19022294737C00F92EDE /* LocationCardCell.swift */; };
 		126F19072294737D00F92EDE /* SelectLocationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 126F19032294737C00F92EDE /* SelectLocationViewController.swift */; };
 		126F19082294737D00F92EDE /* StateCityViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 126F19052294737C00F92EDE /* StateCityViewController.swift */; };
-		1273491E2289FD3300DD701A /* Document+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127349062289FD3300DD701A /* Document+CoreDataClass.swift */; };
-		1273491F2289FD3300DD701A /* Document+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127349072289FD3300DD701A /* Document+CoreDataProperties.swift */; };
 		127349202289FD3300DD701A /* ErrorLogs+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127349082289FD3300DD701A /* ErrorLogs+CoreDataClass.swift */; };
 		127349212289FD3300DD701A /* ErrorLogs+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127349092289FD3300DD701A /* ErrorLogs+CoreDataProperties.swift */; };
 		127349222289FD3300DD701A /* JobTemplate+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1273490A2289FD3300DD701A /* JobTemplate+CoreDataClass.swift */; };
 		127349232289FD3300DD701A /* JobTemplate+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1273490B2289FD3300DD701A /* JobTemplate+CoreDataProperties.swift */; };
 		127349242289FD3300DD701A /* Project+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1273490C2289FD3300DD701A /* Project+CoreDataClass.swift */; };
 		127349252289FD3300DD701A /* Project+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1273490D2289FD3300DD701A /* Project+CoreDataProperties.swift */; };
-		127349262289FD3300DD701A /* Comment+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1273490E2289FD3300DD701A /* Comment+CoreDataClass.swift */; };
-		127349272289FD3300DD701A /* Comment+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1273490F2289FD3300DD701A /* Comment+CoreDataProperties.swift */; };
 		127349282289FD3300DD701A /* ApiMessageLog+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127349102289FD3300DD701A /* ApiMessageLog+CoreDataClass.swift */; };
 		127349292289FD3300DD701A /* ApiMessageLog+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127349112289FD3300DD701A /* ApiMessageLog+CoreDataProperties.swift */; };
 		1273492A2289FD3300DD701A /* Task+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127349122289FD3300DD701A /* Task+CoreDataClass.swift */; };
@@ -141,6 +144,9 @@
 		12AA16642292EA9D0032121E /* DBLocationServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12AA16632292EA9D0032121E /* DBLocationServices.swift */; };
 		12AA16662292EB770032121E /* TaskMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12AA16652292EB770032121E /* TaskMapping.swift */; };
 		12AA16682292FEFB0032121E /* DBTaskServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12AA16672292FEFB0032121E /* DBTaskServices.swift */; };
+		12AB26BD2510FF5800DAAF67 /* Manifest+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12BD5AFD2369F3E00044EB6E /* Manifest+CoreDataClass.swift */; };
+		12AB26BE2510FF5C00DAAF67 /* Manifest+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12BD5AFE2369F3E00044EB6E /* Manifest+CoreDataProperties.swift */; };
+		12AB26BF2510FF9D00DAAF67 /* Location+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1292127D22EB32CB00A0583A /* Location+CoreDataProperties.swift */; };
 		12ACEDE02281CC860016456C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12ACEDDF2281CC860016456C /* AppDelegate.swift */; };
 		12ACEDE82281CC860016456C /* Job.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 12ACEDE62281CC860016456C /* Job.xcdatamodeld */; };
 		12ACEDEA2281CC890016456C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 12ACEDE92281CC890016456C /* Assets.xcassets */; };
@@ -165,16 +171,12 @@
 		12B0624222A55AA500CF474B /* JobVisitModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95A10229EC6D4008A4DF5 /* JobVisitModel.swift */; };
 		12B0624322A55AA500CF474B /* JobInstanceModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 126F18FF2294729E00F92EDE /* JobInstanceModel.swift */; };
 		12B0624422A55AA500CF474B /* ApiLogsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95A16229EDA73008A4DF5 /* ApiLogsModel.swift */; };
-		12B0624722A55AB100CF474B /* Document+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127349062289FD3300DD701A /* Document+CoreDataClass.swift */; };
-		12B0624822A55AB100CF474B /* Document+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127349072289FD3300DD701A /* Document+CoreDataProperties.swift */; };
 		12B0624922A55AB100CF474B /* ErrorLogs+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127349082289FD3300DD701A /* ErrorLogs+CoreDataClass.swift */; };
 		12B0624A22A55AB100CF474B /* ErrorLogs+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127349092289FD3300DD701A /* ErrorLogs+CoreDataProperties.swift */; };
 		12B0624B22A55AB100CF474B /* JobTemplate+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1273490A2289FD3300DD701A /* JobTemplate+CoreDataClass.swift */; };
 		12B0624C22A55AB100CF474B /* JobTemplate+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1273490B2289FD3300DD701A /* JobTemplate+CoreDataProperties.swift */; };
 		12B0624D22A55AB100CF474B /* Project+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1273490C2289FD3300DD701A /* Project+CoreDataClass.swift */; };
 		12B0624E22A55AB100CF474B /* Project+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1273490D2289FD3300DD701A /* Project+CoreDataProperties.swift */; };
-		12B0624F22A55AB100CF474B /* Comment+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1273490E2289FD3300DD701A /* Comment+CoreDataClass.swift */; };
-		12B0625022A55AB100CF474B /* Comment+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1273490F2289FD3300DD701A /* Comment+CoreDataProperties.swift */; };
 		12B0625122A55AB100CF474B /* ApiMessageLog+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127349102289FD3300DD701A /* ApiMessageLog+CoreDataClass.swift */; };
 		12B0625222A55AB100CF474B /* ApiMessageLog+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127349112289FD3300DD701A /* ApiMessageLog+CoreDataProperties.swift */; };
 		12B0625322A55AB100CF474B /* Task+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127349122289FD3300DD701A /* Task+CoreDataClass.swift */; };
@@ -242,6 +244,7 @@
 		12E95A13229ECD1E008A4DF5 /* JobServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95A12229ECD1E008A4DF5 /* JobServices.swift */; };
 		12E95A15229ED5F4008A4DF5 /* TaskServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95A14229ED5F4008A4DF5 /* TaskServices.swift */; };
 		12E95A17229EDA74008A4DF5 /* ApiLogsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E95A16229EDA73008A4DF5 /* ApiLogsModel.swift */; };
+		12FBB55324FD8A8600346F00 /* DocumentDLManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12FBB55224FD8A8600346F00 /* DocumentDLManager.swift */; };
 		FF6CC93C6CBC50910CC82A81 /* Pods_JobUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0ADDEA26440D7AA83BDAEE10 /* Pods_JobUITests.framework */; };
 /* End PBXBuildFile section */
 
@@ -273,6 +276,9 @@
 		12255A10232AA89F0019B5A8 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		1226DCF422DD0C3300A88A0E /* BgServiceErrorHandle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BgServiceErrorHandle.swift; sourceTree = "<group>"; };
 		1226DCF522DD0C3300A88A0E /* BackgroundServices.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackgroundServices.swift; sourceTree = "<group>"; };
+		122DF8312530BD48009389D3 /* Document+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Document+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
+		122DF8322530BD48009389D3 /* Document+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Document+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
+		122EA9FD24EDAB620023CBCA /* PopupWTxbInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupWTxbInputView.swift; sourceTree = "<group>"; };
 		124CAA7F23D605EE00F1F265 /* Segoe UI-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Segoe UI-Bold.ttf"; sourceTree = "<group>"; };
 		124CAA8023D605EE00F1F265 /* Segoe UI.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Segoe UI.ttf"; sourceTree = "<group>"; };
 		124CAA8623D63AE300F1F265 /* Roboto-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Roboto-Black.ttf"; sourceTree = "<group>"; };
@@ -324,6 +330,8 @@
 		1251B2B22285B9A2001A0D4A /* BRRequest+_UserData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "BRRequest+_UserData.m"; sourceTree = "<group>"; };
 		1251B2B32285B9A2001A0D4A /* BRRequestListDirectory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRRequestListDirectory.m; sourceTree = "<group>"; };
 		1251B2B42285B9A2001A0D4A /* BRRequestCreateDirectory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRRequestCreateDirectory.m; sourceTree = "<group>"; };
+		1260434A2538BD7200972258 /* Comment+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Comment+CoreDataClass.swift"; sourceTree = "<group>"; };
+		1260434B2538BD7200972258 /* Comment+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Comment+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		1264051922AE8587000D8A79 /* SignatureViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignatureViewController.swift; sourceTree = "<group>"; };
 		1264051E22AE8FCE000D8A79 /* PhotoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoViewController.swift; sourceTree = "<group>"; };
 		1264051F22AE8FCE000D8A79 /* PageItemController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PageItemController.swift; sourceTree = "<group>"; };
@@ -336,6 +344,8 @@
 		1264053322AE9DF7000D8A79 /* TaskViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskViewController.swift; sourceTree = "<group>"; };
 		1264053622AE9F1F000D8A79 /* InstructionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InstructionViewController.swift; sourceTree = "<group>"; };
 		1264054022AEA250000D8A79 /* CommentsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsViewController.swift; sourceTree = "<group>"; };
+		1267CE2723CF836800F6AD47 /* JobInstanceMapping.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JobInstanceMapping.swift; sourceTree = "<group>"; };
+		1267CE2923CF837A00F6AD47 /* InstanceStatusMapping.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InstanceStatusMapping.swift; sourceTree = "<group>"; };
 		126F18EA22945ADE00F92EDE /* PhotoGalleryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoGalleryViewController.swift; sourceTree = "<group>"; };
 		126F18FB229471A500F92EDE /* StartJobTvCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartJobTvCell.swift; sourceTree = "<group>"; };
 		126F18FD229471D500F92EDE /* StartJobViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartJobViewController.swift; sourceTree = "<group>"; };
@@ -343,16 +353,12 @@
 		126F19022294737C00F92EDE /* LocationCardCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationCardCell.swift; sourceTree = "<group>"; };
 		126F19032294737C00F92EDE /* SelectLocationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectLocationViewController.swift; sourceTree = "<group>"; };
 		126F19052294737C00F92EDE /* StateCityViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StateCityViewController.swift; sourceTree = "<group>"; };
-		127349062289FD3300DD701A /* Document+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Document+CoreDataClass.swift"; sourceTree = "<group>"; };
-		127349072289FD3300DD701A /* Document+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Document+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		127349082289FD3300DD701A /* ErrorLogs+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ErrorLogs+CoreDataClass.swift"; sourceTree = "<group>"; };
 		127349092289FD3300DD701A /* ErrorLogs+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ErrorLogs+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		1273490A2289FD3300DD701A /* JobTemplate+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JobTemplate+CoreDataClass.swift"; sourceTree = "<group>"; };
 		1273490B2289FD3300DD701A /* JobTemplate+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JobTemplate+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		1273490C2289FD3300DD701A /* Project+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Project+CoreDataClass.swift"; sourceTree = "<group>"; };
 		1273490D2289FD3300DD701A /* Project+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Project+CoreDataProperties.swift"; sourceTree = "<group>"; };
-		1273490E2289FD3300DD701A /* Comment+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Comment+CoreDataClass.swift"; sourceTree = "<group>"; };
-		1273490F2289FD3300DD701A /* Comment+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Comment+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		127349102289FD3300DD701A /* ApiMessageLog+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ApiMessageLog+CoreDataClass.swift"; sourceTree = "<group>"; };
 		127349112289FD3300DD701A /* ApiMessageLog+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ApiMessageLog+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		127349122289FD3300DD701A /* Task+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Task+CoreDataClass.swift"; sourceTree = "<group>"; };
@@ -451,6 +457,7 @@
 		12E95A12229ECD1E008A4DF5 /* JobServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobServices.swift; sourceTree = "<group>"; };
 		12E95A14229ED5F4008A4DF5 /* TaskServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskServices.swift; sourceTree = "<group>"; };
 		12E95A16229EDA73008A4DF5 /* ApiLogsModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApiLogsModel.swift; sourceTree = "<group>"; };
+		12FBB55224FD8A8600346F00 /* DocumentDLManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentDLManager.swift; sourceTree = "<group>"; };
 		1E708B82EF5A1BC5A3EEE9B5 /* Pods-JobTests.staging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JobTests.staging.xcconfig"; path = "Pods/Target Support Files/Pods-JobTests/Pods-JobTests.staging.xcconfig"; sourceTree = "<group>"; };
 		268BDC11A476664CEAD8E59E /* Pods-JobUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JobUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-JobUITests/Pods-JobUITests.release.xcconfig"; sourceTree = "<group>"; };
 		278B980B9E8D4A76126AD80D /* Pods-JobTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JobTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-JobTests/Pods-JobTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -727,6 +734,7 @@
 				12734948228B4C6800DD701A /* LoginService.swift */,
 				12AA165F2292EA230032121E /* LocationWService.swift */,
 				12AA16602292EA230032121E /* TemplatesDLService.swift */,
+				12FBB55224FD8A8600346F00 /* DocumentDLManager.swift */,
 				12E95A12229ECD1E008A4DF5 /* JobServices.swift */,
 				12E95A14229ED5F4008A4DF5 /* TaskServices.swift */,
 				1226DCF522DD0C3300A88A0E /* BackgroundServices.swift */,
@@ -808,6 +816,7 @@
 			children = (
 				12734941228A0BBE00DD701A /* BarcodeManualView.swift */,
 				1291006E2284C52500FA2168 /* PopUpViewControllerSwift.swift */,
+				122EA9FD24EDAB620023CBCA /* PopupWTxbInputView.swift */,
 			);
 			path = PopupView;
 			sourceTree = "<group>";
@@ -835,20 +844,20 @@
 		1291FFA92283708D00FA2168 /* DBModels */ = {
 			isa = PBXGroup;
 			children = (
+				1260434A2538BD7200972258 /* Comment+CoreDataClass.swift */,
+				1260434B2538BD7200972258 /* Comment+CoreDataProperties.swift */,
+				122DF8312530BD48009389D3 /* Document+CoreDataClass.swift */,
+				122DF8322530BD48009389D3 /* Document+CoreDataProperties.swift */,
 				12BD5AFD2369F3E00044EB6E /* Manifest+CoreDataClass.swift */,
 				12BD5AFE2369F3E00044EB6E /* Manifest+CoreDataProperties.swift */,
 				1292127C22EB32CB00A0583A /* Location+CoreDataClass.swift */,
 				1292127D22EB32CB00A0583A /* Location+CoreDataProperties.swift */,
-				127349062289FD3300DD701A /* Document+CoreDataClass.swift */,
-				127349072289FD3300DD701A /* Document+CoreDataProperties.swift */,
 				127349082289FD3300DD701A /* ErrorLogs+CoreDataClass.swift */,
 				127349092289FD3300DD701A /* ErrorLogs+CoreDataProperties.swift */,
 				1273490A2289FD3300DD701A /* JobTemplate+CoreDataClass.swift */,
 				1273490B2289FD3300DD701A /* JobTemplate+CoreDataProperties.swift */,
 				1273490C2289FD3300DD701A /* Project+CoreDataClass.swift */,
 				1273490D2289FD3300DD701A /* Project+CoreDataProperties.swift */,
-				1273490E2289FD3300DD701A /* Comment+CoreDataClass.swift */,
-				1273490F2289FD3300DD701A /* Comment+CoreDataProperties.swift */,
 				127349102289FD3300DD701A /* ApiMessageLog+CoreDataClass.swift */,
 				127349112289FD3300DD701A /* ApiMessageLog+CoreDataProperties.swift */,
 				127349122289FD3300DD701A /* Task+CoreDataClass.swift */,
@@ -866,6 +875,8 @@
 		1291FFF2228374EF00FA2168 /* MappingModels */ = {
 			isa = PBXGroup;
 			children = (
+				1267CE2923CF837A00F6AD47 /* InstanceStatusMapping.swift */,
+				1267CE2723CF836800F6AD47 /* JobInstanceMapping.swift */,
 				1251B2342285ADD5001A0D4A /* LocationMapping.swift */,
 				1251B2332285ADD5001A0D4A /* ManifestMapping.swift */,
 				1251B2352285ADD6001A0D4A /* TemplateMapping.swift */,
@@ -1093,6 +1104,7 @@
 				12ACEDDA2281CC860016456C /* Resources */,
 				6E4870D0F18C0C18C140F008 /* [CP] Copy Pods Resources */,
 				CAC7BF5A5183E6FC41B501C3 /* [CP] Embed Pods Frameworks */,
+				1293855325AE046E003A023B /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -1263,6 +1275,23 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		1293855325AE046E003A023B /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n";
+		};
 		6E4870D0F18C0C18C140F008 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1356,6 +1385,7 @@
 				1251B2B62285B9A2001A0D4A /* BRRequestError.m in Sources */,
 				1292127F22EB32CC00A0583A /* Location+CoreDataProperties.swift in Sources */,
 				127349282289FD3300DD701A /* ApiMessageLog+CoreDataClass.swift in Sources */,
+				12FBB55324FD8A8600346F00 /* DocumentDLManager.swift in Sources */,
 				127349302289FD3300DD701A /* Answer+CoreDataClass.swift in Sources */,
 				121F0FB422D648DF009BC071 /* StepSlider.m in Sources */,
 				1251B22A2285A9C8001A0D4A /* EVReflectionExt.swift in Sources */,
@@ -1372,16 +1402,18 @@
 				1251B2BA2285B9A2001A0D4A /* BRRequestQueue.m in Sources */,
 				126F19072294737D00F92EDE /* SelectLocationViewController.swift in Sources */,
 				12ACEE1A2281D13F0016456C /* BiometricAuthentication.swift in Sources */,
-				1273491F2289FD3300DD701A /* Document+CoreDataProperties.swift in Sources */,
 				12734939228A09A100DD701A /* MainMenuViewController.swift in Sources */,
 				12ACEE1B2281D13F0016456C /* LoginViewController.swift in Sources */,
 				1251B20622859E2E001A0D4A /* Utility.swift in Sources */,
 				12E95A15229ED5F4008A4DF5 /* TaskServices.swift in Sources */,
 				127349252289FD3300DD701A /* Project+CoreDataProperties.swift in Sources */,
 				1251B2B72285B9A2001A0D4A /* BRStreamInfo.m in Sources */,
+				122DF8332530BD48009389D3 /* Document+CoreDataClass.swift in Sources */,
 				127349242289FD3300DD701A /* Project+CoreDataClass.swift in Sources */,
+				1267CE2823CF836800F6AD47 /* JobInstanceMapping.swift in Sources */,
 				1251B2B82285B9A2001A0D4A /* BRRequestDownload.m in Sources */,
 				1251B20222859E2E001A0D4A /* KeychainPasswordItem.swift in Sources */,
+				1260434D2538BD7200972258 /* Comment+CoreDataProperties.swift in Sources */,
 				1273492E2289FD3300DD701A /* JobInstance+CoreDataClass.swift in Sources */,
 				127349292289FD3300DD701A /* ApiMessageLog+CoreDataProperties.swift in Sources */,
 				127349202289FD3300DD701A /* ErrorLogs+CoreDataClass.swift in Sources */,
@@ -1391,18 +1423,20 @@
 				1251B2BC2285B9A2001A0D4A /* BRRequest+_UserData.m in Sources */,
 				12E95A0D229EC3E2008A4DF5 /* DBAnswerServices.swift in Sources */,
 				126F19002294729E00F92EDE /* JobInstanceModel.swift in Sources */,
+				122EA9FE24EDAB620023CBCA /* PopupWTxbInputView.swift in Sources */,
 				1251B22F2285A9C8001A0D4A /* UIImageExt.swift in Sources */,
 				1273494F228B4CFD00DD701A /* CoreDataBusiness.swift in Sources */,
+				122DF8342530BD48009389D3 /* Document+CoreDataProperties.swift in Sources */,
 				1273492D2289FD3300DD701A /* User+CoreDataProperties.swift in Sources */,
 				1264054122AEA250000D8A79 /* CommentsViewController.swift in Sources */,
 				12C40DE522B2D92700A32687 /* TransmitReportViewController.swift in Sources */,
-				1273491E2289FD3300DD701A /* Document+CoreDataClass.swift in Sources */,
 				12ACEE2D2281D3280016456C /* RootViewController.swift in Sources */,
 				1251B22D2285A9C8001A0D4A /* iOSDevCenters+GIF.swift in Sources */,
 				126F18EB22945ADE00F92EDE /* PhotoGalleryViewController.swift in Sources */,
 				1264052E22AE99E3000D8A79 /* NavSummaryVController.swift in Sources */,
 				126F18FC229471A500F92EDE /* StartJobTvCell.swift in Sources */,
 				126F19082294737D00F92EDE /* StateCityViewController.swift in Sources */,
+				1260434C2538BD7200972258 /* Comment+CoreDataClass.swift in Sources */,
 				12D72BDD22DE2A68006B879B /* ReportTBHeaderCell.swift in Sources */,
 				127349222289FD3300DD701A /* JobTemplate+CoreDataClass.swift in Sources */,
 				12E95A17229EDA74008A4DF5 /* ApiLogsModel.swift in Sources */,
@@ -1410,7 +1444,6 @@
 				1264053722AE9F1F000D8A79 /* InstructionViewController.swift in Sources */,
 				1251B20322859E2E001A0D4A /* ErrorHandler.swift in Sources */,
 				129100702284C52500FA2168 /* PopUpViewControllerSwift.swift in Sources */,
-				127349262289FD3300DD701A /* Comment+CoreDataClass.swift in Sources */,
 				1264051A22AE8587000D8A79 /* SignatureViewController.swift in Sources */,
 				12ACEDE02281CC860016456C /* AppDelegate.swift in Sources */,
 				1264052522AE8FCF000D8A79 /* PageItemController.swift in Sources */,
@@ -1455,13 +1488,13 @@
 				1251B2372285ADD6001A0D4A /* LocationMapping.swift in Sources */,
 				1251B2322285AA73001A0D4A /* SlideMenuTableView.swift in Sources */,
 				1251B2B52285B9A2001A0D4A /* BRRequestDelete.m in Sources */,
-				127349272289FD3300DD701A /* Comment+CoreDataProperties.swift in Sources */,
 				1251B20422859E2E001A0D4A /* AppInfo.swift in Sources */,
 				1264053222AE9D00000D8A79 /* TaskFactory.swift in Sources */,
 				12AA1654228F52530032121E /* DBTemplateServices.swift in Sources */,
 				12E95A07229EC0CA008A4DF5 /* AnswerModel.swift in Sources */,
 				1251B2212285A0E8001A0D4A /* WebViewWithAuthVController.swift in Sources */,
 				1251B2382285ADD6001A0D4A /* TemplateMapping.swift in Sources */,
+				1267CE2A23CF837A00F6AD47 /* InstanceStatusMapping.swift in Sources */,
 				1273494E228B4CFD00DD701A /* CoreDataManager.swift in Sources */,
 				12E95A0F229EC3F9008A4DF5 /* DBErrorLogServices.swift in Sources */,
 				12E95A0B229EC3D7008A4DF5 /* DBDocumentServices.swift in Sources */,
@@ -1479,10 +1512,10 @@
 				12ACEDF82281CC8A0016456C /* JobTests.swift in Sources */,
 				12E4B6EC242E88A200ABA414 /* Location+CoreDataClass.swift in Sources */,
 				12B0627E22A56CE400CF474B /* ExtensionsTest.swift in Sources */,
+				12AB26BF2510FF9D00DAAF67 /* Location+CoreDataProperties.swift in Sources */,
 				12B0626122A55ABA00CF474B /* DBLocationServices.swift in Sources */,
 				12B0625122A55AB100CF474B /* ApiMessageLog+CoreDataClass.swift in Sources */,
 				12B0625722A55AB100CF474B /* JobInstance+CoreDataClass.swift in Sources */,
-				12B0624822A55AB100CF474B /* Document+CoreDataProperties.swift in Sources */,
 				12B0626922A55ABF00CF474B /* LocationWService.swift in Sources */,
 				12B0623622A55AA000CF474B /* Helper.swift in Sources */,
 				12B0623822A55AA000CF474B /* StringConstants.swift in Sources */,
@@ -1495,9 +1528,8 @@
 				12B0626F22A55AC700CF474B /* Extensions.swift in Sources */,
 				12B0626822A55ABF00CF474B /* LoginService.swift in Sources */,
 				12B0623B22A55AA500CF474B /* TemplateModel.swift in Sources */,
-				12B0624F22A55AB100CF474B /* Comment+CoreDataClass.swift in Sources */,
 				12B0627722A55C5500CF474B /* TaskMapping.swift in Sources */,
-				12B0624722A55AB100CF474B /* Document+CoreDataClass.swift in Sources */,
+				12AB26BE2510FF5C00DAAF67 /* Manifest+CoreDataProperties.swift in Sources */,
 				12B0624922A55AB100CF474B /* ErrorLogs+CoreDataClass.swift in Sources */,
 				12B0625522A55AB100CF474B /* User+CoreDataClass.swift in Sources */,
 				12B0624B22A55AB100CF474B /* JobTemplate+CoreDataClass.swift in Sources */,
@@ -1526,7 +1558,6 @@
 				12B0623E22A55AA500CF474B /* TaskModel.swift in Sources */,
 				12B0626522A55ABA00CF474B /* DBJobInstanceServices.swift in Sources */,
 				12B0625F22A55ABA00CF474B /* DBUserServices.swift in Sources */,
-				12B0625022A55AB100CF474B /* Comment+CoreDataProperties.swift in Sources */,
 				12B0626722A55ABF00CF474B /* BaseService.swift in Sources */,
 				12B0627522A55C5500CF474B /* ManifestMapping.swift in Sources */,
 				12B0623F22A55AA500CF474B /* CommentModel.swift in Sources */,
@@ -1534,6 +1565,7 @@
 				12B0626422A55ABA00CF474B /* DBDocumentServices.swift in Sources */,
 				12B0625922A55AB100CF474B /* Answer+CoreDataClass.swift in Sources */,
 				12B0624C22A55AB100CF474B /* JobTemplate+CoreDataProperties.swift in Sources */,
+				12AB26BD2510FF5800DAAF67 /* Manifest+CoreDataClass.swift in Sources */,
 				12B0624122A55AA500CF474B /* AnswerModel.swift in Sources */,
 				12B0623722A55AA000CF474B /* KeychainPasswordItem.swift in Sources */,
 				12B0627222A55AC700CF474B /* UIImageExt.swift in Sources */,
@@ -1651,7 +1683,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0.0.8;
+				MARKETING_VERSION = 2.0.1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.davacoinc.job;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1845,7 +1877,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0.0.8;
+				MARKETING_VERSION = 2.0.1.2;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.davacoinc.job;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1873,7 +1906,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0.0.8;
+				MARKETING_VERSION = 2.0.1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.davacoinc.job;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

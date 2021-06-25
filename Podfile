@@ -4,8 +4,6 @@ use_frameworks!
 
 target 'Job' do
 
-
-
 #    After running 'Pod Update' query
 #    Increase the reqeust timeout time in 'SessionManager' class
     pod 'Alamofire'
@@ -23,17 +21,14 @@ target 'Job' do
     pod 'ReachabilitySwift'
     pod 'SlideMenuControllerSwift'
     pod 'Zip'
-#    pod 'Appsee'
-#    pod 'Fabric', '~> 1.10.1'
-#    pod 'Crashlytics', '~> 3.13.1'
+
     pod 'Firebase/Analytics'
-    pod 'Firebase/Performance'
+    #pod 'Firebase/Performance'
     pod 'Firebase/Crashlytics'
     
     pod 'GoogleMaps'
     pod 'GooglePlaces'
     pod 'GooglePlacePicker'
-#    pod 'Smartlook'
 
     # After running 'Pod Update' query
     # Customize the Signature page. Remove the top navigation bar and add the buttons at the bottom of the page.
@@ -46,6 +41,16 @@ target 'Job' do
     pod 'EVReflection'
 
 
+
+        
+    #    pod 'Appsee'
+    #    pod 'Fabric', '~> 1.10.1'
+    #    pod 'Crashlytics', '~> 3.13.1'
+    #    pod 'Smartlook'
+    #    pod 'UXCam'
+    #    pod 'UserX', '0.15.3'
+    
+    
 
   target 'JobTests' do
     inherit! :search_paths

@@ -113,6 +113,7 @@ class UserModel: NSObject {
                 let distance = coordinate.distance(from: userLocation)
                 if distance > Double(manifest.minWorkDistance*1609) {
                     continueBlock(false, manifest.minWorkDistance)
+                    return
                 }
             }
         }

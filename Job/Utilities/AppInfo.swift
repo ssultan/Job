@@ -51,6 +51,7 @@ class AppInfo: NSObject {
     @objc static let sharedInstance = AppInfo()
     var userRole: String = ""
     var bgTimeStart: Date!
+    var downloadAltShown: Bool = false
     
     
     override init() {
@@ -115,6 +116,10 @@ class AppInfo: NSObject {
                 else if enviroment == Constants.Environments.kProdUAT {
                     detailDic = envDic.object(forKey: UAT) as! NSDictionary
                     self.environment = Constants.Environments.kProdUAT
+                }
+                else if enviroment == Constants.Environments.kApiTest {
+                    detailDic = envDic.object(forKey: enviroment) as! NSDictionary
+                    self.environment = Constants.Environments.kApiTest
                 }
                 else {
                     detailDic = envDic.object(forKey: RELEASE) as! NSDictionary
