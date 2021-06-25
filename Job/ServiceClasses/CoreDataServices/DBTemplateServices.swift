@@ -50,7 +50,7 @@ class DBTemplateServices: NSObject {
     }
     
     
-    func getDownloadableJobListAfterDBsync(_ templateMoList: NSMutableArray, manifest: Manifest, completionHandler:(_ needToDLTempList:NSMutableArray, _ needToDLLocList:NSMutableArray)->()) {
+    func getDownloadableJobListAfterDBsync(_ templateMoList: NSMutableArray, manifest: Manifest, completionHandler:(_ needToDLTempList:NSMutableArray, _ needToDLLocList:NSMutableArray, _ inCompleteJobs:[JobInstanceModel])->()) {
         
         let needToDLTemplates = NSMutableArray()
         let needToDLLocations = NSMutableArray()
@@ -134,7 +134,10 @@ class DBTemplateServices: NSObject {
             }
         }
         
-        completionHandler(needToDLTemplates, needToDLLocations)
+        // Get All imcomplete or complete Job list
+        JobServices.loadJobInstance(completion: { (instanceList) in // ??? is it going to be only for incomplete job or for both? Now its retrieve both
+            completionHandler(needToDLTemplates, needToDLLocations, instanceList)
+        })
     }
     
     
@@ -144,9 +147,10 @@ class DBTemplateServices: NSObject {
         template.lastUpdatedOn = templateModel.LastUpdatedOn as NSDate?
         template.templateShortDesc = templateModel.ShortDescription
         template.templateName = templateModel.Name
-        template.signatureRequired = templateModel.SignatureRequired as NSNumber?
+        template.signatureRequired = NSNumber(value: templateModel.SignatureRequired)
         template.templateType = templateModel.TypeName
         template.templateLongDesc = templateModel.LongDescription
+        template.isShared = NSNumber(value:templateModel.IsShared)
         template.tempProject = project
         
         do {

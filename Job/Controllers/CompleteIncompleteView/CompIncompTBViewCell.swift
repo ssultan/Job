@@ -47,23 +47,23 @@ class CompIncompTBViewCell: UITableViewCell {
         self.templateName.text = instance.templateName ?? "Unknown"
         self.projectNumber.text = "Proj Num: \(instance.projectNumber ?? "")"
         self.storeNumber.text = "Loc Num: \(instance.storeNumber ?? "")"
+        if (instance.percentCompleted.intValue == 100) {
+            self.backgroundView = UIImageView(image: UIImage(named: "CellBgImgBlue"))
+        }
         
         // Change the color of the survey instance, if the survey received an error at the time of sending instance.
         if NSInteger(truncating: NSNumber(value: instance.errorCode)) == SendProcErrorCode.InsertFailed.rawValue ||
             NSInteger(truncating: NSNumber(value: instance.errorCode)) == SendProcErrorCode.InstDoesNotExistOrDeletedInServerDB.rawValue {
-            self.templateName.textColor = .red
-            self.projectNumber.textColor = .red
-            self.storeNumber.textColor = .red
+            self.updateColor(to: .red)
         }
         else if instance.template == nil || instance.location == nil  {
-            self.templateName.textColor = .gray
-            self.projectNumber.textColor = .gray
-            self.storeNumber.textColor = .gray
+            self.updateColor(to: .gray)
+        }
+        else if Bool(truncating: instance.isCompleted) {
+            self.updateColor(to: Utility.UIColorFromRGB(Constants.LOGO_YELLOW_COLOR))
         }
         else {
-            self.templateName.textColor = .white
-            self.projectNumber.textColor = .white
-            self.storeNumber.textColor = .white
+            self.updateColor(to: .white)
         }
         
         if instance.template == nil || instance.location == nil {
@@ -72,5 +72,11 @@ class CompIncompTBViewCell: UITableViewCell {
         else {
             self.checkBoxBt.isEnabled = true
         }
+    }
+    
+    func updateColor(to color: UIColor) {
+        self.templateName.textColor = color
+        self.projectNumber.textColor = color
+        self.storeNumber.textColor = color
     }
 }

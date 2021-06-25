@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="U4d-Af-r5I">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="U4d-Af-r5I">
     <device id="retina5_9" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17126"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <customFonts key="customFonts">
@@ -43,7 +43,7 @@
                                 </constraints>
                             </imageView>
                             <textField opaque="NO" clipsSubviews="YES" tag="1" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="USERNAME" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="oZH-oZ-QPi" customClass="LoginTextField" customModule="Job" customModuleProvider="target">
-                                <rect key="frame" x="105" y="297.66666666666669" width="225" height="21"/>
+                                <rect key="frame" x="105" y="297" width="225" height="22.666666666666686"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="height" relation="lessThanOrEqual" constant="45" id="wGd-xm-3nl"/>
@@ -82,7 +82,7 @@
                                 </attributedString>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="85u-3w-uHR">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="85u-3w-uHR">
                                 <rect key="frame" x="67" y="532.33333333333337" width="241" height="36"/>
                                 <connections>
                                     <action selector="forgotPassBtAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="EjI-uA-n4T"/>
@@ -211,7 +211,7 @@ Please consider upgrading.</string>
                                     <action selector="loginBtAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="kc2-4U-Boy"/>
                                 </connections>
                             </button>
-                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MVD-5Q-9nJ">
+                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MVD-5Q-9nJ">
                                 <rect key="frame" x="302" y="298.33333333333331" width="20" height="20"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="20" id="1VY-wN-s4Z"/>
@@ -224,7 +224,7 @@ Please consider upgrading.</string>
                                     </segue>
                                 </connections>
                             </button>
-                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AnD-BN-tnR">
+                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AnD-BN-tnR">
                                 <rect key="frame" x="302" y="369.33333333333331" width="20" height="20"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="20" id="ZKG-uZ-DA8"/>
@@ -257,13 +257,13 @@ Please consider upgrading.</string>
                                     <constraint firstAttribute="width" secondItem="Ztl-r8-dUh" secondAttribute="height" multiplier="1:1" id="exO-bY-ztd"/>
                                 </constraints>
                             </imageView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Bdt-Fl-LNb">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Bdt-Fl-LNb">
                                 <rect key="frame" x="45" y="285.33333333333331" width="60" height="46"/>
                                 <connections>
                                     <action selector="userFieldInitialSpaceingBtnAction" destination="BYZ-38-t0r" eventType="touchUpInside" id="Wzx-HP-bWC"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="f7a-O6-UnF">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="f7a-O6-UnF">
                                 <rect key="frame" x="45" y="356.33333333333331" width="60" height="46"/>
                                 <connections>
                                     <action selector="passFieldInitialSpaceingBtnAction" destination="BYZ-38-t0r" eventType="touchUpInside" id="fRt-4N-ncD"/>
@@ -276,7 +276,7 @@ Please consider upgrading.</string>
                                     <constraint firstAttribute="width" constant="24" id="yun-a2-BeQ"/>
                                 </constraints>
                             </imageView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sIy-my-0zL">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sIy-my-0zL">
                                 <rect key="frame" x="286" y="356.33333333333331" width="44" height="46"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="44" id="Jly-Qk-v29"/>
@@ -437,7 +437,7 @@ Please consider upgrading.</string>
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="778"/>
                             </imageView>
                             <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="You have not sent any jobs yet." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MK6-lM-IHJ">
-                                <rect key="frame" x="69" y="395.66666666666669" width="237" height="21"/>
+                                <rect key="frame" x="70.000000000000014" y="395.66666666666669" width="235.33333333333337" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
@@ -1544,7 +1544,7 @@ Please consider upgrading.</string>
                                 <rect key="frame" x="0.0" y="90" width="375" height="568.66666666666663"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                             </view>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1W6-8l-fHR">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1W6-8l-fHR">
                                 <rect key="frame" x="0.0" y="0.0" width="70" height="65"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="70" id="6eC-bw-4Th"/>
@@ -1554,7 +1554,7 @@ Please consider upgrading.</string>
                                     <action selector="goBackToPreviousTask" destination="3lj-Jj-9Mu" eventType="touchUpInside" id="Vij-zy-MNf"/>
                                 </connections>
                             </button>
-                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NLR-SE-yLq">
+                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NLR-SE-yLq">
                                 <rect key="frame" x="305" y="0.0" width="70" height="65"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="70" id="FcW-1G-0th"/>
@@ -1732,7 +1732,7 @@ Please consider upgrading.</string>
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="778"/>
                             </imageView>
                             <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="You have no template assigned" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cTm-yU-Wy9">
-                                <rect key="frame" x="69.000000000000014" y="351.66666666666669" width="237.33333333333337" height="21"/>
+                                <rect key="frame" x="69.666666666666686" y="351.66666666666669" width="236" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
@@ -1827,7 +1827,7 @@ Please consider upgrading.</string>
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="778"/>
                             </imageView>
                             <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="You have no field visits" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DsN-Qt-WnE">
-                                <rect key="frame" x="100.66666666666669" y="244" width="174" height="21"/>
+                                <rect key="frame" x="101.33333333333333" y="244" width="172.33333333333337" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
@@ -1845,7 +1845,7 @@ Please consider upgrading.</string>
                                             <rect key="frame" x="0.0" y="0.0" width="355" height="78"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mpt-hy-MfN">
+                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mpt-hy-MfN">
                                                     <rect key="frame" x="15" y="25" width="28" height="28"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="28" id="CDg-Qb-cHQ"/>
@@ -1947,7 +1947,7 @@ Please consider upgrading.</string>
                                             <action selector="checkAllBtnAction" destination="lrJ-b7-gzx" eventType="touchUpInside" id="r6M-cE-jhN"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Zhh-KO-QfL">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Zhh-KO-QfL">
                                         <rect key="frame" x="31.666666666666671" y="32.333333333333258" width="30" height="30"/>
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="Zhh-KO-QfL" secondAttribute="height" multiplier="1:1" id="Ae7-xU-I5u"/>
@@ -2134,7 +2134,7 @@ Please consider upgrading.</string>
                                     <outlet property="delegate" destination="djx-JK-cv4" id="0AL-GG-Teu"/>
                                 </connections>
                             </tableView>
-                            <button hidden="YES" opaque="NO" alpha="0.84999999999999998" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uXU-Gv-BPE">
+                            <button hidden="YES" opaque="NO" alpha="0.84999999999999998" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uXU-Gv-BPE">
                                 <rect key="frame" x="285" y="688" width="70" height="70"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="uXU-Gv-BPE" secondAttribute="height" multiplier="500:499" id="FmH-yK-cvA"/>
@@ -2713,7 +2713,7 @@ Please consider upgrading.</string>
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="724"/>
                             </imageView>
                             <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Please logout and log back in to see the list" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DoG-Et-4Tw">
-                                <rect key="frame" x="22.333333333333343" y="369" width="330.33333333333326" height="20.333333333333314"/>
+                                <rect key="frame" x="23.333333333333343" y="369" width="328.33333333333326" height="20.333333333333314"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
@@ -2813,7 +2813,7 @@ Please consider upgrading.</string>
                                                         <constraint firstAttribute="width" constant="1" id="jhG-84-TqX"/>
                                                     </constraints>
                                                 </view>
-                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lmM-64-QSA">
+                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lmM-64-QSA">
                                                     <rect key="frame" x="0.0" y="106" width="177" height="64"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="64" id="YCL-W9-YzI"/>
@@ -2824,7 +2824,7 @@ Please consider upgrading.</string>
                                                         <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     </state>
                                                 </button>
-                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0os-o1-0bH">
+                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0os-o1-0bH">
                                                     <rect key="frame" x="177" y="106" width="178" height="64"/>
                                                     <fontDescription key="fontDescription" name="SegoeUI" family="Segoe UI" pointSize="15"/>
                                                     <inset key="titleEdgeInsets" minX="35" minY="-12" maxX="0.0" maxY="0.0"/>
@@ -3083,7 +3083,7 @@ Please consider upgrading.</string>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
-                        <color key="backgroundColor" cocoaTouchSystemColor="darkTextColor"/>
+                        <color key="backgroundColor" systemColor="darkTextColor"/>
                         <constraints>
                             <constraint firstItem="IKB-Wn-hc4" firstAttribute="top" secondItem="ZeW-QD-Jtz" secondAttribute="bottom" constant="8" id="0JO-vX-Kf1"/>
                             <constraint firstAttribute="trailing" secondItem="PRh-OV-ahN" secondAttribute="trailing" constant="8" id="5jv-w9-cJe"/>
@@ -3415,7 +3415,7 @@ Please consider upgrading.</string>
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="778"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                             </imageView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MYq-nq-llc">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MYq-nq-llc">
                                 <rect key="frame" x="198" y="702" width="142" height="50"/>
                                 <fontDescription key="fontDescription" name="SegoeUI" family="Segoe UI" pointSize="19"/>
                                 <state key="normal" title="DONE" backgroundImage="BlueBtn">
@@ -3516,7 +3516,7 @@ Please consider upgrading.</string>
                                     <outlet property="delegate" destination="LlE-4Q-zmh" id="XME-qk-m8e"/>
                                 </connections>
                             </collectionView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xN2-Aj-v1l">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xN2-Aj-v1l">
                                 <rect key="frame" x="35" y="702" width="142" height="50"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="xN2-Aj-v1l" secondAttribute="height" multiplier="142:50" id="zee-xi-8zg"/>
@@ -3611,10 +3611,10 @@ Please consider upgrading.</string>
             </objects>
             <point key="canvasLocation" x="4447.5" y="-517.6056338028169"/>
         </scene>
-        <!--Barcode Manual View-->
+        <!--PopupW Txb Input View-->
         <scene sceneID="ao2-os-M1c">
             <objects>
-                <viewController storyboardIdentifier="BarcodeManualVC" id="rCn-6r-5qI" customClass="BarcodeManualView" customModule="Job" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="PopupWTxbInputV" id="rCn-6r-5qI" customClass="PopupWTxbInputView" customModule="Job" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="iLi-aj-qvJ"/>
                         <viewControllerLayoutGuide type="bottom" id="3XQ-Dw-gBB"/>
@@ -3674,13 +3674,19 @@ Please consider upgrading.</string>
                                             <action selector="closePopup:" destination="rCn-6r-5qI" eventType="touchUpInside" id="lwF-rc-qgW"/>
                                         </connections>
                                     </button>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jDf-Wl-ebX">
+                                        <rect key="frame" x="10" y="53" width="270" height="0.0"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="TxtFieldBlck" translatesAutoresizingMaskIntoConstraints="NO" id="k3r-Uq-Q6i">
                                         <rect key="frame" x="16" y="63" width="258" height="36"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="36" id="fhE-zf-2ob"/>
                                         </constraints>
                                     </imageView>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GZc-wz-qHk">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GZc-wz-qHk">
                                         <rect key="frame" x="16" y="119" width="30" height="30"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="30" id="5Ki-8t-4oZ"/>
@@ -3699,7 +3705,7 @@ Please consider upgrading.</string>
                                         </constraints>
                                     </imageView>
                                     <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="INSERT BARCODE NUMBER" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="JW0-75-dlQ">
-                                        <rect key="frame" x="26" y="70" width="243" height="19"/>
+                                        <rect key="frame" x="26" y="70" width="243" height="20.333333333333329"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <fontDescription key="fontDescription" name="SegoeUI" family="Segoe UI" pointSize="16"/>
@@ -3711,6 +3717,7 @@ Please consider upgrading.</string>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
+                                    <constraint firstItem="jDf-Wl-ebX" firstAttribute="top" secondItem="pSh-62-Bpt" secondAttribute="bottom" constant="5" id="2pD-cH-kOx"/>
                                     <constraint firstItem="t6K-fp-QCe" firstAttribute="width" secondItem="Zj8-t5-lmG" secondAttribute="width" id="2pZ-Od-88D"/>
                                     <constraint firstItem="k3r-Uq-Q6i" firstAttribute="centerX" secondItem="G4m-3H-3eG" secondAttribute="centerX" id="2yT-VU-ba2"/>
                                     <constraint firstItem="JW0-75-dlQ" firstAttribute="trailing" secondItem="k3r-Uq-Q6i" secondAttribute="trailing" constant="-5" id="4YB-Ai-AP2"/>
@@ -3718,10 +3725,12 @@ Please consider upgrading.</string>
                                     <constraint firstItem="pSh-62-Bpt" firstAttribute="top" secondItem="G4m-3H-3eG" secondAttribute="top" id="96d-ZC-tC5"/>
                                     <constraint firstAttribute="trailing" secondItem="t6K-fp-QCe" secondAttribute="trailing" constant="10" id="9A7-HO-6pg"/>
                                     <constraint firstItem="pSh-62-Bpt" firstAttribute="leading" secondItem="G4m-3H-3eG" secondAttribute="leading" id="CKA-nv-6Hc"/>
+                                    <constraint firstAttribute="trailing" secondItem="jDf-Wl-ebX" secondAttribute="trailing" constant="10" id="Gia-WH-lhn"/>
                                     <constraint firstItem="Zj8-t5-lmG" firstAttribute="top" secondItem="cgz-mT-no5" secondAttribute="bottom" constant="25" id="Ij8-Hz-7RI"/>
                                     <constraint firstItem="JW0-75-dlQ" firstAttribute="leading" secondItem="k3r-Uq-Q6i" secondAttribute="leading" constant="10" id="Lge-Id-gVo"/>
                                     <constraint firstItem="t6K-fp-QCe" firstAttribute="leading" secondItem="Zj8-t5-lmG" secondAttribute="trailing" id="NWa-5k-hDX"/>
                                     <constraint firstItem="t6K-fp-QCe" firstAttribute="width" secondItem="Zj8-t5-lmG" secondAttribute="width" id="Od0-RR-QMf"/>
+                                    <constraint firstItem="k3r-Uq-Q6i" firstAttribute="top" secondItem="jDf-Wl-ebX" secondAttribute="bottom" constant="10" id="P19-g8-uqG"/>
                                     <constraint firstItem="cgz-mT-no5" firstAttribute="centerY" secondItem="GZc-wz-qHk" secondAttribute="centerY" id="S3g-91-trs"/>
                                     <constraint firstAttribute="trailing" secondItem="pSh-62-Bpt" secondAttribute="trailing" id="USX-yG-J6x"/>
                                     <constraint firstItem="cgz-mT-no5" firstAttribute="leading" secondItem="GZc-wz-qHk" secondAttribute="trailing" constant="10" id="Ujw-4X-WCF"/>
@@ -3730,7 +3739,6 @@ Please consider upgrading.</string>
                                     <constraint firstItem="ZG8-2B-mU1" firstAttribute="centerX" secondItem="G4m-3H-3eG" secondAttribute="centerX" constant="25" id="YEd-h2-kCp"/>
                                     <constraint firstAttribute="trailing" secondItem="k3r-Uq-Q6i" secondAttribute="trailing" constant="16" id="Yg5-dN-pe0"/>
                                     <constraint firstItem="JW0-75-dlQ" firstAttribute="top" secondItem="k3r-Uq-Q6i" secondAttribute="top" constant="7" id="Z5T-wH-Nto"/>
-                                    <constraint firstItem="k3r-Uq-Q6i" firstAttribute="top" secondItem="pSh-62-Bpt" secondAttribute="bottom" constant="15" id="bhJ-eM-I8e"/>
                                     <constraint firstItem="t6K-fp-QCe" firstAttribute="leading" secondItem="Zj8-t5-lmG" secondAttribute="trailing" constant="10" id="drv-nl-51R"/>
                                     <constraint firstItem="t6K-fp-QCe" firstAttribute="height" secondItem="Zj8-t5-lmG" secondAttribute="height" id="f11-us-C9Q"/>
                                     <constraint firstAttribute="bottom" secondItem="t6K-fp-QCe" secondAttribute="bottom" constant="15" id="hia-OW-Nkl"/>
@@ -3741,6 +3749,7 @@ Please consider upgrading.</string>
                                     <constraint firstItem="ZG8-2B-mU1" firstAttribute="leading" secondItem="7ca-GU-qa4" secondAttribute="trailing" constant="10" id="lF9-p8-mBX"/>
                                     <constraint firstItem="GZc-wz-qHk" firstAttribute="leading" secondItem="k3r-Uq-Q6i" secondAttribute="leading" id="r0v-LM-eHF"/>
                                     <constraint firstAttribute="trailing" secondItem="cgz-mT-no5" secondAttribute="trailing" constant="10" id="vLi-c5-aCz"/>
+                                    <constraint firstItem="jDf-Wl-ebX" firstAttribute="leading" secondItem="G4m-3H-3eG" secondAttribute="leading" constant="10" id="wW2-os-Efv"/>
                                 </constraints>
                                 <variation key="default">
                                     <mask key="constraints">
@@ -3771,6 +3780,7 @@ Please consider upgrading.</string>
                         <outlet property="checkBoxNoBC" destination="GZc-wz-qHk" id="6Wy-og-SY0"/>
                         <outlet property="closeBt" destination="Zj8-t5-lmG" id="EaX-hO-i5Y"/>
                         <outlet property="popUpView" destination="G4m-3H-3eG" id="rIc-nL-UcW"/>
+                        <outlet property="subTitleLbl" destination="jDf-Wl-ebX" id="hRd-nA-Smt"/>
                         <outlet property="titleImg" destination="7ca-GU-qa4" id="iIC-05-M5M"/>
                         <outlet property="titleLbl" destination="ZG8-2B-mU1" id="bm4-yh-osQ"/>
                         <outlet property="userEntryBox" destination="JW0-75-dlQ" id="xq1-AD-tfC"/>
@@ -3778,7 +3788,7 @@ Please consider upgrading.</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="K7F-OC-d3i" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1254" y="165"/>
+            <point key="canvasLocation" x="2748" y="-518"/>
         </scene>
         <!--Instruction View Controller-->
         <scene sceneID="XHk-ch-Nu3">
@@ -3801,7 +3811,7 @@ Please consider upgrading.</string>
                                             <constraint firstAttribute="height" constant="48" id="mg7-kZ-fBB"/>
                                         </constraints>
                                     </imageView>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MEJ-0q-5G1">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MEJ-0q-5G1">
                                         <rect key="frame" x="57" y="529" width="211" height="50"/>
                                         <constraints>
                                             <constraint firstAttribute="width" relation="lessThanOrEqual" constant="300" id="1v3-EC-lK7"/>
@@ -3865,7 +3875,7 @@ Please consider upgrading.</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Px8-yW-38Z" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="4112" y="839"/>
+            <point key="canvasLocation" x="4086" y="903"/>
         </scene>
         <!--Comments View Controller-->
         <scene sceneID="qrL-gr-pL1">
@@ -4298,9 +4308,13 @@ Please consider upgrading.</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Cye-f6-TLz" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1886.9565217391305" y="164.67391304347828"/>
+            <point key="canvasLocation" x="1889" y="275"/>
         </scene>
     </scenes>
+    <inferredMetricsTieBreakers>
+        <segue reference="m49-cZ-JbQ"/>
+        <segue reference="fLU-9w-med"/>
+    </inferredMetricsTieBreakers>
     <resources>
         <image name="ArrowLeftBigIcon" width="125" height="125"/>
         <image name="ArrowRightIcon" width="125" height="125"/>
@@ -4354,9 +4368,8 @@ Please consider upgrading.</string>
         <image name="exclamationRed.png" width="13.567839622497559" height="13.567839622497559"/>
         <image name="navbar_new.png" width="2051" height="89"/>
         <image name="whatsNewIcon" width="128" height="128"/>
+        <systemColor name="darkTextColor">
+            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
     </resources>
-    <inferredMetricsTieBreakers>
-        <segue reference="m49-cZ-JbQ"/>
-        <segue reference="pn7-wu-vdh"/>
-    </inferredMetricsTieBreakers>
 </document>

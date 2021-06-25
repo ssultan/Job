@@ -16,7 +16,10 @@ extension BackgroundServices {
             NotificationCenter.default.post(name: NSNotification.Name(rawValue: Constants.NotificationsName.ReloadReportTableNotifier), object: nil,
                                             userInfo: [KeyInstanceId: clientId,
                                                        KeyStatus : status,
-                                                       KeyUserId : instance.user.userName ?? appInfo.deviceId])
+                                                       KeyUserId : instance.user.userName ?? appInfo.deviceId,
+                                                       Constants.BgUIUpdateNotifierKeys.KeyInstProjId: instance.project.projectId ?? "",
+                                                       Constants.BgUIUpdateNotifierKeys.KeyInstTempId: instance.template.templateId ?? "",
+                                                       Constants.BgUIUpdateNotifierKeys.KeyInstLocId: instance.location.locationId ?? ""])
         }
     }
     
@@ -139,7 +142,7 @@ extension BackgroundServices {
                                 jobInstance.isSent = NSNumber(value: true)
 //                                self.initiateDocumentSendProcess(jobInstance: jobInstance, isUpdating: false)
                                 
-                                let failedToSend = self.sendDocumentsforInstance(instance: jobInstance)
+                                let failedToSend = self.sendDocumentsforInstance(instanceObj: jobInstance)
                                 jobInstance.updateInstAfterPhotoUploadProcessCompleted(forNumOfFailed: failedToSend, andUpdating: isUpdating)
                             }
                         }
@@ -206,7 +209,10 @@ extension BackgroundServices {
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: Constants.NotificationsName.ReloadReportTableNotifier),
                                             object: nil, userInfo: [KeyInstanceId: jobInstance.instId!,
                                                                     KeyStatus : StringConstants.StatusMessages.TokenExpired,
-                                                                    KeyInstServerId: serverId])
+                                                                    KeyInstServerId: serverId,
+                                                                    Constants.BgUIUpdateNotifierKeys.KeyInstProjId: jobInstance.project.projectId ?? "",
+                                                                    Constants.BgUIUpdateNotifierKeys.KeyInstTempId: jobInstance.template.templateId ?? "",
+                                                                    Constants.BgUIUpdateNotifierKeys.KeyInstLocId: jobInstance.location.locationId ?? ""])
             }
             Analytics.logEvent(StringConstants.AppseeEventMessages.Token_Expired_BG_SendProcess, parameters: ["UserId": jobInstance.user.userName ?? appInfo.deviceId])
             

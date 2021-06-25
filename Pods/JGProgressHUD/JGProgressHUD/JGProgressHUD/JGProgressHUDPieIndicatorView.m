@@ -95,14 +95,7 @@
         self.color = [UIColor clearColor];
         self.fillColor = [UIColor clearColor];
     }
-    UIActivityIndicatorView *activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    [activityIndicatorView startAnimating];
-    activityIndicatorView.color = [UIColor blackColor];
-    CGRect frame = activityIndicatorView.frame;
-    frame.origin.x = frame.origin.x + 7.5;
-    frame.origin.y = frame.origin.y + 7.5;
-    activityIndicatorView.frame = frame;
-    [super addSubview:activityIndicatorView];
+    
     return self;
 }
 
@@ -163,6 +156,14 @@
     else {
         self.color = [UIColor colorWithRed:(float)13.0/255.0 green:(float)104.0/255.0 blue:(float)223.0/255.0 alpha:1.0];
         self.fillColor = [UIColor whiteColor];
+
+//        self.color = [UIColor blackColor];
+//        if (style == JGProgressHUDStyleLight) {
+//            self.fillColor = [UIColor colorWithWhite:0.85 alpha:1.0];
+//        }
+//        else {
+//            self.fillColor = [UIColor colorWithWhite:0.9 alpha:1.0];
+//        }
     }
 }
 

@@ -31,6 +31,7 @@ class CompIncompViewController: RootViewController {
     var isCompleteInstance: Bool = false      // Based on this flag, we will deceide that we are going to show Incomplete Survey or Complete Survey.
     var instanceArray =  [JobInstanceModel]() // This array will contain the list of instance that is not being completed yet or Completed
     var checkTrackerArray = [Bool]()
+    var popupView : PopupWTxbInputView!
     
     @IBOutlet weak var sendBtn: UIButton!
     @IBOutlet weak var selAllBtn: UIButton!
@@ -54,17 +55,11 @@ class CompIncompViewController: RootViewController {
 
         self.loadingView.textLabel.text = StringConstants.StatusMessages.PLEASE_WAIT_MSG
         self.loadingView.show(in: self.view, animated: true)
+        self.loadJobInstances()
         
-        JobServices.loadJobInstance(isCompleted: isCompleteInstance, completion: { (instanceList) in
-            self.loadingView.dismiss()
-            instanceArray = instanceList
-            
-            if instanceArray.count == 0 {
-                self.noInstancesAvailable()
-            } else {
-                checkTrackerArray = [Bool]( repeating: false, count: instanceArray.count )
-            }
-        })
+        if self.popupView == nil {
+            self.popupView = self.storyboard?.instantiateViewController(withIdentifier: "PopupWTxbInputV") as? PopupWTxbInputView
+        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -74,6 +69,20 @@ class CompIncompViewController: RootViewController {
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    fileprivate func loadJobInstances(){
+        JobServices.loadJobInstance(completion: { (instanceList) in
+            self.loadingView.dismiss()
+            instanceArray = instanceList
+            self.instanceTBView.reloadData()
+            
+            if instanceArray.count == 0 {
+                self.noInstancesAvailable()
+            } else {
+                checkTrackerArray = [Bool]( repeating: false, count: instanceArray.count )
+            }
+        })
     }
     
     fileprivate func noInstancesAvailable() {
@@ -129,13 +138,6 @@ class CompIncompViewController: RootViewController {
             let isSelected = checkTrackerArray[btnTag]
             checkTrackerArray[btnTag] = !isSelected
             checkUncheckBtn(sender: sender as! UIButton, isChecked: checkTrackerArray[btnTag])
-
-            if btnTag < instanceArray.count {
-                let instance = instanceArray[btnTag]
-                if let location = instance.location {
-                    //Appsee.addScreenAction(checkTrackerArray[btnTag] ? "'\(instance.templateName ?? "")', Loc #\(location.storeNumber ?? "") Checked" : "'\(instance.templateName ?? "")', Loc #\(location.storeNumber ?? "") UnChecked")
-                }
-            }
         }
     }
     
@@ -214,11 +216,11 @@ class CompIncompViewController: RootViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         guard let indexPath = instanceTBView.indexPathForSelectedRow else {return}
         instanceTBView.deselectRow(at: indexPath, animated: true)
-        
+
         let instance = instanceArray[indexPath.row]
         AppInfo.sharedInstance.selJobInstance = instance
         //Appsee.addScreenAction("'\(instance.template.templateName ?? "XXX")', Loc #\(instance.location.storeNumber ?? "XXX") Selected")
-        
+
         let jobInfo = segue.destination as! JobVisitInfoViewController
         jobInfo.instance = instance
     }
@@ -267,6 +269,46 @@ extension CompIncompViewController: UITableViewDelegate, UITableViewDataSource {
         cell.checkBoxBt.tag = indexPath.row
         cell.checkBoxBt.addTarget(self, action: #selector(checkBtnAction(sender:)), for: .touchUpInside)
         cell.checkBoxBt.setBackgroundImage(UIImage(named: checkTrackerArray[indexPath.row] ? "CheckBoxSelected" : "CheckBoxUnSelected"), for: .normal)
+        
+        let longGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(recognizer:)))
+        longGesture.minimumPressDuration = 5.0
+        longGesture.allowableMovement = 100.0
+        cell.addGestureRecognizer(longGesture)
         return cell
+    }
+    
+//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//        instanceTBView.deselectRow(at: indexPath, animated: true)
+//
+//        let instance = instanceArray[indexPath.row]
+//        AppInfo.sharedInstance.selJobInstance = instance
+//        //Appsee.addScreenAction("'\(instance.template.templateName ?? "XXX")', Loc #\(instance.location.storeNumber ?? "XXX") Selected")
+//
+//
+//        let jobInfo = self.storyboard?.instantiateViewController(withIdentifier: "JobVisitInfoVC") as! JobVisitInfoViewController
+//        jobInfo.instance = instance
+//        self.navigationController?.pushViewController(jobInfo, animated: true)
+//    }
+    
+    @objc func handleLongPress(recognizer: UILongPressGestureRecognizer) {
+        if recognizer.state == .began {
+            self.popupView.showInView(parentView: self.view, withTxbString: "", popupType: PopupWithTxbType.DeleteIntance)
+            { (deleteTxt, isChecked) in
+                print("Deleted Text: ", deleteTxt)
+                if (deleteTxt == StringConstants.ButtonTitles.BTN_DELETE){
+                    let tapLocation = recognizer.location(in: self.instanceTBView)
+                    print("Print location Tap: ", tapLocation)
+                    if let tapIndexPath = self.instanceTBView.indexPathForRow(at: tapLocation) {
+                        if let tappedCell = self.instanceTBView.cellForRow(at: tapIndexPath) as? CompIncompTBViewCell {
+                            print("Delete instruction Received: ", tappedCell)
+                            
+                            let instance = self.instanceArray[tapIndexPath.row]
+                            DBJobInstanceServices.markInstanceAsDeleted(forInstId: instance.instId!)
+                            self.loadJobInstances()
+                        }
+                    }
+                }
+            }
+        }
     }
 }

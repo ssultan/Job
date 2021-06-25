@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="16119" systemVersion="19D76" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="17192" systemVersion="19H2" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Answer" representedClassName=".Answer" syncable="YES">
         <attribute name="ansId" optional="YES" attributeType="String"/>
         <attribute name="ansServerId" optional="YES" attributeType="String"/>
+        <attribute name="docCountInServer" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="endDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="flagStatus" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
+        <attribute name="isAnsChanged" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="isCompleted" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
         <attribute name="startDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="taskId" optional="YES" attributeType="String"/>
@@ -31,12 +33,16 @@
     </entity>
     <entity name="Comment" representedClassName=".Comment" syncable="YES">
         <attribute name="commentId" optional="YES" attributeType="String"/>
+        <attribute name="commentParentId" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="commentServerId" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="commentText" optional="YES" attributeType="String"/>
         <attribute name="createdBy" optional="YES" attributeType="String"/>
         <attribute name="createdDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="flagStatus" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="isComDeleted" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="isFlag" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="lastUpdatedBy" optional="YES" attributeType="String"/>
+        <attribute name="lastUpdatedOn" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <relationship name="answerComment" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Answer" inverseName="comments" inverseEntity="Answer"/>
         <relationship name="instanceComment" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JobInstance" inverseName="comments" inverseEntity="JobInstance"/>
     </entity>
@@ -49,6 +55,7 @@
         <attribute name="docTags" optional="YES" attributeType="String"/>
         <attribute name="documentId" attributeType="String"/>
         <attribute name="exifDic" optional="YES" attributeType="String"/>
+        <attribute name="isAddedByOthers" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="isDataNull" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
         <attribute name="isNeedToSend" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
         <attribute name="isPhotoDeleted" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
@@ -82,10 +89,13 @@
         <attribute name="instServerId" optional="YES" attributeType="String"/>
         <attribute name="isCompleted" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
         <attribute name="isCompleteNSend" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
+        <attribute name="isDeletedInstance" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="isSent" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
         <attribute name="isSentForProcessing" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
         <attribute name="isSentOrUpdated" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
+        <attribute name="lastUpdatedBy" optional="YES" attributeType="String"/>
         <attribute name="locationId" optional="YES" attributeType="String"/>
+        <attribute name="percentCompleted" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="photoAckReceived" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
         <attribute name="startDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="status" optional="YES" attributeType="String"/>
@@ -102,6 +112,7 @@
         <relationship name="manifest" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Manifest" inverseName="jobInstance" inverseEntity="Manifest"/>
     </entity>
     <entity name="JobTemplate" representedClassName=".JobTemplate" syncable="YES">
+        <attribute name="isShared" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="lastUpdatedOn" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="signatureRequired" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
         <attribute name="templateId" optional="YES" attributeType="String"/>
@@ -222,13 +233,13 @@
         <relationship name="manifest" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="Manifest" inverseName="user" inverseEntity="Manifest"/>
     </entity>
     <elements>
-        <element name="Answer" positionX="-150.26171875" positionY="-22.5390625" width="128" height="240"/>
+        <element name="Answer" positionX="-150.26171875" positionY="-22.5390625" width="128" height="268"/>
         <element name="ApiMessageLog" positionX="346.23828125" positionY="179.5234375" width="128" height="225"/>
-        <element name="Comment" positionX="68.58203125" positionY="246.56640625" width="128" height="180"/>
-        <element name="Document" positionX="677.83203125" positionY="244" width="128" height="420"/>
+        <element name="Comment" positionX="68.58203125" positionY="246.56640625" width="128" height="238"/>
+        <element name="Document" positionX="677.83203125" positionY="244" width="128" height="433"/>
         <element name="ErrorLogs" positionX="-146.05859375" positionY="634.66796875" width="128" height="135"/>
-        <element name="JobInstance" positionX="-803.16796875" positionY="-45.4921875" width="128" height="405"/>
-        <element name="JobTemplate" positionX="679.26953125" positionY="-56.28125" width="128" height="195"/>
+        <element name="JobInstance" positionX="-803.16796875" positionY="-45.4921875" width="128" height="448"/>
+        <element name="JobTemplate" positionX="679.26953125" positionY="-56.28125" width="128" height="208"/>
         <element name="Location" positionX="-846.99609375" positionY="537.875" width="128" height="255"/>
         <element name="Manifest" positionX="-353.20703125" positionY="-96.734375" width="128" height="238"/>
         <element name="Project" positionX="-285.6875" positionY="420.484375" width="128" height="225"/>
